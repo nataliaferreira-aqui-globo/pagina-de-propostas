@@ -6479,7 +6479,7 @@ function renderPaymentTab(m) {
                 ? 'bg-primary-light text-primary'
                 : 'bg-ds-bg text-ds-textSecondary'
             }">
-              ${state.paymentMethod === 'pix' ? (state.pixGenerated ? 'QR Code gerado' : 'Selecionado') : 'Aprovação imediata'}
+              ${state.paymentMethod === 'pix' ? (state.pixGenerated ? (mobile ? 'Código gerado' : 'QR Code gerado') : 'Selecionado') : 'Aprovação imediata'}
             </span>
           </button>
 
@@ -6490,29 +6490,31 @@ function renderPaymentTab(m) {
                   <div class="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary">
-                        <i class="uil uil-qrcode-scan text-xs"></i> Pix gerado · Aguardando pagamento
+                        <i class="uil ${mobile ? 'uil-copy' : 'uil-qrcode-scan'} text-xs"></i> Pix gerado · Aguardando pagamento
                       </span>
-                      <h4 class="font-display font-bold text-sm text-ds-textMain mt-0.5">Escaneie o QR Code ou copie o código</h4>
+                      <h4 class="font-display font-bold text-sm text-ds-textMain mt-0.5">${mobile ? 'Copie o código Pix Copia e Cola' : 'Escaneie o QR Code ou copie o código'}</h4>
                     </div>
                     <span class="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-bold text-amber-800">Expira em 15:00</span>
                   </div>
 
-                  <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center sim-grid-1">
-                    <div class="sm:col-span-4 flex flex-col items-center justify-center p-3 bg-white rounded-xl border border-ds-borderStrong">
-                      <svg class="w-24 h-24 text-ds-textMain" viewBox="0 0 100 100" fill="currentColor">
-                        <rect x="8" y="8" width="26" height="26" fill="none" stroke="currentColor" stroke-width="6"/>
-                        <rect x="15" y="15" width="12" height="12"/>
-                        <rect x="66" y="8" width="26" height="26" fill="none" stroke="currentColor" stroke-width="6"/>
-                        <rect x="73" y="15" width="12" height="12"/>
-                        <rect x="8" y="66" width="26" height="26" fill="none" stroke="currentColor" stroke-width="6"/>
-                        <rect x="15" y="73" width="12" height="12"/>
-                        <rect x="42" y="10" width="6" height="6"/><rect x="52" y="10" width="6" height="12"/>
-                        <rect x="42" y="24" width="10" height="6"/><rect x="40" y="38" width="18" height="6"/>
-                        <rect x="12" y="42" width="14" height="6"/><rect x="30" y="48" width="8" height="12"/>
-                        <rect x="46" y="48" width="12" height="8"/><rect x="64" y="42" width="10" height="14"/>
-                      </svg>
-                    </div>
-                    <div class="sm:col-span-8 space-y-2">
+                  <div class="grid grid-cols-1 ${mobile ? '' : 'sm:grid-cols-12'} gap-3.5 items-center sim-grid-1">
+                    ${!mobile ? `
+                      <div class="sm:col-span-4 flex flex-col items-center justify-center p-3 bg-white rounded-xl border border-ds-borderStrong sim-hide-mobile">
+                        <svg class="w-24 h-24 text-ds-textMain" viewBox="0 0 100 100" fill="currentColor">
+                          <rect x="8" y="8" width="26" height="26" fill="none" stroke="currentColor" stroke-width="6"/>
+                          <rect x="15" y="15" width="12" height="12"/>
+                          <rect x="66" y="8" width="26" height="26" fill="none" stroke="currentColor" stroke-width="6"/>
+                          <rect x="73" y="15" width="12" height="12"/>
+                          <rect x="8" y="66" width="26" height="26" fill="none" stroke="currentColor" stroke-width="6"/>
+                          <rect x="15" y="73" width="12" height="12"/>
+                          <rect x="42" y="10" width="6" height="6"/><rect x="52" y="10" width="6" height="12"/>
+                          <rect x="42" y="24" width="10" height="6"/><rect x="40" y="38" width="18" height="6"/>
+                          <rect x="12" y="42" width="14" height="6"/><rect x="30" y="48" width="8" height="12"/>
+                          <rect x="46" y="48" width="12" height="8"/><rect x="64" y="42" width="10" height="14"/>
+                        </svg>
+                      </div>
+                    ` : ''}
+                    <div class="${mobile ? 'col-span-1' : 'sm:col-span-8'} space-y-2">
                       <label class="block text-xs font-bold text-ds-textMain">Pix copia e cola</label>
                       <input type="text" readonly value="${pixCodeString}" class="w-full px-3 py-2 rounded-lg border border-ds-borderStrong bg-white font-mono text-[11px] text-ds-textSecondary select-all" />
                       <div class="flex flex-wrap items-center gap-2">
@@ -6530,7 +6532,7 @@ function renderPaymentTab(m) {
                 </div>
               ` : `
                 <div class="rounded-[14px] border border-ds-borderStrong bg-white p-3.5 text-xs text-ds-textSecondary leading-relaxed">
-                  Ao clicar em <strong class="text-ds-textMain">ativar minha campanha</strong>, geraremos o QR Code e o código Pix Copia e Cola com validade de 15 minutos.
+                  Ao clicar em <strong class="text-ds-textMain">ativar minha campanha</strong>, geraremos ${mobile ? 'o código Pix Copia e Cola' : 'o QR Code e o código Pix Copia e Cola'} com validade de 15 minutos.
                 </div>
               `}
             </div>
@@ -6735,6 +6737,7 @@ function renderPaymentTab(m) {
         <!-- 4.2 Ação Primária Única + Selo de Segurança Abaixo + Link Secundário Discreto -->
         <div class="space-y-2.5">
           <button
+            id="activateCampaignBtn"
             type="button"
             onclick="${canActivateCampaign ? 'submitPaymentOrder()' : ''}"
             ${!canActivateCampaign ? 'disabled' : ''}
@@ -6776,10 +6779,11 @@ function renderPaymentTab(m) {
     <div class="grid grid-cols-1 lg:grid-cols-12 ${mobile ? 'gap-4' : 'gap-6'} items-start sim-grid-1">
       <div class="lg:col-span-7 flex flex-col gap-4">
         ${leftPaymentColumnHtml}
-        ${radioDedicatedCardHtml}
+        ${!mobile ? radioDedicatedCardHtml : ''}
       </div>
-      <div class="lg:col-span-5 flex flex-col">
+      <div class="lg:col-span-5 flex flex-col gap-4">
         ${rightSummaryColumnHtml}
+        ${mobile ? radioDedicatedCardHtml : ''}
       </div>
     </div>
   `;
@@ -6851,7 +6855,7 @@ function submitPaymentOrder() {
     return;
   }
 
-  // Se for PIX, gera o QR Code e sobe a tela suavemente até a seção do Pix gerado (#generatedPixSection)
+  // Se for PIX, gera o código (e QR Code no desktop) e sobe a tela suavemente até a seção do Pix gerado (#generatedPixSection)
   if (state.paymentMethod === 'pix') {
     state.pixGenerated = true;
     renderPaymentTab(getCurrentModel());
@@ -6861,7 +6865,7 @@ function submitPaymentOrder() {
         pixEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 60);
-    showToast('QR Code Pix gerado! Escaneie ou copie o código para pagar.');
+    showToast(isMobileView() ? 'Código Pix Copia e Cola gerado! Copie o código para pagar.' : 'QR Code Pix gerado! Escaneie ou copie o código para pagar.');
     return;
   }
 
@@ -7555,23 +7559,23 @@ function renderPdfDocument(m) {
           </div>
         </div>
         <div class="bg-[#F7F4EF] p-1.5 border-t border-ds-border grid grid-cols-5 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.oohPointsCount)}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Pontos</div>
           </div>
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.oohScreensCount)}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Telas</div>
           </div>
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${oohTotalExhibitionsVal}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Exibições</div>
           </div>
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.oohReach || c.oohImpacts)}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Alcance</div>
           </div>
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtFreq(c.oohFrequency || 1.88)}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Frequência</div>
           </div>
@@ -7610,11 +7614,11 @@ function renderPdfDocument(m) {
           </div>
         </div>
         <div class="bg-[#F7F4EF] p-1.5 border-t border-ds-border grid grid-cols-2 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${escapeHtml(portaisListLabel)}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Portais</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${portaisCpmLabel}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">CPM</div>
           </div>
@@ -7639,11 +7643,11 @@ function renderPdfDocument(m) {
           </div>
         </div>
         <div class="bg-[#F7F4EF] p-1.5 border-t border-ds-border grid grid-cols-2 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${escapeHtml(revistasListLabel)}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Portais</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${revistasCpmLabel}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">CPM</div>
           </div>
@@ -7665,15 +7669,15 @@ function renderPdfDocument(m) {
           </div>
         </div>
         <div class="bg-[#F7F4EF] p-1.5 border-t border-ds-border grid grid-cols-3 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.radioCount)}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Rádio/programa</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.radioWeeklyInsertions)}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Inserções/semana</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border/80 flex flex-col justify-between">
+          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
             <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${escapeHtml(radioDurationsLabel)}</div>
             <div class="text-[10px] text-ds-textSecondary mt-0.5">Duração</div>
           </div>
@@ -7734,7 +7738,7 @@ function renderPdfDocument(m) {
                   return escapeHtml(rawName || t.name);
                 });
                 towersNote = `
-                  <div class="mt-1 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-emerald-800 bg-emerald-50/80 border border-emerald-200/80 rounded-md px-2 py-0.5 leading-snug">
+                  <div class="mt-1 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-0.5 leading-snug">
                     <span class="font-bold">${g.towersCount} torres:</span>
                     <span>${shortTowers.join(' · ')}</span>
                   </div>
@@ -7745,7 +7749,7 @@ function renderPdfDocument(m) {
               const impactVal = g.impacts || g.reach || 0;
 
               return `
-                <tr class="${idx % 2 === 1 ? 'bg-slate-50/60' : 'bg-white'}">
+                <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
                   <td class="py-2.5 px-2.5 align-top font-mono font-bold text-[11px] text-slate-700 whitespace-nowrap">
                     <div>#${escapeHtml(g.displayCode || g.code)}</div>
                   </td>
@@ -7777,7 +7781,7 @@ function renderPdfDocument(m) {
           </tbody>
           <tfoot class="bg-ds-surface border-t border-ds-borderStrong font-bold text-ds-textMain text-xs">
             ${f.couponDiscount > 0 ? `
-              <tr class="bg-emerald-50/70 text-emerald-900 border-b border-emerald-200">
+              <tr class="bg-emerald-50 text-emerald-900 border-b border-emerald-200">
                 <td colspan="7" class="py-2 px-3 text-right font-semibold">
                   Cupom promocional aplicado em OOH (${escapeHtml(state.couponCode || 'AQUIADS10')} · -10% sobre subtotal líquido OOH):
                 </td>
@@ -7829,7 +7833,7 @@ function renderPdfDocument(m) {
           </thead>
           <tbody class="divide-y divide-slate-200 text-slate-800">
             ${m.portaisItems.map((p, idx) => `
-              <tr class="${idx % 2 === 1 ? 'bg-slate-50/60' : 'bg-white'}">
+              <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
                 <td class="py-2.5 px-2.5 align-top font-mono font-bold text-[11px] text-slate-700 whitespace-nowrap">#${escapeHtml(p.code)}</td>
                 <td class="py-2.5 px-3 align-top">
                   <div class="font-bold text-slate-900">${escapeHtml(p.cleanTitle || p.name)}</div>
@@ -7894,7 +7898,7 @@ function renderPdfDocument(m) {
           </thead>
           <tbody class="divide-y divide-slate-200 text-slate-800">
             ${m.revistasItems.map((r, idx) => `
-              <tr class="${idx % 2 === 1 ? 'bg-slate-50/60' : 'bg-white'}">
+              <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
                 <td class="py-2.5 px-2.5 align-top font-mono font-bold text-[11px] text-slate-700 whitespace-nowrap">#${escapeHtml(r.code)}</td>
                 <td class="py-2.5 px-3 align-top font-bold text-slate-900">${escapeHtml(r.editorialTitle)}</td>
                 <td class="py-2.5 px-2.5 align-top">
@@ -7953,7 +7957,7 @@ function renderPdfDocument(m) {
           </thead>
           <tbody class="divide-y divide-slate-200 text-slate-800">
             ${m.radioItems.map((rd, idx) => `
-              <tr class="${idx % 2 === 1 ? 'bg-slate-50/60' : 'bg-white'}">
+              <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
                 <td class="py-2.5 px-2.5 align-top font-mono font-bold text-[11px] text-slate-700 whitespace-nowrap">#${escapeHtml(rd.code)}</td>
                 <td class="py-2.5 px-3 align-top">
                   <div class="font-bold text-slate-900">${escapeHtml(rd.stationName)}</div>
@@ -7988,7 +7992,7 @@ function renderPdfDocument(m) {
   // 5. DIRECIONAMENTO MÍNIMO PARA A PROPOSTA VIRTUAL (UMA LINHA, ZERO CARGA COGNITIVA)
   const artTableSectionHtml = `
     <section class="mt-4 pdf-avoid-break">
-      <div class="rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
         <span class="font-semibold text-slate-700">
           Especificações técnicas e contratação disponíveis na proposta virtual.
         </span>
@@ -8034,17 +8038,16 @@ function renderPdfDocument(m) {
     </div>
 
     <!-- FOLHA DO DOCUMENTO PDF (A4 HORIZONTAL / PAISAGEM) -->
-    <article class="pdf-page-sheet max-w-[1140px] mx-auto bg-white rounded-[20px] shadow-xl border border-slate-200 overflow-hidden text-slate-900">
+    <article aria-hidden="true" class="pdf-page-sheet max-w-[1140px] mx-auto bg-white rounded-[20px] shadow-xl border border-slate-200 overflow-hidden text-slate-900">
 
       <!-- 1. HEADER KV COMPACTO NO GRADIENTE AQUI ADS + LOGO BRANCO + BIG NUMBERS DISCRETOS -->
       <header class="pdf-header-kv relative overflow-hidden text-white" style="background: linear-gradient(90deg, #F7980F 0%, #F15A22 38%, #E83C39 100%);">
         <!-- KV do executivo segurando a esfera Globo com tela OOH à esquerda -->
         <div class="relative min-h-[156px] flex flex-col justify-between">
           <img
-            src="assets/kv-proposta-bg.png"
-            alt="Aqui ads — Proposta Comercial"
+            src="assets/kv-proposta-bg.jpg"
+            alt=""
             class="absolute left-0 bottom-0 h-full w-auto max-w-none object-contain object-left-bottom pointer-events-none select-none"
-            style="-webkit-mask-image: linear-gradient(90deg, #000 0%, #000 46%, transparent 78%); mask-image: linear-gradient(90deg, #000 0%, #000 46%, transparent 78%);"
           />
 
           <!-- Conteúdo alinhado à direita do KV (deixando o personagem + esfera Globo menores e bem enquadrados à esquerda) -->
@@ -8066,22 +8069,22 @@ function renderPdfDocument(m) {
             </div>
 
             <!-- Faixa Inferior: Os 4 Big Numbers (tipografia branca limpa sobre o gradiente, sem fundo de card e sem ícones) -->
-            <div class="mt-2.5 pt-2.5 border-t border-white/25 grid grid-cols-4 divide-x divide-white/20">
+            <div class="mt-2.5 pt-2.5 border-t border-[#F7875B] grid grid-cols-4 divide-x divide-[#F7875B]">
               <div class="pr-4">
                 <div class="font-display font-extrabold text-base sm:text-lg text-white leading-none tracking-tight">10K+</div>
-                <div class="text-[11px] font-medium text-white/90 mt-1 leading-snug whitespace-nowrap">Marcas anunciando pelo Aqui ads</div>
+                <div class="text-[11px] font-medium text-[#FFF5EE] mt-1 leading-snug whitespace-nowrap">Marcas anunciando pelo Aqui ads</div>
               </div>
               <div class="px-4">
                 <div class="font-display font-extrabold text-base sm:text-lg text-white leading-none tracking-tight">100%</div>
-                <div class="text-[11px] font-medium text-white/90 mt-1 leading-snug whitespace-nowrap">do território brasileiro coberto</div>
+                <div class="text-[11px] font-medium text-[#FFF5EE] mt-1 leading-snug whitespace-nowrap">do território brasileiro coberto</div>
               </div>
               <div class="px-4">
                 <div class="font-display font-extrabold text-base sm:text-lg text-white leading-none tracking-tight">123.000+</div>
-                <div class="text-[11px] font-medium text-white/90 mt-1 leading-snug whitespace-nowrap">telas de OOH pelo Brasil</div>
+                <div class="text-[11px] font-medium text-[#FFF5EE] mt-1 leading-snug whitespace-nowrap">telas de OOH pelo Brasil</div>
               </div>
               <div class="pl-4">
                 <div class="font-display font-extrabold text-base sm:text-lg text-white leading-none tracking-tight">136M</div>
-                <div class="text-[11px] font-medium text-white/90 mt-1 leading-snug whitespace-nowrap">pessoas que assistem TV Globo</div>
+                <div class="text-[11px] font-medium text-[#FFF5EE] mt-1 leading-snug whitespace-nowrap">pessoas que assistem TV Globo</div>
               </div>
             </div>
 
@@ -8233,7 +8236,7 @@ function renderPdfDocument(m) {
 
         <!-- DISCLAIMER DO MAPA INTERATIVO (COMPACTO EM UMA LINHA) -->
         ${hasOoh ? `
-          <div class="mt-2.5 rounded-lg border border-orange-200/80 bg-orange-50/50 px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px] pdf-avoid-break">
+          <div class="mt-2.5 rounded-lg border border-orange-200 bg-[#FFF7ED] px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px] pdf-avoid-break">
             <div class="flex items-center gap-1.5 text-slate-700">
               <i class="uil uil-map-marker-info text-primary text-xs shrink-0"></i>
               <span class="font-semibold text-slate-800">Para ver o ponto no mapa, acesse essa proposta online.</span>
@@ -8413,7 +8416,7 @@ function renderPdfDocument(m) {
               <h2 class="font-display font-bold text-2xl sm:text-3xl text-white leading-tight">
                 Sua marca no<br />lugar certo.
               </h2>
-              <p class="text-xs text-white/95 mt-1.5 leading-relaxed max-w-[360px]">
+              <p class="text-xs text-[#FFF8F3] mt-1.5 leading-relaxed max-w-[360px]">
                 Escolha onde aparecer, envie sua arte e acompanhe tudo no seu painel.
               </p>
               <div class="mt-4 flex flex-wrap items-center gap-4">
@@ -8707,6 +8710,14 @@ function setPaymentMethod(pm) {
   }
   state.paymentMethod = pm;
   renderPaymentTab(getCurrentModel());
+  if (pm === 'pix' && isMobileView() && !state.pixGenerated) {
+    setTimeout(() => {
+      const btn = document.getElementById('activateCampaignBtn');
+      if (btn) {
+        btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 60);
+  }
 }
 
 function unlockInlineBilling() {
