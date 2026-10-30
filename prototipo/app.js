@@ -6571,7 +6571,12 @@ function renderPaymentTab(m) {
               ${state.boletoGenerated ? `
                 <div class="rounded-[14px] border-2 border-primary/40 bg-ds-surface p-3.5 space-y-3 shadow-sm">
                   <div class="flex flex-wrap items-center justify-between gap-2">
-                    <h4 class="font-display font-bold text-sm text-ds-textMain">Linha digitável do Boleto</h4>
+                    <div>
+                      <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+                        <i class="uil uil-bill text-xs"></i> Boleto gerado · Aguardando pagamento
+                      </span>
+                      <h4 class="font-display font-bold text-sm text-ds-textMain mt-0.5">Linha digitável do Boleto</h4>
+                    </div>
                     <span class="text-xs text-ds-textSecondary">Compensação em até 2 dias úteis</span>
                   </div>
                   <div class="p-2.5 bg-white rounded-lg border border-ds-borderStrong font-mono text-[11px] font-bold text-ds-textMain text-center select-all break-all">
@@ -6580,11 +6585,11 @@ function renderPaymentTab(m) {
                   <div class="flex flex-wrap items-center gap-2">
                     <button type="button" onclick="navigator.clipboard?.writeText('${boletoLineString}'); showToast('Linha digitável copiada!')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg bg-ds-textMain hover:bg-black text-white font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 transition">
                       <i class="uil uil-copy"></i>
-                      <span>copiar código</span>
+                      <span>copiar código do boleto</span>
                     </button>
                     <button type="button" onclick="confirmPixPaymentPaid()" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-display font-bold text-xs inline-flex items-center justify-center gap-1 transition">
                       <i class="uil uil-check-circle"></i>
-                      <span>simular boleto pago</span>
+                      <span>já paguei o boleto</span>
                     </button>
                   </div>
                 </div>
