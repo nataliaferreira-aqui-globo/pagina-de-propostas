@@ -3316,7 +3316,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
               Ocultar
             </button>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div class="grid ${mobile ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'} gap-2">
             <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
               <div class="text-[10px] text-ds-textSecondary">Telas</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${screensLabel}</div>
@@ -3383,7 +3383,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
                     <div class="text-right shrink-0 flex items-baseline gap-1">
                       <span class="font-display font-extrabold text-[13px] text-[#1E293B] leading-none whitespace-nowrap">${rightImpactValue}</span>
-                      <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impactos</span>
+                      <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impacto</span>
                     </div>
                   </div>
 
@@ -3635,7 +3635,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
                     <span class="font-display font-extrabold text-[13px] text-[#1E293B] leading-none whitespace-nowrap">${rightImpactValue}</span>
-                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impactos</span>
+                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impacto</span>
                   </div>
                 </div>
 
@@ -4520,7 +4520,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
               Ocultar
             </button>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div class="grid ${mobile ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'} gap-2">
             <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
               <div class="text-[10px] text-ds-textSecondary">Inserções</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${spotsLabel}</div>
