@@ -4490,10 +4490,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
           </div>
           <div class="space-y-1">
             <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Inserções:</span>
-              <strong class="font-display font-bold text-white">${spotsLabel}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
               <span class="text-slate-300">Frequência:</span>
               <strong class="font-display font-bold text-white">${rd.frequencyDaysLabel}</strong>
             </div>
@@ -4520,11 +4516,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
               Ocultar
             </button>
           </div>
-          <div class="grid ${mobile ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'} gap-2">
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Inserções</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${spotsLabel}</div>
-            </div>
+          <div class="grid grid-cols-3 gap-2">
             <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
               <div class="text-[10px] text-ds-textSecondary">Frequência</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${rd.frequencyDaysLabel}</div>
