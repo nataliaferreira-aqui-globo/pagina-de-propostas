@@ -4009,10 +4009,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <strong class="font-display font-bold text-white">1 portal (${r.editorialTitle})</strong>
             </div>
             <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Impressões:</span>
-              <strong class="font-display font-bold text-white">${fmtInt(r.impressions)}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
               <span class="text-slate-300">CPM:</span>
               <strong class="font-display font-bold text-white">${fmtBRL(r.cpm)}</strong>
             </div>
@@ -4031,14 +4027,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
               Ocultar
             </button>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div class="grid grid-cols-2 gap-2">
             <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
               <div class="text-[10px] text-ds-textSecondary">Portais</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">1 portal (${r.editorialTitle})</div>
-            </div>
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Impressões</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${fmtInt(r.impressions)}</div>
             </div>
             <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
               <div class="text-[10px] text-ds-textSecondary">CPM</div>
@@ -4081,7 +4073,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
                     <span class="font-display font-extrabold text-[13px] text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(r.impressions)}</span>
-                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impactos</span>
+                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impressões</span>
                   </div>
                 </div>
                 <h4 class="font-display font-bold text-ds-textMain text-[14px] leading-snug line-clamp-2" title="${r.editorialTitle} — ${revSubtitle}">
@@ -4148,7 +4140,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 </div>
                 <div class="text-right shrink-0 self-center">
                   <div class="text-[10px] font-normal uppercase tracking-wider text-ds-textSecondary">
-                    IMPACTO ESTIMADO
+                    IMPRESSÕES ESTIMADAS
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
                     ${fmtInt(r.impressions)}
@@ -4259,10 +4251,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <strong class="font-display font-bold text-white">${digChannelsLabel}</strong>
             </div>
             <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Impressões:</span>
-              <strong class="font-display font-bold text-white">${fmtInt(p.impressions)}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
               <span class="text-slate-300">CPM:</span>
               <strong class="font-display font-bold text-white">${fmtBRL(p.cpm)}</strong>
             </div>
@@ -4281,14 +4269,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
               Ocultar
             </button>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div class="grid grid-cols-2 gap-2">
             <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
               <div class="text-[10px] text-ds-textSecondary">Portais</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${digChannelsLabel}</div>
-            </div>
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Impressões</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${fmtInt(p.impressions)}</div>
             </div>
             <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
               <div class="text-[10px] text-ds-textSecondary">CPM</div>
@@ -4331,7 +4315,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
                     <span class="font-display font-extrabold text-[13px] text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(p.impressions)}</span>
-                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impactos</span>
+                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impressões</span>
                   </div>
                 </div>
                 <h4 class="font-display font-bold text-ds-textMain text-[14px] leading-snug line-clamp-2" title="${p.cleanTitle} — ${digSubtitle}">
@@ -4398,7 +4382,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 </div>
                 <div class="text-right shrink-0 self-center">
                   <div class="text-[10px] font-normal uppercase tracking-wider text-ds-textSecondary">
-                    IMPACTO ESTIMADO
+                    IMPRESSÕES ESTIMADAS
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
                     ${fmtInt(p.impressions)}
