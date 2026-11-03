@@ -2233,8 +2233,8 @@ function renderHeroSection(m) {
                   <span>Cadastrar</span>
                 </button>
               ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
-                <span class="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 font-display font-bold text-[10px]">
-                  Restrição comercial
+                <span class="px-2 py-0.5 rounded-full bg-ds-surface border border-ds-borderStrong text-ds-textSecondary font-display font-bold text-[10px]">
+                  Aguardando especialista
                 </span>
               ` : ''}
             </div>
@@ -2258,9 +2258,8 @@ function renderHeroSection(m) {
                 </div>
               </div>
               ${state.simulateUnlogged && state.billingCnpjRestricted ? `
-                <div class="mt-2.5 pt-2 border-t border-amber-200/70 text-[11px] text-amber-900 flex items-center justify-between gap-2">
-                  <span><i class="uil uil-info-circle text-amber-700"></i> CNPJ encarteirado · Em atendimento com especialista.</span>
-                  <button type="button" onclick="openAndreiaBillingChat()" class="font-display font-bold text-primary hover:underline shrink-0">Ver chat</button>
+                <div class="mt-2.5 pt-2 border-t border-ds-border text-[11px] text-ds-textSecondary flex items-center justify-between gap-2">
+                  <span>Proposta enviada para um especialista. Aguarde o retorno.</span>
                 </div>
               ` : ''}
             `}
@@ -6364,41 +6363,17 @@ function renderPaymentTab(m) {
       </button>
     </div>
   ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
-    <div id="billingDisclaimerBanner" class="rounded-[14px] border-2 border-rose-200 bg-rose-50/70 ${mobile ? 'p-3.5' : 'p-4'} shadow-xs space-y-3">
-      <div class="flex items-start gap-3">
-        <div class="w-9 h-9 rounded-xl bg-rose-100 border border-rose-300 text-rose-800 flex items-center justify-center text-lg shrink-0 mt-0.5">
-          <i class="uil uil-user-arrows"></i>
-        </div>
-        <div class="min-w-0 flex-1">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="font-display font-bold text-sm sm:text-[15px] text-rose-950 leading-snug">
-              Restrição neste CNPJ (${escapeHtml(state.billingDoc)})
-            </span>
-            <span class="px-2 py-0.5 rounded-full bg-rose-100 border border-rose-300 text-rose-900 font-display font-bold text-[10px] uppercase tracking-wider">
-              Cliente encarteirado
-            </span>
-          </div>
-          <p class="text-xs text-rose-900 mt-1 leading-relaxed">
-            <strong>Andreia (IA):</strong> "Identificamos que existe uma restrição neste CNPJ. Estou te encaminhando para um dos nossos especialistas. Com ele você poderá dar seguimento à sua proposta."
-          </p>
-        </div>
+    <div id="billingDisclaimerBanner" class="rounded-[14px] border border-ds-borderStrong bg-ds-surface/70 ${mobile ? 'p-3.5' : 'p-4'} shadow-xs flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-white border border-ds-borderStrong text-primary flex items-center justify-center text-lg shrink-0">
+        <i class="uil uil-user-check"></i>
       </div>
-      <div class="flex flex-wrap items-center justify-end gap-2 pt-1 border-t border-rose-200/80">
-        <button
-          type="button"
-          onclick="unlockPaymentFromAndreia()"
-          class="px-3 py-1.5 rounded-lg border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-display font-semibold text-[11px] transition"
-        >
-          Simular CNPJ sem restrição (Liberar pagamento)
-        </button>
-        <button
-          type="button"
-          onclick="openAndreiaBillingChat()"
-          class="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shadow-2xs transition"
-        >
-          <i class="uil uil-comment-alt-dots text-sm"></i>
-          <span>Ver conversa com a Andreia</span>
-        </button>
+      <div class="min-w-0 flex-1">
+        <div class="font-display font-bold text-sm sm:text-[15px] text-ds-textMain leading-snug">
+          Proposta enviada para um especialista. Aguarde o retorno.
+        </div>
+        <p class="text-xs text-ds-textSecondary mt-0.5 leading-relaxed">
+          Nosso time entrará em contato em breve para dar seguimento à sua proposta.
+        </p>
       </div>
     </div>
   ` : '';
@@ -6417,7 +6392,7 @@ function renderPaymentTab(m) {
         ${methodsBlocked ? `
           <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 font-display font-bold text-[11px]">
             <i class="uil uil-lock text-xs"></i>
-            <span>Aguardando perfil de faturamento</span>
+            <span>${state.billingCnpjRestricted ? 'Aguardando retorno do especialista' : 'Aguardando perfil de faturamento'}</span>
           </span>
         ` : ''}
       </div>
@@ -6849,10 +6824,7 @@ function renderPaymentTab(m) {
                 <span>Cadastrar</span>
               </button>
             ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
-              <button type="button" onclick="openAndreiaBillingChat()" class="text-rose-700 font-display font-bold hover:underline inline-flex items-center gap-1">
-                <i class="uil uil-exclamation-circle"></i>
-                <span>Ver restrição</span>
-              </button>
+              <span class="text-ds-textMuted font-semibold text-[11px]">Em análise</span>
             ` : `
               <button onclick="toggleBillingDrawer()" class="text-primary font-bold hover:underline inline-flex items-center gap-1">
                 <i class="uil uil-pen"></i>
@@ -6870,8 +6842,8 @@ function renderPaymentTab(m) {
           ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
             <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(state.billingCompany)}</div>
             <div class="text-[11px] text-ds-textMuted">${state.andreiaProfileType === 'CPF' ? 'CPF' : 'CNPJ'} ${escapeHtml(state.billingDoc)}</div>
-            <div class="mt-1.5 p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-[11px] leading-snug">
-              <strong>CNPJ com restrição (Encarteirado):</strong> Encaminhado para especialista Aqui Ads.
+            <div class="mt-1.5 p-2.5 rounded-lg bg-ds-surface border border-ds-border text-ds-textSecondary text-[11px] leading-snug">
+              Proposta enviada para um especialista. Aguarde o retorno.
             </div>
           ` : !state.billingDrawerOpen ? `
             <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(state.billingCompany)}</div>
@@ -8905,8 +8877,7 @@ function setPaymentMethod(pm) {
   }
   if (isPaymentMethodsBlocked()) {
     if (state.billingCnpjRestricted) {
-      openAndreiaBillingChat();
-      showToast('Este CNPJ possui restrição comercial (encarteirado). Continue o atendimento com o especialista.');
+      showToast('Proposta enviada para um especialista. Aguarde o retorno.');
     } else {
       openAndreiaBillingChat();
       showToast('Cadastre o perfil de faturamento com a Andreia para liberar os métodos de pagamento.');
@@ -9269,7 +9240,7 @@ function submitAndreiaBillingForm() {
     state.paymentMethod = null;
     state.andreiaStep = 'restricted';
     renderAll();
-    showToast('Andreia identificou restrição comercial neste CNPJ e encaminhou para um especialista.');
+    showToast('Proposta enviada para um especialista. Aguarde o retorno.');
   } else {
     state.billingCnpjRestricted = false;
     state.paymentMethod = 'card';
@@ -9295,13 +9266,13 @@ function unlockPaymentFromAndreia() {
   state.paymentMethod = 'card';
   state.andreiaChatOpen = false;
   renderAll();
-  showToast('Perfil de faturamento validado sem restrições! Métodos de pagamento liberados.');
+  showToast('Perfil de faturamento validado! Métodos de pagamento liberados.');
 }
 
 function confirmSpecialistTransferFromAndreia() {
   state.andreiaChatOpen = false;
   renderAll();
-  showToast('Proposta encaminhada para o especialista Aqui Ads responsável pela carteira.');
+  showToast('Proposta enviada para um especialista. Aguarde o retorno.');
 }
 
 function renderAndreiaChat() {
@@ -9483,16 +9454,6 @@ function renderAndreiaChat() {
                     </div>
                   </div>
 
-                  <label class="flex items-start gap-2 p-2 rounded-lg bg-amber-50/90 border border-amber-200 text-[11px] text-amber-950 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      ${state.andreiaSimulateRestricted ? 'checked' : ''}
-                      onchange="state.andreiaSimulateRestricted = this.checked"
-                      class="mt-0.5 rounded border-amber-400 text-primary focus:ring-primary"
-                    />
-                    <span><strong>Simular cliente encarteirado:</strong> sinalizar restrição neste CNPJ e encaminhar para especialista</span>
-                  </label>
-
                   ${state.andreiaStep === 'fill_data' ? `
                     <button
                       type="submit"
@@ -9516,33 +9477,25 @@ function renderAndreiaChat() {
               </div>
             </div>
 
-            <!-- Mensagem 3 da Andreia: Sinalização de Restrição no CNPJ (Cliente Encarteirado) -->
+            <!-- Mensagem 3 da Andreia: Encaminhamento ao Especialista -->
             <div class="flex items-start gap-2.5">
               <div class="w-7 h-7 rounded-full bg-primary text-white font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
                 A
               </div>
-              <div class="bg-white rounded-2xl rounded-tl-xs border-2 border-rose-300 p-3.5 shadow-sm space-y-3 w-full">
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-rose-800 font-display font-bold text-[10px] uppercase tracking-wider">
-                  <i class="uil uil-exclamation-triangle text-xs"></i>
-                  <span>Restrição identificada neste CNPJ</span>
-                </div>
-
+              <div class="bg-white rounded-2xl rounded-tl-xs border border-ds-borderStrong p-3.5 shadow-sm space-y-3 w-full">
                 <p class="text-ds-textMain font-medium leading-relaxed text-xs sm:text-[13px]">
-                  Identificamos que existe uma restrição neste CNPJ (cliente encarteirado). <strong>Estou te encaminhando para um dos nossos especialistas. Com ele você poderá dar seguimento à sua proposta.</strong>
+                  Identificamos que existe uma restrição neste CNPJ. <strong>Estou te encaminhando para um dos nossos especialistas. Com ele você poderá dar seguimento à sua proposta.</strong>
                 </p>
 
                 <div class="p-3 rounded-xl bg-ds-surface border border-ds-borderStrong space-y-2">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2 min-w-0">
-                      <span class="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 flex items-center justify-center font-display font-bold text-xs shrink-0">
-                        EA
-                      </span>
-                      <div class="min-w-0">
-                        <div class="font-display font-bold text-xs text-ds-textMain truncate">Especialista de Contas Aqui Ads</div>
-                        <div class="text-[11px] text-ds-textSecondary truncate">Atendimento Comercial Encarteirado · Online</div>
-                      </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-white border border-ds-borderStrong text-primary flex items-center justify-center text-base shrink-0">
+                      <i class="uil uil-user-check"></i>
+                    </span>
+                    <div class="min-w-0">
+                      <div class="font-display font-bold text-xs text-ds-textMain">Proposta enviada para um especialista</div>
+                      <div class="text-[11px] text-ds-textSecondary">Aguarde o retorno da nossa equipe.</div>
                     </div>
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                   </div>
 
                   <button
@@ -9550,17 +9503,7 @@ function renderAndreiaChat() {
                     onclick="confirmSpecialistTransferFromAndreia()"
                     class="w-full py-2.5 px-3 rounded-xl bg-aqui-grad text-white font-display font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs hover:opacity-95 transition"
                   >
-                    <i class="uil uil-comments text-sm"></i>
-                    <span>Dar seguimento com especialista</span>
-                  </button>
-                </div>
-
-                <div class="flex items-center justify-between gap-2 pt-1 text-[11px]">
-                  <button type="button" onclick="resetAndreiaBillingChat()" class="text-ds-textSecondary hover:text-ds-textMain underline">
-                    Informar outro CPF/CNPJ
-                  </button>
-                  <button type="button" onclick="unlockPaymentFromAndreia()" class="text-primary font-display font-bold hover:underline">
-                    Simular CNPJ sem restrição →
+                    <span>Entendi</span>
                   </button>
                 </div>
               </div>
