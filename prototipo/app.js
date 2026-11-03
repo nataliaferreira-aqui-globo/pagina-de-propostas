@@ -95,7 +95,7 @@ function maskCpfLgpd(rawDoc) {
 
 function maskPersonNameLgpd(rawName) {
   const clean = String(rawName || '').trim();
-  if (!clean) return 'Titular Pessoa Física (Dados protegidos · LGPD)';
+  if (!clean) return 'Titular Pessoa Física';
   const parts = clean.split(/\s+/);
   if (parts.length === 1) {
     return `${parts[0].slice(0, 3)}***`;
@@ -113,7 +113,7 @@ function getProtectedBillingInfo(options = {}) {
   const isUnloggedShared = Boolean(state.simulateUnlogged && !state.billingUnlockedInline);
 
   // Para CPF ou geração de dados compartilhados (PDF / Excel / link compartilhado sem PJ explícito),
-  // aplica mascaramento e proteção LGPD nos dados de faturamento.
+  // aplica mascaramento nos dados de faturamento sem repetir o texto da tag LGPD.
   if (isCpfDoc || (isSharedExport && isUnloggedShared)) {
     const rawPersonName = isCpfDoc
       ? (state.billingCompany && !state.billingCompany.includes('LTDA') ? state.billingCompany : (state.andreiaInputName || 'Natalia Ferreira'))
@@ -125,9 +125,9 @@ function getProtectedBillingInfo(options = {}) {
       isCpf: true,
       docTypeLabel: 'CPF de faturamento',
       holderLabel: 'Titular / Anunciante (CPF)',
-      displayName: `${maskedName} · Dados protegidos (LGPD)`,
-      displayDoc: `${maskedDoc} (Protegido pela LGPD)`,
-      shortSummary: `Dados protegidos (LGPD) · CPF ${maskedDoc}`,
+      displayName: maskedName,
+      displayDoc: maskedDoc,
+      shortSummary: `${maskedName} (CPF ${maskedDoc})`,
       badgeText: 'Dados protegidos · LGPD'
     };
   }
@@ -7070,7 +7070,7 @@ function renderPaymentTab(m) {
           </div>
           ${state.simulateUnlogged && !state.billingUnlockedInline ? `
             <div class="mt-0.5 text-[11px] text-ds-textMuted">
-              Dados protegidos (LGPD) · Perfil pendente de cadastro.
+              Perfil pendente de cadastro.
             </div>
           ` : `
             <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(getProtectedBillingInfo().displayName)}</div>
@@ -7080,7 +7080,7 @@ function renderPaymentTab(m) {
           ${state.billingDrawerOpen && (!state.simulateUnlogged || (state.billingUnlockedInline && !state.billingCnpjRestricted)) ? `
             <div class="mt-2.5 p-3 rounded-xl bg-ds-bg border border-ds-borderStrong space-y-2 text-[11px] leading-relaxed text-ds-textSecondary">
               <p>
-                <strong class="text-ds-textMain">Perfil de PJ não pode ser alterado na plataforma</strong> (necessário um executivo). Para cadastrar outro perfil de <strong>CPF</strong> (com dados protegidos pela LGPD), fale com a <strong>Andreia</strong>.
+                <strong class="text-ds-textMain">Perfil de PJ não pode ser alterado na plataforma</strong> (necessário um executivo). Para cadastrar outro perfil de <strong>CPF</strong>, fale com a <strong>Andreia</strong>.
               </p>
               <button
                 type="button"
@@ -8425,10 +8425,11 @@ function renderPdfDocument(m) {
     </section>
   ` : '';
 
-  // 5. ESPECIFICAÇÕES TÉCNICAS EM PÁGINA SEPARADA E EM LISTA SEM ÍCONES
-  const artListItemsHtml = (m.artFormats || []).map((af) => {
+  // 5. ESPECIFICAÇÕES TÉCNICAS EM PÁGINA SEPARADA E EM TABELA SEM ÍCONES (COLUNAS: FORMATO, DIMENSÃO E REQUISITO TÉCNICO)
+  const artTableRowsHtml = (m.artFormats || []).map((af, idx) => {
     const channelLabel = af.isGlobo ? 'Digital (Portais e Revistas)' : (af.isStatic ? 'OOH Estático / Impresso' : 'OOH Digital');
     const ambientesText = (af.ambientes && af.ambientes.length > 0) ? af.ambientes.join(', ') : af.title;
+    const hasExtraAmbientes = ambientesText && String(ambientesText).trim().toLowerCase() !== String(af.title || '').trim().toLowerCase();
     const dimText = `${af.width}x${af.height} ${af.unit}`;
     const safeAreaText = (af.availableWidth && af.availableHeight)
       ? `Área útil: ${af.availableWidth}x${af.availableHeight} ${af.unit}`
@@ -8440,34 +8441,42 @@ function renderPdfDocument(m) {
         : `Arquivo: ${af.extensions || 'JPG, PNG'} (${af.maxWeightImage || 'até 150 KB'})`;
 
     return `
-      <li class="py-2.5 px-3.5 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 text-xs">
-        <div class="min-w-0">
-          <span class="font-display font-bold text-slate-900">${escapeHtml(af.title)}</span>
-          <span class="text-slate-500"> — ${escapeHtml(channelLabel)} (${escapeHtml(ambientesText)})</span>
-        </div>
-        <div class="text-[11px] text-slate-700 sm:text-right shrink-0">
-          <strong class="font-semibold text-slate-900">Dimensão: ${escapeHtml(dimText)}</strong>${safeAreaText ? ` · ${escapeHtml(safeAreaText)}` : ''} · ${escapeHtml(filesText)}
-        </div>
-      </li>
+      <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
+        <td class="py-2.5 px-3 align-top">
+          <span class="font-bold text-slate-900">${escapeHtml(af.title)}</span>
+          <span class="text-slate-500"> — ${escapeHtml(channelLabel)}${hasExtraAmbientes ? ` (${escapeHtml(ambientesText)})` : ''}</span>
+        </td>
+        <td class="py-2.5 px-3 align-top whitespace-nowrap">
+          <div class="font-semibold text-slate-900">${escapeHtml(dimText)}</div>
+          ${safeAreaText ? `<div class="text-[10.5px] text-slate-500 mt-0.5">${escapeHtml(safeAreaText)}</div>` : ''}
+        </td>
+        <td class="py-2.5 px-3 align-top text-slate-700">
+          ${escapeHtml(filesText)}
+        </td>
+      </tr>
     `;
   });
 
   if (hasRadio) {
     const radioDur = Array.from(new Set((m.radioItems || []).map((r) => `${r.spotDuration || 30}s`))).join(' / ') || '30s';
-    artListItemsHtml.push(`
-      <li class="py-2.5 px-3.5 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 text-xs">
-        <div class="min-w-0">
-          <span class="font-display font-bold text-slate-900">Rádio CBN — Spot Comercial</span>
-          <span class="text-slate-500"> — Áudio Publicitário (${escapeHtml(radioDur)})</span>
-        </div>
-        <div class="text-[11px] text-slate-700 sm:text-right shrink-0">
-          <strong class="font-semibold text-slate-900">Duração: ${escapeHtml(radioDur)}</strong> · Arquivo: MP3 ou WAV (44.1 kHz, 16 bits, estéreo) · Entrega: até 2 dias úteis antes da veiculação
-        </div>
-      </li>
+    const rIdx = artTableRowsHtml.length;
+    artTableRowsHtml.push(`
+      <tr class="${rIdx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
+        <td class="py-2.5 px-3 align-top">
+          <span class="font-bold text-slate-900">Rádio CBN — Spot Comercial</span>
+          <span class="text-slate-500"> — Áudio Publicitário</span>
+        </td>
+        <td class="py-2.5 px-3 align-top whitespace-nowrap">
+          <div class="font-semibold text-slate-900">Duração: ${escapeHtml(radioDur)}</div>
+        </td>
+        <td class="py-2.5 px-3 align-top text-slate-700">
+          Arquivo: MP3 ou WAV (44.1 kHz, 16 bits, estéreo) · Entrega: até 2 dias úteis antes da veiculação
+        </td>
+      </tr>
     `);
   }
 
-  const artTableSectionHtml = artListItemsHtml.length > 0 ? `
+  const artTableSectionHtml = artTableRowsHtml.length > 0 ? `
     <section class="mt-6 pt-4 border-t-2 border-dashed border-slate-200 pdf-break-before-print pdf-avoid-break">
       <div class="mb-2.5 flex items-baseline justify-between gap-2">
         <div>
@@ -8479,12 +8488,23 @@ function renderPdfDocument(m) {
           </p>
         </div>
         <span class="text-[11px] font-semibold text-slate-600 shrink-0">
-          ${artListItemsHtml.length} ${artListItemsHtml.length === 1 ? 'formato listado' : 'formatos listados'}
+          ${artTableRowsHtml.length} ${artTableRowsHtml.length === 1 ? 'formato listado' : 'formatos listados'}
         </span>
       </div>
-      <ul class="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white overflow-hidden">
-        ${artListItemsHtml.join('')}
-      </ul>
+      <div class="overflow-hidden border border-ds-border rounded-2xl bg-white">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-ds-surface text-ds-textSecondary border-b border-ds-border font-display text-xs">
+              <th class="py-2.5 px-3 font-bold w-[38%]">Formato</th>
+              <th class="py-2.5 px-3 font-bold w-[20%]">Dimensão</th>
+              <th class="py-2.5 px-3 font-bold">Requisito técnico</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 text-slate-800">
+            ${artTableRowsHtml.join('')}
+          </tbody>
+        </table>
+      </div>
       <div class="mt-2.5 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
         <span>Gabaritos e envio das peças disponíveis na proposta virtual.</span>
         <a
@@ -8749,15 +8769,14 @@ function renderPdfDocument(m) {
         <!-- ÚLTIMA PÁGINA DO PDF: PROVA SOCIAL (+23% & DEPOIMENTOS) + BANNER "SUA MARCA NO LUGAR CERTO" EM PÁGINA ÚNICA -->
         <section class="mt-6 pt-2 pdf-break-before-print pdf-avoid-break flex flex-col justify-between">
           
-          <!-- SEPARADOR EXPLICATIVO DE CASES DE SUCESSO (EVITA INTERPRETAÇÃO COMO PROMESSA DE RETORNO) -->
-          <div class="flex items-center gap-3 pb-3 mb-2 border-b border-slate-200">
-            <span class="px-3 py-1 rounded-full bg-orange-50 border border-orange-200 font-display font-bold text-xs text-primary uppercase tracking-wider shrink-0">
-              Conheça nossos cases de sucesso
-            </span>
-            <div class="h-px bg-slate-200 flex-1"></div>
-            <span class="text-[11px] text-ds-textSecondary shrink-0">
+          <!-- TÍTULO E SUBTÍTULO DE CASES DE SUCESSO + LINHA SEPARADORA (EVITA INTERPRETAÇÃO COMO PROMESSA DE RETORNO) -->
+          <div class="pb-3 mb-3 border-b border-slate-200">
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 uppercase tracking-wide">
+              CONHEÇA NOSSOS CASES DE SUCESSO
+            </h2>
+            <p class="text-xs text-ds-textSecondary mt-0.5">
               Resultados reais relatados por clientes que anunciaram pelo Aqui ads
-            </span>
+            </p>
           </div>
 
           <!-- 1. SEÇÃO: MAIS PRESENÇA. MAIS RESULTADO. (+23% + 8 DEPOIMENTOS) -->
