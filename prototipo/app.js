@@ -7121,20 +7121,74 @@ function requestRadioBilling() {
 function renderFaqSection() {
   const faqs = [
     {
-      q: 'Por que o valor de Rádio CBN é faturado separadamente do checkout online?',
-      a: 'Os ativos de OOH (Eletromidia) e Digital/Impresso (Portais Globo, Globoplay e Editora Globo) possuem reserva e liquidação online imediata via Stone (Cartão em até 6x sem juros, PIX ou Boleto). Já as inserções em Rádio CBN passam por confirmação de grade horária por praça e seguem faturamento dedicado sem travar a ativação imediata do restante da sua campanha.'
+      q: 'Quais são as formas de pagamento, regras de parcelamento e prazos de compensação?',
+      tag: 'Formas de pagamento e parcelamento',
+      a: `
+        <div class="space-y-2.5">
+          <p>Para sua segurança e praticidade, nossos pagamentos online são processados via <strong>Stone, Itaú Checkout e Pagar.me</strong>. Você pode escolher a opção que melhor se adapta ao fluxo do seu negócio:</p>
+          <ul class="space-y-1.5 list-disc pl-4">
+            <li><strong>Pix:</strong> tem confirmação imediata para você agilizar sua campanha. O código Pix fica válido por <strong>24 horas</strong> após ser gerado.</li>
+            <li><strong>Cartão de crédito:</strong> aprovação rápida em <strong>até 2 horas</strong> (aceitamos <em>Visa, Mastercard, Diners, Discover, Hiper, Hipercard, JCB e Credz</em>). Qualquer pedido pode ser parcelado em <strong>até 3x sem juros</strong>, e campanhas com duração de 24 semanas podem ser parceladas em <strong>até 6x sem juros</strong>, independentemente do valor.</li>
+            <li><strong>Boleto bancário:</strong> disponível para pedidos a partir de <strong>R$ 1.200,00</strong>, com vencimento de 1 dia útil e compensação em até 2 dias úteis. A produção e a veiculação começam assim que o banco confirma o pagamento (pedidos não pagos no prazo são cancelados automaticamente).</li>
+          </ul>
+        </div>
+      `
+    },
+    {
+      q: 'Como funciona o pagamento para campanhas de Rádio?',
+      tag: 'Rádio: Direto com a emissora',
+      a: `
+        <div class="space-y-2.5">
+          <p>Nas campanhas de <strong>Rádio</strong>, tanto a validação dos anúncios quanto o faturamento acontecem diretamente com a emissora, seguindo suas regras comerciais — por isso essa modalidade não utiliza cartão, Pix ou boleto comum da plataforma:</p>
+          <ul class="space-y-1.5 list-disc pl-4">
+            <li><strong>Pessoa Física (CPF):</strong> o pagamento é feito de forma antecipada por depósito bancário, e a campanha é liberada logo após a confirmação.</li>
+            <li><strong>Pessoa Jurídica (CNPJ):</strong> o faturamento segue o modelo <strong>15 DFM (15 Dias Fora Mês)</strong>. Isso significa que as inserções realizadas no mês vencem no dia 15 do mês seguinte (por exemplo: veiculações feitas em setembro têm vencimento em 15 de outubro).</li>
+          </ul>
+        </div>
+      `
+    },
+    {
+      q: 'Como funciona o cadastro de CNPJ ou CPF e onde encontro minhas notas fiscais?',
+      tag: 'CNPJ, CPF e notas fiscais',
+      a: `
+        <div class="space-y-2.5">
+          <p>Você pode cadastrar seu perfil de faturamento com <strong>CNPJ ou CPF</strong> diretamente na aba de pagamento, contando com a ajuda da <strong>Andreia</strong>, nossa assistente virtual:</p>
+          <ul class="space-y-1.5 list-disc pl-4">
+            <li><strong>Validação de CNPJ e CPF:</strong> cadastros com CPF e campanhas exclusivas de OOH seguem para pagamento na hora. Se o seu CNPJ tiver alguma condição comercial específica nos demais canais, direcionamos sua proposta para um dos nossos especialistas dar continuidade ao atendimento com você.</li>
+            <li><strong>Notas fiscais e exigências de faturamento:</strong> as notas fiscais das campanhas (com exceção de rádio) ficam sempre disponíveis na plataforma, na página <strong>"Faturamento"</strong>. Se a sua empresa tiver alguma exigência específica para emissão da nota fiscal, basta falar com o nosso time pelos canais oficiais do Aqui Ads.</li>
+          </ul>
+        </div>
+      `
+    },
+    {
+      q: 'Como sei se posso aplicar um cupom promocional na minha proposta?',
+      tag: 'Cupons e descontos',
+      a: `
+        <div class="space-y-2">
+          <p>É super simples: na aba <strong>Pagamento e aprovação</strong>, clique em <strong>"+ digitar cupom"</strong> dentro do Resumo da Campanha e insira o seu código para recalcular o valor na hora.</p>
+          <p>Vale lembrar que cada cupom possui regras próprias de validade e canais elegíveis. Além disso, caso algum edifício da sua proposta já tenha <strong>Desconto Condômino</strong> aplicado, os dois descontos não se acumulam no mesmo ponto — a plataforma garante sempre o desconto mais vantajoso para você.</p>
+        </div>
+      `
     },
     {
       q: 'Quando e como envio as artes e vídeos da minha campanha?',
-      a: 'Logo após a confirmação do pedido, a etapa "Envio de criativos" é liberada no painel. Você pode consultar todas as dimensões, formatos (MP4, JPG, PNG ou Spot 30s) e limites de peso na aba "Especificações de arte" desta proposta antes mesmo de efetuar o pagamento.'
+      tag: 'Envio de criativos',
+      a: `
+        <div class="space-y-2">
+          <p>Não precisa se preocupar em ter as artes prontas agora! Assim que o seu pedido é confirmado, a etapa <strong>"Envio de criativos"</strong> é liberada automaticamente no painel para você subir seus arquivos com calma.</p>
+          <p>Se já quiser adiantar a produção, você pode consultar todas as dimensões, formatos (MP4, JPG, PNG ou spot de 30s), limites de peso e baixar os gabaritos oficiais aqui mesmo na aba <strong>"Especificações de arte"</strong> antes de efetuar o pagamento.</p>
+        </div>
+      `
     },
     {
-      q: 'Como funciona o Desconto Condômino e o uso de cupons promocionais?',
-      a: 'Pontos comerciais onde sua empresa já é condômina recebem desconto direto destacado no próprio card do edifício. Caso você também possua um cupom promocional de OOH, a plataforma aplica automaticamente a regra de maior vantagem para o seu bolso, sem acumular dois descontos sobre o mesmo ponto.'
-    },
-    {
-      q: 'Posso compartilhar esta proposta com meu sócio ou financeiro antes de pagar?',
-      a: 'Sim! Basta clicar em "Compartilhar link" no topo da página ou exportar o resumo em PDF/CSV. Quem abrir o link compartilhado visualizará todos os ativos, mapas e valores, podendo preencher os dados de CNPJ no próprio Resumo da Campanha na hora de finalizar.'
+      q: 'Como faço para tirar dúvidas ou compartilhar esta proposta com meu sócio ou financeiro?',
+      tag: 'Atendimento e compartilhamento',
+      a: `
+        <div class="space-y-2">
+          <p>Estamos aqui para ajudar em cada etapa! Se pintar qualquer dúvida sobre os pontos escolhidos, faturamento ou formatos de mídia, você pode chamar a <strong>Andreia</strong> aqui na página ou entrar em contato com o nosso time de atendimento pelos canais oficiais do Aqui Ads.</p>
+          <p>E se precisar aprovar o plano internamente antes de fechar, basta clicar em <strong>"Compartilhar"</strong> no topo da proposta ou exportar o material completo em <strong>PDF ou Excel</strong>.</p>
+        </div>
+      `
     }
   ];
 
@@ -7144,10 +7198,13 @@ function renderFaqSection() {
   container.innerHTML = `
     <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-6 sm:px-10 py-8 sm:py-12">
       <div class="max-w-[960px] mx-auto flex flex-col lg:flex-row items-start justify-center gap-6 lg:gap-12 sim-stack-mobile">
-        <div class="shrink-0">
+        <div class="shrink-0 lg:max-w-[240px]">
           <h2 class="font-display font-medium text-2xl sm:text-[32px] grad-text leading-tight">
             Perguntas frequentes
           </h2>
+          <p class="mt-2 text-xs sm:text-sm text-ds-textSecondary leading-relaxed">
+            Tire suas dúvidas sobre pagamentos, faturamento, cupons e envio de criativos.
+          </p>
         </div>
 
         <div class="flex-1 w-full border-b border-[#EAEAEA] divide-y divide-[#EAEAEA]">
@@ -7156,14 +7213,22 @@ function renderFaqSection() {
             return `
               <div>
                 <button type="button" onclick="toggleFaqItem(${idx})" class="w-full ${idx === 0 ? 'pt-0.5 pb-4' : 'py-4'} text-left flex items-center justify-between gap-4 group">
-                  <span class="font-display font-semibold text-sm sm:text-[15px] text-ds-textMain group-hover:text-primary transition">${item.q}</span>
+                  <span class="font-display font-semibold text-sm sm:text-[15px] ${isOpen ? 'text-primary' : 'text-ds-textMain group-hover:text-primary'} transition">${item.q}</span>
                   <span class="w-7 h-7 rounded-full ${isOpen ? 'bg-aqui-grad text-white' : 'bg-[#F9FAFB] border border-[#EAEAEA] text-ds-textSecondary group-hover:border-primary group-hover:text-primary'} flex items-center justify-center shrink-0 transition">
-                    <i class="uil ${isOpen ? 'uil-times' : 'uil-plus'} text-sm leading-none"></i>
+                    <i class="uil ${isOpen ? 'uil-minus' : 'uil-plus'} text-sm leading-none"></i>
                   </span>
                 </button>
                 ${isOpen ? `
-                  <div class="pb-4 pr-10 text-xs sm:text-[13px] text-ds-textSecondary leading-relaxed">
+                  <div class="pb-5 pr-4 sm:pr-10 text-xs sm:text-[13px] text-ds-textSecondary leading-relaxed space-y-3">
                     ${item.a}
+                    ${item.tag ? `
+                      <div class="pt-0.5">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FFF3ED] text-[#F15A22] font-display font-semibold text-[11px]">
+                          <i class="uil uil-tag-alt text-xs"></i>
+                          <span>${item.tag}</span>
+                        </span>
+                      </div>
+                    ` : ''}
                   </div>
                 ` : ''}
               </div>
