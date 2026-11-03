@@ -1492,9 +1492,9 @@ function syncMainTabLabels() {
       ? 'flex items-center justify-start gap-4 -mb-px w-full'
       : 'flex items-center justify-between sm:justify-start gap-3 sm:gap-8 -mb-px w-full';
   }
-  if (lblPlano) lblPlano.textContent = mobile ? 'Plano' : 'Plano de mídia';
-  if (lblArte) lblArte.textContent = mobile ? 'Artes' : 'Especificações de arte';
-  if (lblPag) lblPag.textContent = mobile ? 'Pagamento' : 'Pagamento e aprovação';
+  if (lblPlano) lblPlano.textContent = 'Plano de mídia';
+  if (lblArte) lblArte.textContent = 'Especificações de arte';
+  if (lblPag) lblPag.textContent = 'Pagamento e aprovação';
 
   ['plano', 'arte', 'pagamento'].forEach((t) => {
     const isActive = state.activeTab === t;
@@ -1521,18 +1521,16 @@ function syncMainTabLabels() {
   });
 
   if (cntPlano) {
-    cntPlano.className = mobile
-      ? 'hidden'
-      : state.activeTab === 'plano'
-      ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary-light text-primary'
-      : 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-ds-bg text-ds-textSecondary';
+    cntPlano.className =
+      state.activeTab === 'plano'
+        ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary-light text-primary'
+        : 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-ds-bg text-ds-textSecondary';
   }
   if (cntArte) {
-    cntArte.className = mobile
-      ? 'hidden'
-      : state.activeTab === 'arte'
-      ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary-light text-primary'
-      : 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-ds-bg text-ds-textSecondary';
+    cntArte.className =
+      state.activeTab === 'arte'
+        ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary-light text-primary'
+        : 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-ds-bg text-ds-textSecondary';
   }
 
   const heroEl = document.getElementById('proposalHeroSection');
@@ -6858,22 +6856,12 @@ function renderPaymentTab(m) {
           ` : `
             <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(state.billingCompany)}</div>
             <div class="text-[11px] text-ds-textMuted">${state.andreiaProfileType === 'CPF' ? 'CPF' : 'CNPJ'} ${escapeHtml(state.billingDoc)}</div>
-            ${!state.billingDrawerOpen && (!state.simulateUnlogged || !state.billingCnpjRestricted) ? `
-              <div class="mt-1 text-[11px] text-ds-textSecondary leading-snug">
-                ${state.andreiaProfileType === 'CPF'
-                  ? 'Para trocar para outro perfil não cadastrado, acione a Andreia.'
-                  : 'Perfil PJ não editável na plataforma (alteração com executivo ou novo perfil via Andreia).'}
-              </div>
-            ` : ''}
           `}
 
           ${state.billingDrawerOpen && (!state.simulateUnlogged || (state.billingUnlockedInline && !state.billingCnpjRestricted)) ? `
             <div class="mt-2.5 p-3 rounded-xl bg-ds-bg border border-ds-borderStrong space-y-2 text-[11px] leading-relaxed text-ds-textSecondary">
               <p>
-                <strong class="text-ds-textMain">Não há outro perfil de faturamento cadastrado.</strong> Uma vez cadastrado o perfil de faturamento de <strong>PJ</strong>, não é possível alterá-lo na plataforma — será necessário um <strong>executivo</strong>.
-              </p>
-              <p>
-                Para cadastrar outro perfil de faturamento ou solicitar alteração com um executivo, acione a <strong>Andreia</strong>:
+                <strong class="text-ds-textMain">Perfil de PJ não pode ser alterado na plataforma</strong> (necessário um executivo). Para cadastrar outro perfil de <strong>CPF</strong>, fale com a <strong>Andreia</strong>.
               </p>
               <button
                 type="button"
@@ -6881,7 +6869,7 @@ function renderPaymentTab(m) {
                 class="w-full py-2 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-2xs"
               >
                 <i class="uil uil-comment-alt-dots text-sm"></i>
-                <span>Acionar a Andreia</span>
+                <span>Falar com Andreia</span>
               </button>
             </div>
           ` : ''}
@@ -7164,7 +7152,7 @@ function renderFaqSection() {
         <div class="space-y-2.5">
           <p>Você cadastra seu <strong>CNPJ ou CPF</strong> rapidinho na aba de pagamento com a ajuda da <strong>Andreia</strong>, nossa assistente virtual:</p>
           <ul class="space-y-1 list-disc pl-4">
-            <li><strong>Alteração de faturamento:</strong> se quiser alterar o perfil de faturamento e não tiver outro cadastrado, precisará acionar a <strong>Andreia</strong>. Uma vez cadastrado o perfil de faturamento de <strong>PJ</strong>, não é possível alterar na plataforma — será necessário um executivo.</li>
+            <li><strong>Alteração de faturamento:</strong> perfil de <strong>PJ</strong> não pode ser alterado na plataforma (necessário um executivo). Para cadastrar outro perfil de <strong>CPF</strong>, fale com a <strong>Andreia</strong>.</li>
             <li><strong>Notas fiscais:</strong> ficam na página <a href="https://aqui.globo/faturamento" target="_blank" rel="noopener noreferrer" class="font-bold text-primary hover:underline">Faturamento</a> da plataforma (exceto rádio). Precisa de alguma observação específica na NF? É só chamar nosso time!</li>
           </ul>
           <div class="pt-0.5">
