@@ -1236,7 +1236,7 @@ function buildNormalizedModel(rawPayload) {
         cpm: getDigitalItemCpm(it),
         impressions: getDigitalItemImpressions(it),
         totalPrice: getDigitalItemInvestment(it),
-        vertical: 'Editora Globo Digital'
+        vertical: 'Revistas Digitais'
       };
     }),
     radioItems: radioNormalized
@@ -1343,7 +1343,7 @@ function initApp() {
 
     window.PROPOSAL_SCENARIOS.so_revistas = buildSingleChannelScenario(
       'so_revistas',
-      '6. Só Revistas Digitais — Editora Globo (4 títulos)',
+      '6. Só Revistas Digitais (4 títulos)',
       'Campanha exclusiva em Revistas e Jornais Digitais (O Globo, Extra, Galileu, Globo Rural).',
       'revistas',
       'REV',
@@ -2519,7 +2519,7 @@ function renderModularMetrics(m) {
     ];
 
   // =========================================================================
-  // CASO 1C: CAMPANHA ÚNICA — SÓ REVISTAS DIGITAIS (EDITORA GLOBO)
+  // CASO 1C: CAMPANHA ÚNICA — SÓ REVISTAS DIGITAIS
   // =========================================================================
   } else if (activeChannelsCount === 1 && c.revistasCount > 0) {
     singleChannelTitle = 'Estimativa de entrega — Revistas e Jornais';
@@ -2533,7 +2533,7 @@ function renderModularMetrics(m) {
           </div>
           <div class="mt-3">
             <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.revistasImpressions)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Editora Globo Digital</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Revistas Digitais</div>
           </div>
         </div>
       `,
@@ -2962,7 +2962,7 @@ function renderFilterBar(m) {
     }
     if (state.channelFilter !== 'revistas') {
       const cnt = m.revistasItems.filter((r) =>
-        `${r.name} ${r.code} ${r.editorialTitle} Display Editora Globo`.toLowerCase().includes(q)
+        `${r.name} ${r.code} ${r.editorialTitle} Display Revistas Digitais`.toLowerCase().includes(q)
       ).length;
       if (cnt > 0) otherMatches.push({ key: 'revistas', label: `Revistas (${cnt})` });
     }
@@ -4080,7 +4080,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
   // =========================================================================
   if (state.channelFilter === 'revistas') {
     const filteredRevistas = m.revistasItems.filter((r) => {
-      const okSearch = matchSearch(`${r.name} ${r.editorialTitle} Display Editora Globo`);
+      const okSearch = matchSearch(`${r.name} ${r.editorialTitle} Display Revistas Digitais`);
       const okCat = !state.ambienteFilter || r.editorialTitle === state.ambienteFilter;
       return okSearch && okCat;
     });
@@ -4092,7 +4092,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const itemKey = r.itemKey || `rev_${idx}`;
       const isSelectedForBulk = !!state.selectedForRemoval[itemKey];
       const estReach = Math.round(r.impressions * 0.62);
-      const revSubtitle = `Editora Globo • Cobertura Nacional • CPM ${fmtBRL(r.cpm)}`;
+      const revSubtitle = `Revistas Digitais • Cobertura Nacional • CPM ${fmtBRL(r.cpm)}`;
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
 
       const revMetricsPopoverHtml = `
@@ -4177,7 +4177,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   ${r.editorialTitle}
                 </h4>
                 <p class="text-[11px] text-ds-textSecondary mt-0.5 leading-snug line-clamp-2" title="${r.editorialTitle} — ${revSubtitle}">
-                  Editora Globo • Cobertura Nacional
+                  Revistas Digitais • Cobertura Nacional
                 </p>
               </div>
               <div class="my-2.5 border-t border-ds-border"></div>
@@ -7768,7 +7768,7 @@ function renderPdfDocument(m) {
   const revistasTitleNames = Array.from(new Set((m.revistasItems || []).map((it) => it.editorialTitle).filter(Boolean)));
   const revistasSummaryLabel = revistasTitleNames.length > 2
     ? `${revistasTitleNames.slice(0, 2).join(', ')} +${revistasTitleNames.length - 2}`
-    : (revistasTitleNames.join(', ') || 'Editora Globo');
+    : (revistasTitleNames.join(', ') || 'Revistas Digitais');
   const radioCitiesNames = Array.from(new Set((m.radioItems || []).map((it) => it.city).filter(Boolean)));
   const radioCoverageSummary = radioCitiesNames.length > 2
     ? `${radioCitiesNames.slice(0, 2).join(', ')} +${radioCitiesNames.length - 2}`
@@ -7868,7 +7868,7 @@ function renderPdfDocument(m) {
   }
 
   if (hasRevistas) {
-    const revistasListLabel = revistasTitleNames.join(', ') || 'Editora Globo';
+    const revistasListLabel = revistasTitleNames.join(', ') || 'Revistas Digitais';
     const revistasCpms = Array.from(new Set((m.revistasItems || []).map((it) => it.cpm).filter((v) => v > 0)));
     const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : (revistasCpms[0] || 0);
     const revistasCpmLabel = revistasCpms.length === 1 ? fmtBRL(revistasCpms[0]) : fmtBRL(revistasAvgCpm);
@@ -8114,7 +8114,7 @@ function renderPdfDocument(m) {
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
           <h2 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
-            Revistas e Jornais — Editora Globo Digital
+            Revistas Digitais
           </h2>
         </div>
         <div class="text-xs font-bold text-ds-textMain">
@@ -9980,7 +9980,7 @@ function exportFullCsv() {
   const portaisCpmLabel = portaisCpms.length === 1 ? fmtBRL(portaisCpms[0]) : fmtBRL(portaisAvgCpm);
 
   const revistasTitleNames = Array.from(new Set((m.revistasItems || []).map((it) => it.editorialTitle).filter(Boolean)));
-  const revistasListLabel = revistasTitleNames.join(', ') || 'Editora Globo';
+  const revistasListLabel = revistasTitleNames.join(', ') || 'Revistas Digitais';
   const revistasCpms = Array.from(new Set((m.revistasItems || []).map((it) => it.cpm).filter((v) => v > 0)));
   const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : (revistasCpms[0] || 0);
   const revistasCpmLabel = revistasCpms.length === 1 ? fmtBRL(revistasCpms[0]) : fmtBRL(revistasAvgCpm);
@@ -10039,7 +10039,7 @@ function exportFullCsv() {
   pushResumoRow(['Item', 'Valor (R$)'], { type: 'table_header', maxCol: 2, rightHeaderCols: [1] });
   if (hasOoh) pushResumoRow(['Subtotal OOH — Telas Digitais e Estáticas', Number(f.oohNet.toFixed(2))], { type: 'data', dataIndex: 0, maxCol: 2, currencyCols: [1] });
   if (hasPortais) pushResumoRow(['Subtotal Portais e Globoplay — Vídeo e Display', Number(f.portaisNet.toFixed(2))], { type: 'data', dataIndex: 1, maxCol: 2, currencyCols: [1] });
-  if (hasRevistas) pushResumoRow(['Subtotal Revistas e Jornais — Editora Globo Digital', Number(f.revistasNet.toFixed(2))], { type: 'data', dataIndex: 2, maxCol: 2, currencyCols: [1] });
+  if (hasRevistas) pushResumoRow(['Subtotal Revistas Digitais', Number(f.revistasNet.toFixed(2))], { type: 'data', dataIndex: 2, maxCol: 2, currencyCols: [1] });
   if (hasRadio) pushResumoRow(['Subtotal Rádio CBN — Spots de 30 segundos', Number(f.radioNet.toFixed(2))], { type: 'data', dataIndex: 3, maxCol: 2, currencyCols: [1] });
   pushResumoRow(['Valor bruto da proposta', Number(f.totalGrossProposal.toFixed(2))], { type: 'kv_row', maxCol: 2, currencyCols: [1] });
   if (f.totalDiscounts > 0) {
@@ -10352,8 +10352,8 @@ function exportFullCsv() {
   if (hasRevistas) {
     const revistasColCount = 9;
     const revistasRows = [
-      ['Revistas e Jornais — Editora Globo Digital'],
-      [`Subtotal Revistas e Jornais: ${fmtBRL(f.revistasNet)}`],
+      ['Revistas Digitais'],
+      [`Subtotal Revistas Digitais: ${fmtBRL(f.revistasNet)}`],
       [],
       [
         'Código',
