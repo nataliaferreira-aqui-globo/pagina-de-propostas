@@ -7148,12 +7148,23 @@ function renderFaqSection() {
     {
       q: 'Como funciona o cadastro de CNPJ ou CPF e onde encontro minhas notas fiscais?',
       a: `
-        <div class="space-y-2">
+        <div class="space-y-2.5">
           <p>Você cadastra seu <strong>CNPJ ou CPF</strong> rapidinho na aba de pagamento com a ajuda da <strong>Andreia</strong>, nossa assistente virtual:</p>
           <ul class="space-y-1 list-disc pl-4">
             <li><strong>Liberação:</strong> cadastros com CPF e campanhas 100% OOH liberam o pagamento na hora. Se o seu CNPJ precisar de atendimento dedicado nos demais canais, um especialista assume com você.</li>
-            <li><strong>Notas fiscais:</strong> ficam na página <strong>"Faturamento"</strong> da plataforma (exceto rádio). Precisa de alguma observação específica na NF? É só chamar nosso time!</li>
+            <li><strong>Notas fiscais:</strong> ficam na página <a href="https://aqui.globo/faturamento" target="_blank" rel="noopener noreferrer" class="font-bold text-primary hover:underline">Faturamento</a> da plataforma (exceto rádio). Precisa de alguma observação específica na NF? É só chamar nosso time!</li>
           </ul>
+          <div class="pt-0.5">
+            <a
+              href="https://aqui.globo/faturamento"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary/30 bg-primary-light/50 hover:bg-primary-light text-primary font-display font-bold text-xs transition"
+            >
+              <span>Acessar página de Faturamento</span>
+              <i class="uil uil-external-link-alt text-xs"></i>
+            </a>
+          </div>
         </div>
       `
     },
