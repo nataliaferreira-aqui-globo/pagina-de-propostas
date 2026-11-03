@@ -8425,11 +8425,19 @@ function renderPdfDocument(m) {
     </section>
   ` : '';
 
-  // 5. ESPECIFICAÇÕES TÉCNICAS EM PÁGINA SEPARADA E EM TABELA SEM ÍCONES (COLUNAS: FORMATO, DIMENSÃO E REQUISITO TÉCNICO)
+  // 5. ESPECIFICAÇÕES TÉCNICAS EM PÁGINA SEPARADA E EM TABELA SEM ÍCONES (COLUNAS: FORMATO, CATEGORIA E TIPO, DIMENSÃO E REQUISITO TÉCNICO)
   const artTableRowsHtml = (m.artFormats || []).map((af, idx) => {
-    const channelLabel = af.isGlobo ? 'Digital (Portais e Revistas)' : (af.isStatic ? 'OOH Estático / Impresso' : 'OOH Digital');
-    const ambientesText = (af.ambientes && af.ambientes.length > 0) ? af.ambientes.join(', ') : af.title;
-    const hasExtraAmbientes = ambientesText && String(ambientesText).trim().toLowerCase() !== String(af.title || '').trim().toLowerCase();
+    const tipoLabel = af.isGlobo ? 'Mídia Digital' : (af.isStatic ? 'OOH Impresso' : 'OOH Digital');
+    const categoriaLabel = af.isGlobo
+      ? 'Portais e Revistas'
+      : ((af.ambientes && af.ambientes.length > 0) ? af.ambientes.join(', ') : af.title);
+    const formatoLabel = af.isGlobo
+      ? af.title
+      : af.isStatic
+        ? (af.width >= af.height ? 'Painel Horizontal' : 'Painel Vertical')
+        : (af.width === 960 && af.height === 1080)
+          ? 'Tela Vertical (4:5)'
+          : (af.width >= af.height ? 'Tela Horizontal (16:9)' : 'Tela Vertical (9:16)');
     const dimText = `${af.width}x${af.height} ${af.unit}`;
     const safeAreaText = (af.availableWidth && af.availableHeight)
       ? `Área útil: ${af.availableWidth}x${af.availableHeight} ${af.unit}`
@@ -8442,9 +8450,12 @@ function renderPdfDocument(m) {
 
     return `
       <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
+        <td class="py-2.5 px-3 align-top font-bold text-slate-900 whitespace-nowrap">
+          ${escapeHtml(formatoLabel)}
+        </td>
         <td class="py-2.5 px-3 align-top">
-          <span class="font-bold text-slate-900">${escapeHtml(af.title)}</span>
-          <span class="text-slate-500"> — ${escapeHtml(channelLabel)}${hasExtraAmbientes ? ` (${escapeHtml(ambientesText)})` : ''}</span>
+          <div class="font-semibold text-slate-900">${escapeHtml(tipoLabel)}</div>
+          <div class="text-[11px] text-slate-500 mt-0.5 leading-snug">${escapeHtml(categoriaLabel)}</div>
         </td>
         <td class="py-2.5 px-3 align-top whitespace-nowrap">
           <div class="font-semibold text-slate-900">${escapeHtml(dimText)}</div>
@@ -8462,9 +8473,12 @@ function renderPdfDocument(m) {
     const rIdx = artTableRowsHtml.length;
     artTableRowsHtml.push(`
       <tr class="${rIdx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
+        <td class="py-2.5 px-3 align-top font-bold text-slate-900 whitespace-nowrap">
+          Spot Comercial
+        </td>
         <td class="py-2.5 px-3 align-top">
-          <span class="font-bold text-slate-900">Rádio CBN — Spot Comercial</span>
-          <span class="text-slate-500"> — Áudio Publicitário</span>
+          <div class="font-semibold text-slate-900">Áudio (Rádio)</div>
+          <div class="text-[11px] text-slate-500 mt-0.5 leading-snug">Rádio CBN</div>
         </td>
         <td class="py-2.5 px-3 align-top whitespace-nowrap">
           <div class="font-semibold text-slate-900">Duração: ${escapeHtml(radioDur)}</div>
@@ -8484,7 +8498,7 @@ function renderPdfDocument(m) {
             Especificações técnicas dos criativos
           </h2>
           <p class="text-[11px] text-slate-500 mt-0.5">
-            Relação de formatos, dimensões e requisitos técnicos para produção e envio das peças desta proposta (página exclusiva).
+            Relação de formatos, dimensões e requisitos técnicos para produção e envio das peças desta proposta.
           </p>
         </div>
         <span class="text-[11px] font-semibold text-slate-600 shrink-0">
@@ -8495,8 +8509,9 @@ function renderPdfDocument(m) {
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="bg-ds-surface text-ds-textSecondary border-b border-ds-border font-display text-xs">
-              <th class="py-2.5 px-3 font-bold w-[38%]">Formato</th>
-              <th class="py-2.5 px-3 font-bold w-[20%]">Dimensão</th>
+              <th class="py-2.5 px-3 font-bold w-[18%]">Formato</th>
+              <th class="py-2.5 px-3 font-bold w-[28%]">Categoria e tipo</th>
+              <th class="py-2.5 px-3 font-bold w-[18%]">Dimensão</th>
               <th class="py-2.5 px-3 font-bold">Requisito técnico</th>
             </tr>
           </thead>
