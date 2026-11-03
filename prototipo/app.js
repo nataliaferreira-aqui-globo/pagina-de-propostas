@@ -3410,7 +3410,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
   let contentHtml = '';
 
-  // Helper de Paginação Mobile (EXIBIR APENAS 5 pontos/itens por página no mobile)
+  // Helper de Carregamento Progressivo Mobile (EXIBIR 5 pontos inicialmente + carregar mais no scroll ou "Ver mais")
   const MOBILE_PAGE_SIZE = 5;
   const paginateMobileList = (items, unitSingular, unitPlural) => {
     if (!mobile) {
@@ -3421,71 +3421,29 @@ function renderMediaPlanList(m, preserveScroll = false) {
     if (!state.mobilePlanPage || state.mobilePlanPage < 1) state.mobilePlanPage = 1;
     if (state.mobilePlanPage > totalPages) state.mobilePlanPage = totalPages;
     const currentPage = state.mobilePlanPage;
-    const startIdx = (currentPage - 1) * MOBILE_PAGE_SIZE;
-    const endIdx = Math.min(startIdx + MOBILE_PAGE_SIZE, total);
-    const visibleItems = items.slice(startIdx, endIdx);
+    const visibleLimit = Math.min(total, currentPage * MOBILE_PAGE_SIZE);
+    const visibleItems = items.slice(0, visibleLimit);
 
-    if (total === 0) {
+    if (total === 0 || visibleLimit >= total) {
       return { visibleItems, paginationHtml: '' };
     }
 
-    const pageButtons = [];
-    for (let p = 1; p <= totalPages; p++) {
-      const isCurrent = p === currentPage;
-      pageButtons.push(`
-        <button
-          type="button"
-          onclick="setMobilePlanPage(${p})"
-          class="w-8 h-8 rounded-lg font-display font-bold text-xs flex items-center justify-center transition ${
-            isCurrent
-              ? 'bg-primary text-white shadow-2xs'
-              : 'bg-white border border-ds-borderStrong text-ds-textSecondary hover:text-ds-textMain'
-          }"
-        >
-          ${p}
-        </button>
-      `);
-    }
+    const remaining = total - visibleLimit;
+    const nextBatch = Math.min(MOBILE_PAGE_SIZE, remaining);
 
     const paginationHtml = `
-      <div class="mt-3 p-2.5 rounded-xl bg-white border border-ds-borderStrong flex flex-col gap-2 shadow-2xs">
-        <div class="flex items-center justify-between text-[11px] text-ds-textSecondary px-0.5">
-          <span>Exibindo <strong class="text-ds-textMain">${startIdx + 1}–${endIdx}</strong> de <strong class="text-ds-textMain">${total}</strong> ${total === 1 ? unitSingular : unitPlural}</span>
-          <span class="font-semibold text-ds-textMuted">Máx. 5 por página</span>
-        </div>
-        ${totalPages > 1 ? `
-          <div class="flex items-center justify-between gap-1.5 pt-1 border-t border-ds-border">
-            <button
-              type="button"
-              onclick="setMobilePlanPage(${currentPage - 1})"
-              ${currentPage <= 1 ? 'disabled' : ''}
-              class="px-2.5 h-8 rounded-lg border border-ds-borderStrong text-xs font-display font-bold inline-flex items-center gap-1 transition ${
-                currentPage <= 1
-                  ? 'bg-ds-surface text-ds-textMuted opacity-50 cursor-not-allowed'
-                  : 'bg-white text-ds-textMain hover:bg-ds-surface'
-              }"
-            >
-              <i class="uil uil-angle-left text-sm"></i>
-              <span>Anterior</span>
-            </button>
-            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
-              ${pageButtons.join('')}
-            </div>
-            <button
-              type="button"
-              onclick="setMobilePlanPage(${currentPage + 1})"
-              ${currentPage >= totalPages ? 'disabled' : ''}
-              class="px-2.5 h-8 rounded-lg border border-ds-borderStrong text-xs font-display font-bold inline-flex items-center gap-1 transition ${
-                currentPage >= totalPages
-                  ? 'bg-ds-surface text-ds-textMuted opacity-50 cursor-not-allowed'
-                  : 'bg-white text-ds-textMain hover:bg-ds-surface'
-              }"
-            >
-              <span>Próxima</span>
-              <i class="uil uil-angle-right text-sm"></i>
-            </button>
-          </div>
-        ` : ''}
+      <div class="pt-1 pb-1 flex flex-col items-center gap-1.5">
+        <button
+          type="button"
+          onclick="loadMoreMobilePlanItems()"
+          class="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-ds-surface border border-ds-borderStrong text-ds-textMain font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.99]"
+        >
+          <span>Ver mais (+${nextBatch})</span>
+          <i class="uil uil-angle-down text-base text-primary leading-none"></i>
+        </button>
+        <span class="text-[11px] text-ds-textSecondary">
+          Exibindo <strong class="text-ds-textMain">${visibleLimit}</strong> de <strong class="text-ds-textMain">${total}</strong> ${total === 1 ? unitSingular : unitPlural}
+        </span>
       </div>
     `;
 
@@ -4237,10 +4195,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
             </button>
           </div>
         ` : `
-          <div id="mediaPlanScrollBox" class="${mobile ? 'space-y-2.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
+          <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredOoh.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
             ${oohCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum ponto OOH encontrado para os filtros selecionados.</div>`}
+            ${oohMobilePaginationHtml}
           </div>
-          ${oohMobilePaginationHtml}
         `}
       </div>
     `;
@@ -4481,10 +4439,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
           </div>
         ` : ''}
 
-        <div id="mediaPlanScrollBox" class="${mobile ? 'space-y-2.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
+        <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRevistas.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${revistasCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum título encontrado para os filtros selecionados.</div>`}
+          ${revistasMobilePaginationHtml}
         </div>
-        ${revistasMobilePaginationHtml}
       </div>
     `;
   }
@@ -4726,10 +4684,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
           </div>
         ` : ''}
 
-        <div id="mediaPlanScrollBox" class="${mobile ? 'space-y-2.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
+        <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredPortais.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${portaisCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum produto encontrado para os filtros selecionados.</div>`}
+          ${portaisMobilePaginationHtml}
         </div>
-        ${portaisMobilePaginationHtml}
       </div>
     `;
   }
@@ -4991,10 +4949,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
           </div>
         ` : ''}
 
-        <div id="mediaPlanScrollBox" class="${mobile ? 'space-y-2.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
+        <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRadio.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${radioCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhuma praça de rádio encontrada para os filtros selecionados.</div>`}
+          ${radioMobilePaginationHtml}
         </div>
-        ${radioMobilePaginationHtml}
       </div>
     `;
   }
@@ -9047,12 +9005,28 @@ function setMobilePlanPage(page) {
   state.mobilePlanPage = Math.max(1, Number(page) || 1);
   const m = getCurrentModel();
   renderMediaPlanList(m, true);
-  setTimeout(() => {
-    const scrollBox = document.getElementById('mediaPlanScrollBox') || document.getElementById('mainTabsSection');
-    if (scrollBox) {
-      scrollBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, 30);
+}
+
+function loadMoreMobilePlanItems() {
+  state.mobilePlanPage = (state.mobilePlanPage || 1) + 1;
+  const m = getCurrentModel();
+  renderMediaPlanList(m, true);
+}
+
+let _mobileScrollLoadLock = false;
+function handleMobilePlanScroll(el, totalItems) {
+  if (!el || _mobileScrollLoadLock) return;
+  const currentLimit = (state.mobilePlanPage || 1) * 5;
+  if (currentLimit >= totalItems) return;
+  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 48) {
+    _mobileScrollLoadLock = true;
+    state.mobilePlanPage = (state.mobilePlanPage || 1) + 1;
+    const m = getCurrentModel();
+    renderMediaPlanList(m, true);
+    setTimeout(() => {
+      _mobileScrollLoadLock = false;
+    }, 150);
+  }
 }
 
 function setChannelFilter(ch) {
