@@ -1585,12 +1585,35 @@ function isUserUnlogged() {
   return Boolean(state.simulateUnlogged && !state.authCompleted);
 }
 
+function isCampaignOnlyOoh(m) {
+  const model = m || getCurrentModel();
+  if (!model || !model.counts) return state.scenarioKey === 'ooh';
+  const c = model.counts;
+  return state.scenarioKey === 'ooh' || (c.oohGroupsCount > 0 && c.portaisCount === 0 && c.revistasCount === 0 && c.radioCount === 0);
+}
+
 function isPaymentMethodsBlocked() {
   return Boolean(state.simulateUnlogged && (!state.billingUnlockedInline || state.billingCnpjRestricted));
 }
 
 function renderAll() {
   const model = getCurrentModel();
+  if (state.simulateUnlogged && state.billingUnlockedInline) {
+    const onlyOoh = isCampaignOnlyOoh(model);
+    if (onlyOoh || state.andreiaProfileType === 'CPF') {
+      if (state.billingCnpjRestricted) {
+        state.billingCnpjRestricted = false;
+        if (!state.paymentMethod) state.paymentMethod = 'card';
+        if (state.andreiaStep === 'restricted') state.andreiaStep = 'unlocked';
+      }
+    } else if (state.andreiaProfileType === 'CNPJ' && state.andreiaSimulateRestricted) {
+      if (!state.billingCnpjRestricted) {
+        state.billingCnpjRestricted = true;
+        state.paymentMethod = null;
+        if (state.andreiaStep === 'unlocked') state.andreiaStep = 'restricted';
+      }
+    }
+  }
   ensureValidActiveChannel(model);
   syncMainTabLabels();
   renderJourneyStepper(model);
@@ -9215,6 +9238,7 @@ function selectAndreiaProfileType(type) {
 
 function submitAndreiaBillingForm() {
   const isCpf = state.andreiaProfileType === 'CPF';
+  const onlyOoh = isCampaignOnlyOoh();
   const docVal = (state.andreiaInputDoc || '').trim() || (isCpf ? '123.456.789-00' : '12.345.678/0001-99');
   const nameVal = (state.andreiaInputName || '').trim() || (isCpf ? 'Natalia Ferreira' : 'Padaria & Confeitaria Bela Paulista LTDA');
 
@@ -9222,9 +9246,11 @@ function submitAndreiaBillingForm() {
   state.billingCompany = nameVal;
   state.billingUnlockedInline = true;
 
-  // CPF nunca possui restrição: libera os métodos de pagamento imediatamente.
-  // Apenas CNPJ entra no fluxo de restrição / encaminhamento ao especialista.
-  if (!isCpf && state.andreiaSimulateRestricted) {
+  // Regra de negócio:
+  // 1) CPF nunca possui restrição.
+  // 2) Campanha 100% OOH nunca possui restrição de CNPJ.
+  // Apenas CNPJ em campanhas com outros canais entra no fluxo de restrição / encaminhamento ao especialista.
+  if (!isCpf && !onlyOoh && state.andreiaSimulateRestricted) {
     state.billingCnpjRestricted = true;
     state.paymentMethod = null;
     state.andreiaStep = 'restricted';
