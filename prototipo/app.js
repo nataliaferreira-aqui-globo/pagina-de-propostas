@@ -7121,72 +7121,66 @@ function requestRadioBilling() {
 function renderFaqSection() {
   const faqs = [
     {
-      q: 'Quais são as formas de pagamento, regras de parcelamento e prazos de compensação?',
-      tag: 'Formas de pagamento e parcelamento',
+      q: 'Quais são as formas de pagamento, parcelamento e prazos?',
       a: `
-        <div class="space-y-2.5">
-          <p>Para sua segurança e praticidade, nossos pagamentos online são processados via <strong>Stone, Itaú Checkout e Pagar.me</strong>. Você pode escolher a opção que melhor se adapta ao fluxo do seu negócio:</p>
-          <ul class="space-y-1.5 list-disc pl-4">
-            <li><strong>Pix:</strong> tem confirmação imediata para você agilizar sua campanha. O código Pix fica válido por <strong>24 horas</strong> após ser gerado.</li>
-            <li><strong>Cartão de crédito:</strong> aprovação rápida em <strong>até 2 horas</strong> (aceitamos <em>Visa, Mastercard, Diners, Discover, Hiper, Hipercard, JCB e Credz</em>). Qualquer pedido pode ser parcelado em <strong>até 3x sem juros</strong>, e campanhas com duração de 24 semanas podem ser parceladas em <strong>até 6x sem juros</strong>, independentemente do valor.</li>
-            <li><strong>Boleto bancário:</strong> disponível para pedidos a partir de <strong>R$ 1.200,00</strong>, com vencimento de 1 dia útil e compensação em até 2 dias úteis. A produção e a veiculação começam assim que o banco confirma o pagamento (pedidos não pagos no prazo são cancelados automaticamente).</li>
+        <div class="space-y-2">
+          <p>Seus pagamentos online são processados com total segurança via <strong>Stone</strong>. Escolha como prefere pagar:</p>
+          <ul class="space-y-1 list-disc pl-4">
+            <li><strong>Pix:</strong> aprovação na hora (código válido por <strong>24h</strong>).</li>
+            <li><strong>Cartão de crédito:</strong> aprovação em até 2h. Parcele em <strong>até 3x sem juros</strong> em qualquer pedido ou em <strong>até 6x sem juros</strong> em campanhas de 24 semanas.</li>
+            <li><strong>Boleto bancário:</strong> disponível para pedidos a partir de <strong>R$ 1.200,00</strong> (vencimento em 1 dia útil e compensação em até 2 dias úteis).</li>
           </ul>
         </div>
       `
     },
     {
       q: 'Como funciona o pagamento para campanhas de Rádio?',
-      tag: 'Rádio: Direto com a emissora',
       a: `
-        <div class="space-y-2.5">
-          <p>Nas campanhas de <strong>Rádio</strong>, tanto a validação dos anúncios quanto o faturamento acontecem diretamente com a emissora, seguindo suas regras comerciais — por isso essa modalidade não utiliza cartão, Pix ou boleto comum da plataforma:</p>
-          <ul class="space-y-1.5 list-disc pl-4">
-            <li><strong>Pessoa Física (CPF):</strong> o pagamento é feito de forma antecipada por depósito bancário, e a campanha é liberada logo após a confirmação.</li>
-            <li><strong>Pessoa Jurídica (CNPJ):</strong> o faturamento segue o modelo <strong>15 DFM (15 Dias Fora Mês)</strong>. Isso significa que as inserções realizadas no mês vencem no dia 15 do mês seguinte (por exemplo: veiculações feitas em setembro têm vencimento em 15 de outubro).</li>
+        <div class="space-y-2">
+          <p>Em <strong>Rádio</strong>, a validação e o faturamento acontecem direto com a emissora (por isso não usamos cartão, Pix ou boleto comum aqui):</p>
+          <ul class="space-y-1 list-disc pl-4">
+            <li><strong>CPF:</strong> pagamento antecipado por depósito bancário, com campanha liberada após a confirmação.</li>
+            <li><strong>CNPJ:</strong> faturamento <strong>15 DFM (15 Dias Fora Mês)</strong> — as veiculações do mês vencem sempre no dia 15 do mês seguinte.</li>
           </ul>
         </div>
       `
     },
     {
       q: 'Como funciona o cadastro de CNPJ ou CPF e onde encontro minhas notas fiscais?',
-      tag: 'CNPJ, CPF e notas fiscais',
       a: `
-        <div class="space-y-2.5">
-          <p>Você pode cadastrar seu perfil de faturamento com <strong>CNPJ ou CPF</strong> diretamente na aba de pagamento, contando com a ajuda da <strong>Andreia</strong>, nossa assistente virtual:</p>
-          <ul class="space-y-1.5 list-disc pl-4">
-            <li><strong>Validação de CNPJ e CPF:</strong> cadastros com CPF e campanhas exclusivas de OOH seguem para pagamento na hora. Se o seu CNPJ tiver alguma condição comercial específica nos demais canais, direcionamos sua proposta para um dos nossos especialistas dar continuidade ao atendimento com você.</li>
-            <li><strong>Notas fiscais e exigências de faturamento:</strong> as notas fiscais das campanhas (com exceção de rádio) ficam sempre disponíveis na plataforma, na página <strong>"Faturamento"</strong>. Se a sua empresa tiver alguma exigência específica para emissão da nota fiscal, basta falar com o nosso time pelos canais oficiais do Aqui Ads.</li>
+        <div class="space-y-2">
+          <p>Você cadastra seu <strong>CNPJ ou CPF</strong> rapidinho na aba de pagamento com a ajuda da <strong>Andreia</strong>, nossa assistente virtual:</p>
+          <ul class="space-y-1 list-disc pl-4">
+            <li><strong>Liberação:</strong> cadastros com CPF e campanhas 100% OOH liberam o pagamento na hora. Se o seu CNPJ precisar de atendimento dedicado nos demais canais, um especialista assume com você.</li>
+            <li><strong>Notas fiscais:</strong> ficam na página <strong>"Faturamento"</strong> da plataforma (exceto rádio). Precisa de alguma observação específica na NF? É só chamar nosso time!</li>
           </ul>
         </div>
       `
     },
     {
       q: 'Como sei se posso aplicar um cupom promocional na minha proposta?',
-      tag: 'Cupons e descontos',
       a: `
-        <div class="space-y-2">
-          <p>É super simples: na aba <strong>Pagamento e aprovação</strong>, clique em <strong>"+ digitar cupom"</strong> dentro do Resumo da Campanha e insira o seu código para recalcular o valor na hora.</p>
-          <p>Vale lembrar que cada cupom possui regras próprias de validade e canais elegíveis. Além disso, caso algum edifício da sua proposta já tenha <strong>Desconto Condômino</strong> aplicado, os dois descontos não se acumulam no mesmo ponto — a plataforma garante sempre o desconto mais vantajoso para você.</p>
+        <div class="space-y-1.5">
+          <p>Basta clicar em <strong>"+ digitar cupom"</strong> no Resumo da Campanha (aba de pagamento) para atualizar o valor na hora.</p>
+          <p>Se algum ponto já tiver <strong>Desconto Condômino</strong>, os descontos não se acumulam no mesmo edifício — mas fique tranquilo, a plataforma mantém sempre o maior desconto para você.</p>
         </div>
       `
     },
     {
       q: 'Quando e como envio as artes e vídeos da minha campanha?',
-      tag: 'Envio de criativos',
       a: `
-        <div class="space-y-2">
-          <p>Não precisa se preocupar em ter as artes prontas agora! Assim que o seu pedido é confirmado, a etapa <strong>"Envio de criativos"</strong> é liberada automaticamente no painel para você subir seus arquivos com calma.</p>
-          <p>Se já quiser adiantar a produção, você pode consultar todas as dimensões, formatos (MP4, JPG, PNG ou spot de 30s), limites de peso e baixar os gabaritos oficiais aqui mesmo na aba <strong>"Especificações de arte"</strong> antes de efetuar o pagamento.</p>
+        <div class="space-y-1.5">
+          <p>Você não precisa ter as peças prontas agora! Assim que o pedido é confirmado, a etapa <strong>"Envio de criativos"</strong> abre no seu painel para você subir tudo com calma.</p>
+          <p>Quer ir adiantando? Todas as medidas, formatos e gabaritos já estão disponíveis na aba <strong>"Especificações de arte"</strong>.</p>
         </div>
       `
     },
     {
-      q: 'Como faço para tirar dúvidas ou compartilhar esta proposta com meu sócio ou financeiro?',
-      tag: 'Atendimento e compartilhamento',
+      q: 'Como faço para tirar dúvidas ou compartilhar esta proposta?',
       a: `
-        <div class="space-y-2">
-          <p>Estamos aqui para ajudar em cada etapa! Se pintar qualquer dúvida sobre os pontos escolhidos, faturamento ou formatos de mídia, você pode chamar a <strong>Andreia</strong> aqui na página ou entrar em contato com o nosso time de atendimento pelos canais oficiais do Aqui Ads.</p>
-          <p>E se precisar aprovar o plano internamente antes de fechar, basta clicar em <strong>"Compartilhar"</strong> no topo da proposta ou exportar o material completo em <strong>PDF ou Excel</strong>.</p>
+        <div class="space-y-1.5">
+          <p>Estamos sempre por perto! Se pintar qualquer dúvida, chame a <strong>Andreia</strong> aqui na página ou fale com nosso atendimento pelos canais oficiais do Aqui Ads.</p>
+          <p>Para mostrar a proposta ao seu sócio ou financeiro, use os botões <strong>"Compartilhar"</strong> ou <strong>"Exportar" (PDF/Excel)</strong> no topo da página.</p>
         </div>
       `
     }
@@ -7203,7 +7197,7 @@ function renderFaqSection() {
             Perguntas frequentes
           </h2>
           <p class="mt-2 text-xs sm:text-sm text-ds-textSecondary leading-relaxed">
-            Tire suas dúvidas sobre pagamentos, faturamento, cupons e envio de criativos.
+            Tudo o que você precisa saber, direto ao ponto, para aprovar sua campanha com tranquilidade.
           </p>
         </div>
 
@@ -7219,16 +7213,8 @@ function renderFaqSection() {
                   </span>
                 </button>
                 ${isOpen ? `
-                  <div class="pb-5 pr-4 sm:pr-10 text-xs sm:text-[13px] text-ds-textSecondary leading-relaxed space-y-3">
+                  <div class="pb-4 pr-4 sm:pr-10 text-xs sm:text-[13px] text-ds-textSecondary leading-relaxed">
                     ${item.a}
-                    ${item.tag ? `
-                      <div class="pt-0.5">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FFF3ED] text-[#F15A22] font-display font-semibold text-[11px]">
-                          <i class="uil uil-tag-alt text-xs"></i>
-                          <span>${item.tag}</span>
-                        </span>
-                      </div>
-                    ` : ''}
                   </div>
                 ` : ''}
               </div>
