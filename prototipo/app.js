@@ -7181,7 +7181,7 @@ function renderFaqSection() {
       q: 'Quando e como envio as artes e vídeos da minha campanha?',
       a: `
         <div class="space-y-1.5">
-          <p>Você não precisa ter as peças prontas agora! Assim que o pedido é confirmado, a etapa <strong>"Envio de criativos"</strong> abre no seu painel para você subir tudo com calma.</p>
+          <p>Você não precisa ter as peças prontas agora! Assim que o pedido é confirmado, basta clicar em <strong>"Envio de criativos"</strong> para ir até a tela de <strong>Meus anúncios</strong> e, após a confirmação do pagamento, clicar em <strong>"Enviar arte"</strong> na sua campanha.</p>
           <p>Quer ir adiantando? Todas as medidas, formatos e gabaritos já estão disponíveis na aba <strong>"Especificações de arte"</strong>.</p>
         </div>
       `
