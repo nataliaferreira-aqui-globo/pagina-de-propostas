@@ -6858,6 +6858,13 @@ function renderPaymentTab(m) {
           ` : `
             <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(state.billingCompany)}</div>
             <div class="text-[11px] text-ds-textMuted">${state.andreiaProfileType === 'CPF' ? 'CPF' : 'CNPJ'} ${escapeHtml(state.billingDoc)}</div>
+            ${!state.billingDrawerOpen && (!state.simulateUnlogged || !state.billingCnpjRestricted) ? `
+              <div class="mt-1 text-[11px] text-ds-textSecondary leading-snug">
+                ${state.andreiaProfileType === 'CPF'
+                  ? 'Para trocar para outro perfil não cadastrado, acione a Andreia.'
+                  : 'Perfil PJ não editável na plataforma (alteração com executivo ou novo perfil via Andreia).'}
+              </div>
+            ` : ''}
           `}
 
           ${state.billingDrawerOpen && (!state.simulateUnlogged || (state.billingUnlockedInline && !state.billingCnpjRestricted)) ? `
