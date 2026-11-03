@@ -1497,9 +1497,13 @@ function syncMainTabLabels() {
   if (lblPag) lblPag.textContent = mobile ? 'Pagamento' : 'Pagamento e aprovação';
 
   ['plano', 'arte', 'pagamento'].forEach((t) => {
+    const isActive = state.activeTab === t;
+    const contentEl = document.getElementById(`tabContent-${t}`);
+    if (contentEl) {
+      contentEl.classList.toggle('hidden', !isActive);
+    }
     const btn = document.getElementById(`tabBtn-${t}`);
     if (!btn) return;
-    const isActive = state.activeTab === t;
     const iconEl = btn.querySelector('i');
     if (iconEl) {
       const iconName = t === 'plano' ? 'uil-layer-group' : t === 'arte' ? 'uil-image-check' : 'uil-credit-card';
@@ -8953,6 +8957,7 @@ function submitAuthModal(sourceLabel) {
   state.paymentMethod = null;
   state.activeTab = 'pagamento';
   renderAll();
+  switchMainTab('pagamento');
   setTimeout(() => {
     const target = document.getElementById('mainTabsSection');
     if (target) {
