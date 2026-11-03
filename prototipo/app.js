@@ -6674,8 +6674,14 @@ function renderPaymentTab(m) {
                   </div>
 
                   <div class="pt-1 space-y-2">
-                    <button type="button" onclick="showToast('Cartão Mastercard •••• 7492 confirmado!')" class="w-full py-2.5 px-4 rounded-xl bg-ds-textMain hover:bg-black text-white font-display font-bold text-xs transition">
-                      usar cartão selecionado
+                    <button
+                      id="activateCampaignBtn"
+                      type="button"
+                      onclick="submitPaymentOrder()"
+                      class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm shadow-aqui-cta flex items-center justify-center gap-2 transition cursor-pointer"
+                    >
+                      <span>efetuar pagamento</span>
+                      <i class="uil uil-arrow-right text-base"></i>
                     </button>
                     <button type="button" onclick="setCardMode('new')" class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs transition">
                       cadastrar novo cartão
@@ -6724,8 +6730,14 @@ function renderPaymentTab(m) {
                     </label>
 
                     <div class="pt-1 space-y-2">
-                      <button type="button" onclick="showToast('Novo cartão validado para esta campanha!')" class="w-full py-2.5 px-4 rounded-xl bg-ds-textMain hover:bg-black text-white font-display font-bold text-xs transition">
-                        usar cartão selecionado
+                      <button
+                        id="activateCampaignBtn"
+                        type="button"
+                        onclick="submitPaymentOrder()"
+                        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm shadow-aqui-cta flex items-center justify-center gap-2 transition cursor-pointer"
+                      >
+                        <span>efetuar pagamento</span>
+                        <i class="uil uil-arrow-right text-base"></i>
                       </button>
                       <button type="button" onclick="setCardMode('saved')" class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs transition">
                         voltar para cartão salvo (•••• 7492)
@@ -6738,7 +6750,7 @@ function renderPaymentTab(m) {
           ` : ''}
         </div>
 
-        <!-- OPÇÃO 2: PIX (Com seção #generatedPixSection para onde a tela sobe ao clicar em "ativar minha campanha") -->
+        <!-- OPÇÃO 2: PIX (Com seção #generatedPixSection e CTA "efetuar pagamento" integrado) -->
         <div class="space-y-2.5">
           <button
             type="button"
@@ -6830,8 +6842,19 @@ function renderPaymentTab(m) {
                   </div>
                 </div>
               ` : `
-                <div class="rounded-[14px] border border-ds-borderStrong bg-white p-3.5 text-xs text-ds-textSecondary leading-relaxed">
-                  Ao clicar em <strong class="text-ds-textMain">ativar minha campanha</strong>, geraremos ${mobile ? 'o código Pix Copia e Cola' : 'o QR Code e o código Pix Copia e Cola'} com validade de 15 minutos.
+                <div class="rounded-[14px] border border-ds-borderStrong bg-white p-3.5 space-y-3 text-xs text-ds-textSecondary leading-relaxed">
+                  <p>
+                    Ao clicar em <strong class="text-ds-textMain">efetuar pagamento</strong>, geraremos ${mobile ? 'o código Pix Copia e Cola' : 'o QR Code e o código Pix Copia e Cola'} com validade de 15 minutos.
+                  </p>
+                  <button
+                    id="activateCampaignBtn"
+                    type="button"
+                    onclick="submitPaymentOrder()"
+                    class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm shadow-aqui-cta flex items-center justify-center gap-2 transition cursor-pointer"
+                  >
+                    <span>efetuar pagamento</span>
+                    <i class="uil uil-arrow-right text-base"></i>
+                  </button>
                 </div>
               `}
             </div>
@@ -6911,8 +6934,19 @@ function renderPaymentTab(m) {
                   </div>
                 </div>
               ` : `
-                <div class="rounded-[14px] border border-ds-borderStrong bg-white p-3.5 text-xs text-ds-textSecondary leading-relaxed">
-                  O boleto será emitido em nome de <strong class="text-ds-textMain">${escapeHtml(getProtectedBillingInfo().displayName)}</strong>. Você já pode adiantar os criativos enquanto aguarda a compensação.
+                <div class="rounded-[14px] border border-ds-borderStrong bg-white p-3.5 space-y-3 text-xs text-ds-textSecondary leading-relaxed">
+                  <p>
+                    O boleto será emitido em nome de <strong class="text-ds-textMain">${escapeHtml(getProtectedBillingInfo().displayName)}</strong>. Você já pode adiantar os criativos enquanto aguarda a compensação.
+                  </p>
+                  <button
+                    id="activateCampaignBtn"
+                    type="button"
+                    onclick="submitPaymentOrder()"
+                    class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm shadow-aqui-cta flex items-center justify-center gap-2 transition cursor-pointer"
+                  >
+                    <span>efetuar pagamento</span>
+                    <i class="uil uil-arrow-right text-base"></i>
+                  </button>
                 </div>
               `}
             </div>
@@ -7069,36 +7103,15 @@ function renderPaymentTab(m) {
           </div>
         </div>
 
-        <!-- 4.2 Ação Primária Única + Selo de Segurança Abaixo + Link Secundário Discreto -->
-        <div class="space-y-2.5">
-          <button
-            id="activateCampaignBtn"
-            type="button"
-            onclick="${canActivateCampaign ? 'submitPaymentOrder()' : ''}"
-            ${!canActivateCampaign ? 'disabled' : ''}
-            aria-disabled="${!canActivateCampaign}"
-            class="w-full py-3.5 px-5 rounded-xl font-display font-bold text-sm flex items-center justify-center gap-2 transition ${
-              canActivateCampaign
-                ? 'bg-aqui-grad hover:opacity-95 text-white shadow-aqui-cta cursor-pointer'
-                : 'bg-[#EFEFEF] text-[#9CA3AF] border border-[#E5E7EB] shadow-none cursor-not-allowed'
-            }"
-          >
-            ${isAwaitingGeneratedPayment ? `
-              <i class="uil uil-clock text-base"></i>
-              <span>aguardando pagamento</span>
-            ` : `
-              <span>ativar minha campanha</span>
-              <i class="uil uil-arrow-right text-base"></i>
-            `}
-          </button>
-
+        <!-- 4.2 Selo de Segurança + Link Secundário Discreto (O botão "efetuar pagamento" fica diretamente em cada forma de pagamento à esquerda) -->
+        <div class="space-y-2.5 pt-1">
           <div class="flex items-center justify-center gap-1.5 text-[11px] text-ds-textSecondary select-none cursor-default">
             <i class="uil uil-padlock text-xs text-ds-textMuted"></i>
             <span>Ambiente 100% criptografado · Homologado pela</span>
             <span class="font-display font-extrabold text-xs text-[#00A868] tracking-tight">stone</span>
           </div>
 
-          <div class="pt-1 text-center">
+          <div class="pt-0.5 text-center">
             <button type="button" onclick="switchMainTab('plano')" class="inline-flex items-center justify-center gap-1 text-xs font-display font-semibold text-ds-textSecondary hover:text-primary transition">
               <i class="uil uil-arrow-left text-sm"></i>
               <span>voltar para a revisão da campanha</span>
