@@ -78,8 +78,71 @@ const state = {
   mobileOohFocusedPin: null,
   mobileOohSavedScrollTop: 0,
   mobileFiltersOpen: false,
-  mobileArtFiltersOpen: false
+  mobileArtFiltersOpen: false,
+  mobilePlanPage: 1
 };
+
+// ============================================================================
+// HELPER DE PROTEÇÃO DE DADOS DE FATURAMENTO (LGPD — CPF & DADOS COMPARTILHADOS)
+// ============================================================================
+function maskCpfLgpd(rawDoc) {
+  const digits = String(rawDoc || '').replace(/\D/g, '');
+  if (digits.length === 11) {
+    return `***.${digits.slice(3, 6)}.${digits.slice(6, 9)}-**`;
+  }
+  return '***.456.789-**';
+}
+
+function maskPersonNameLgpd(rawName) {
+  const clean = String(rawName || '').trim();
+  if (!clean) return 'Titular Pessoa Física (Dados protegidos · LGPD)';
+  const parts = clean.split(/\s+/);
+  if (parts.length === 1) {
+    return `${parts[0].slice(0, 3)}***`;
+  }
+  const first = parts[0];
+  const lastInitial = parts[parts.length - 1].charAt(0).toUpperCase();
+  return `${first} ${lastInitial}***`;
+}
+
+function getProtectedBillingInfo(options = {}) {
+  const isSharedExport = Boolean(options.isSharedExport);
+  const rawDoc = String(state.billingDoc || '').trim();
+  const digits = rawDoc.replace(/\D/g, '');
+  const isCpfDoc = state.andreiaProfileType === 'CPF' || digits.length === 11;
+  const isUnloggedShared = Boolean(state.simulateUnlogged && !state.billingUnlockedInline);
+
+  // Para CPF ou geração de dados compartilhados (PDF / Excel / link compartilhado sem PJ explícito),
+  // aplica mascaramento e proteção LGPD nos dados de faturamento.
+  if (isCpfDoc || (isSharedExport && isUnloggedShared)) {
+    const rawPersonName = isCpfDoc
+      ? (state.billingCompany && !state.billingCompany.includes('LTDA') ? state.billingCompany : (state.andreiaInputName || 'Natalia Ferreira'))
+      : 'Natalia Ferreira';
+    const maskedName = maskPersonNameLgpd(rawPersonName);
+    const maskedDoc = maskCpfLgpd(isCpfDoc ? rawDoc : '123.456.789-00');
+    return {
+      isProtectedLgpd: true,
+      isCpf: true,
+      docTypeLabel: 'CPF de faturamento',
+      holderLabel: 'Titular / Anunciante (CPF)',
+      displayName: `${maskedName} · Dados protegidos (LGPD)`,
+      displayDoc: `${maskedDoc} (Protegido pela LGPD)`,
+      shortSummary: `Dados protegidos (LGPD) · CPF ${maskedDoc}`,
+      badgeText: 'Dados protegidos · LGPD'
+    };
+  }
+
+  return {
+    isProtectedLgpd: false,
+    isCpf: false,
+    docTypeLabel: 'CNPJ de faturamento',
+    holderLabel: 'Razão social / Anunciante',
+    displayName: state.billingCompany || 'Padaria & Confeitaria Bela Paulista LTDA',
+    displayDoc: state.billingDoc || '12.345.678/0001-99',
+    shortSummary: `${state.billingCompany || 'Padaria & Confeitaria Bela Paulista LTDA'} (CNPJ ${state.billingDoc || '12.345.678/0001-99'})`,
+    badgeText: 'Protegido · LGPD'
+  };
+}
 
 let desktopMap = null;
 let mobileInlineMap = null;
@@ -3324,6 +3387,88 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
   let contentHtml = '';
 
+  // Helper de Paginação Mobile (EXIBIR APENAS 5 pontos/itens por página no mobile)
+  const MOBILE_PAGE_SIZE = 5;
+  const paginateMobileList = (items, unitSingular, unitPlural) => {
+    if (!mobile) {
+      return { visibleItems: items, paginationHtml: '' };
+    }
+    const total = items.length;
+    const totalPages = Math.max(1, Math.ceil(total / MOBILE_PAGE_SIZE));
+    if (!state.mobilePlanPage || state.mobilePlanPage < 1) state.mobilePlanPage = 1;
+    if (state.mobilePlanPage > totalPages) state.mobilePlanPage = totalPages;
+    const currentPage = state.mobilePlanPage;
+    const startIdx = (currentPage - 1) * MOBILE_PAGE_SIZE;
+    const endIdx = Math.min(startIdx + MOBILE_PAGE_SIZE, total);
+    const visibleItems = items.slice(startIdx, endIdx);
+
+    if (total === 0) {
+      return { visibleItems, paginationHtml: '' };
+    }
+
+    const pageButtons = [];
+    for (let p = 1; p <= totalPages; p++) {
+      const isCurrent = p === currentPage;
+      pageButtons.push(`
+        <button
+          type="button"
+          onclick="setMobilePlanPage(${p})"
+          class="w-8 h-8 rounded-lg font-display font-bold text-xs flex items-center justify-center transition ${
+            isCurrent
+              ? 'bg-primary text-white shadow-2xs'
+              : 'bg-white border border-ds-borderStrong text-ds-textSecondary hover:text-ds-textMain'
+          }"
+        >
+          ${p}
+        </button>
+      `);
+    }
+
+    const paginationHtml = `
+      <div class="mt-3 p-2.5 rounded-xl bg-white border border-ds-borderStrong flex flex-col gap-2 shadow-2xs">
+        <div class="flex items-center justify-between text-[11px] text-ds-textSecondary px-0.5">
+          <span>Exibindo <strong class="text-ds-textMain">${startIdx + 1}–${endIdx}</strong> de <strong class="text-ds-textMain">${total}</strong> ${total === 1 ? unitSingular : unitPlural}</span>
+          <span class="font-semibold text-ds-textMuted">Máx. 5 por página</span>
+        </div>
+        ${totalPages > 1 ? `
+          <div class="flex items-center justify-between gap-1.5 pt-1 border-t border-ds-border">
+            <button
+              type="button"
+              onclick="setMobilePlanPage(${currentPage - 1})"
+              ${currentPage <= 1 ? 'disabled' : ''}
+              class="px-2.5 h-8 rounded-lg border border-ds-borderStrong text-xs font-display font-bold inline-flex items-center gap-1 transition ${
+                currentPage <= 1
+                  ? 'bg-ds-surface text-ds-textMuted opacity-50 cursor-not-allowed'
+                  : 'bg-white text-ds-textMain hover:bg-ds-surface'
+              }"
+            >
+              <i class="uil uil-angle-left text-sm"></i>
+              <span>Anterior</span>
+            </button>
+            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
+              ${pageButtons.join('')}
+            </div>
+            <button
+              type="button"
+              onclick="setMobilePlanPage(${currentPage + 1})"
+              ${currentPage >= totalPages ? 'disabled' : ''}
+              class="px-2.5 h-8 rounded-lg border border-ds-borderStrong text-xs font-display font-bold inline-flex items-center gap-1 transition ${
+                currentPage >= totalPages
+                  ? 'bg-ds-surface text-ds-textMuted opacity-50 cursor-not-allowed'
+                  : 'bg-white text-ds-textMain hover:bg-ds-surface'
+              }"
+            >
+              <span>Próxima</span>
+              <i class="uil uil-angle-right text-sm"></i>
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    return { visibleItems, paginationHtml };
+  };
+
   // =========================================================================
   // CANAL 1: OOH — Padrão Pontooh Design System (Desktop lg-1024px & Mobile sm-640px)
   // =========================================================================
@@ -3345,7 +3490,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
     const removedKeysCount = Object.keys(state.removedItems).filter((k) => !k.startsWith('rev_') && !k.startsWith('dig_') && !k.startsWith('rad_')).length;
     const filteredSubtotal = filteredOoh.reduce((acc, g) => acc + g.netPrice, 0);
 
-    const oohCardsHtml = filteredOoh.map((g) => {
+    const { visibleItems: visibleOoh, paginationHtml: oohMobilePaginationHtml } = paginateMobileList(filteredOoh, 'ponto', 'pontos');
+
+    const oohCardsHtml = visibleOoh.map((g) => {
       const humanAddr = formatHumanAddress(g.address, g.district, g.city, g.state);
       const categoryLabel = g.vertical || 'OOH';
       const safeTitle = g.name.replace(/'/g, '');
@@ -4070,6 +4217,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
           <div id="mediaPlanScrollBox" class="${mobile ? 'space-y-2.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
             ${oohCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum ponto OOH encontrado para os filtros selecionados.</div>`}
           </div>
+          ${oohMobilePaginationHtml}
         `}
       </div>
     `;
@@ -4088,7 +4236,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
     const selectedRevistas = filteredRevistas.filter((r) => !!state.selectedForRemoval[r.itemKey]);
     const selectedRevistasSubtotal = selectedRevistas.reduce((acc, r) => acc + r.totalPrice, 0);
 
-    const revistasCardsHtml = filteredRevistas.map((r, idx) => {
+    const { visibleItems: visibleRevistas, paginationHtml: revistasMobilePaginationHtml } = paginateMobileList(filteredRevistas, 'título', 'títulos');
+
+    const revistasCardsHtml = visibleRevistas.map((r, idx) => {
       const itemKey = r.itemKey || `rev_${idx}`;
       const isSelectedForBulk = !!state.selectedForRemoval[itemKey];
       const estReach = Math.round(r.impressions * 0.62);
@@ -4311,6 +4461,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
         <div id="mediaPlanScrollBox" class="${mobile ? 'space-y-2.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${revistasCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum título encontrado para os filtros selecionados.</div>`}
         </div>
+        ${revistasMobilePaginationHtml}
       </div>
     `;
   }
@@ -4329,7 +4480,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
     const selectedPortais = filteredPortais.filter((p) => !!state.selectedForRemoval[p.itemKey]);
     const selectedPortaisSubtotal = selectedPortais.reduce((acc, p) => acc + p.totalPrice, 0);
 
-    const portaisCardsHtml = filteredPortais.map((p, idx) => {
+    const { visibleItems: visiblePortais, paginationHtml: portaisMobilePaginationHtml } = paginateMobileList(filteredPortais, 'formato', 'formatos');
+
+    const portaisCardsHtml = visiblePortais.map((p, idx) => {
       const itemKey = p.itemKey || `dig_${idx}`;
       const isSelectedForBulk = !!state.selectedForRemoval[itemKey];
       const estReach = Math.round(p.impressions * 0.62);
@@ -4553,6 +4706,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
         <div id="mediaPlanScrollBox" class="${mobile ? 'space-y-2.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${portaisCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum produto encontrado para os filtros selecionados.</div>`}
         </div>
+        ${portaisMobilePaginationHtml}
       </div>
     `;
   }
@@ -4571,7 +4725,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
     const selectedRadio = filteredRadio.filter((rd) => !!state.selectedForRemoval[rd.itemKey]);
     const selectedRadioSubtotal = selectedRadio.reduce((acc, rd) => acc + rd.totalPrice, 0);
 
-    const radioCardsHtml = filteredRadio.map((rd, idx) => {
+    const { visibleItems: visibleRadio, paginationHtml: radioMobilePaginationHtml } = paginateMobileList(filteredRadio, 'praça', 'praças');
+
+    const radioCardsHtml = visibleRadio.map((rd, idx) => {
       const itemKey = rd.itemKey || `rad_${idx}`;
       const isSelectedForBulk = !!state.selectedForRemoval[itemKey];
       const estImpacts = rd.totalInsertions * 18500;
@@ -4815,6 +4971,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
         <div id="mediaPlanScrollBox" class="${mobile ? 'space-y-2.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${radioCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhuma praça de rádio encontrada para os filtros selecionados.</div>`}
         </div>
+        ${radioMobilePaginationHtml}
       </div>
     `;
   }
@@ -6299,7 +6456,7 @@ function renderPaymentTab(m) {
                   Forma de pagamento: <strong class="text-ds-textMain">${lockedMethodLabel}</strong>
                 </div>
                 <div class="text-[11px] text-ds-textMuted">
-                  Faturamento: ${state.billingCompany} (CNPJ ${state.billingDoc})
+                  Faturamento: ${escapeHtml(getProtectedBillingInfo().shortSummary)}
                 </div>
               </div>
               <div class="${mobile ? 'pt-2.5 border-t border-ds-border w-full' : 'sm:text-right'}">
@@ -6755,7 +6912,7 @@ function renderPaymentTab(m) {
                 </div>
               ` : `
                 <div class="rounded-[14px] border border-ds-borderStrong bg-white p-3.5 text-xs text-ds-textSecondary leading-relaxed">
-                  O boleto será emitido em nome de <strong class="text-ds-textMain">${state.billingCompany}</strong>. Você já pode adiantar os criativos enquanto aguarda a compensação.
+                  O boleto será emitido em nome de <strong class="text-ds-textMain">${escapeHtml(getProtectedBillingInfo().displayName)}</strong>. Você já pode adiantar os criativos enquanto aguarda a compensação.
                 </div>
               `}
             </div>
@@ -6831,10 +6988,15 @@ function renderPaymentTab(m) {
           </div>
         </div>
 
-        <!-- Bloco 2: Faturamento -->
+        <!-- Bloco 2: Faturamento (com proteção LGPD para CPF e dados compartilhados) -->
         <div class="text-xs">
           <div class="flex items-center justify-between gap-2">
-            <span class="text-ds-textSecondary">Faturamento</span>
+            <div class="inline-flex items-center gap-1.5">
+              <span class="text-ds-textSecondary">Faturamento</span>
+              <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800">
+                Protegido · LGPD
+              </span>
+            </div>
             ${state.simulateUnlogged && !state.billingUnlockedInline ? `
               <button type="button" onclick="openAndreiaBillingChat()" class="text-primary font-display font-bold hover:underline inline-flex items-center gap-1">
                 <span>Cadastrar</span>
@@ -6851,17 +7013,17 @@ function renderPaymentTab(m) {
           </div>
           ${state.simulateUnlogged && !state.billingUnlockedInline ? `
             <div class="mt-0.5 text-[11px] text-ds-textMuted">
-              Perfil de faturamento pendente de cadastro.
+              Dados protegidos (LGPD) · Perfil pendente de cadastro.
             </div>
           ` : `
-            <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(state.billingCompany)}</div>
-            <div class="text-[11px] text-ds-textMuted">${state.andreiaProfileType === 'CPF' ? 'CPF' : 'CNPJ'} ${escapeHtml(state.billingDoc)}</div>
+            <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(getProtectedBillingInfo().displayName)}</div>
+            <div class="text-[11px] text-ds-textMuted">${escapeHtml(getProtectedBillingInfo().docTypeLabel)}: ${escapeHtml(getProtectedBillingInfo().displayDoc)}</div>
           `}
 
           ${state.billingDrawerOpen && (!state.simulateUnlogged || (state.billingUnlockedInline && !state.billingCnpjRestricted)) ? `
             <div class="mt-2.5 p-3 rounded-xl bg-ds-bg border border-ds-borderStrong space-y-2 text-[11px] leading-relaxed text-ds-textSecondary">
               <p>
-                <strong class="text-ds-textMain">Perfil de PJ não pode ser alterado na plataforma</strong> (necessário um executivo). Para cadastrar outro perfil de <strong>CPF</strong>, fale com a <strong>Andreia</strong>.
+                <strong class="text-ds-textMain">Perfil de PJ não pode ser alterado na plataforma</strong> (necessário um executivo). Para cadastrar outro perfil de <strong>CPF</strong> (com dados protegidos pela LGPD), fale com a <strong>Andreia</strong>.
               </p>
               <button
                 type="button"
@@ -7746,13 +7908,11 @@ function renderPdfDocument(m) {
   }
   const pracasList = Array.from(pracasSet).join(' · ') || 'São Paulo/SP';
 
-  const hasBilling = !state.simulateUnlogged || state.billingUnlockedInline;
-  const billingCompany = hasBilling
-    ? escapeHtml(state.billingCompany || 'Padaria & Confeitaria Bela Paulista LTDA')
-    : 'A preencher no link online da proposta';
-  const billingCnpj = hasBilling
-    ? escapeHtml(state.billingDoc || '12.345.678/0001-99')
-    : 'Pendente de identificação no checkout online';
+  const pdfBilling = getProtectedBillingInfo({ isSharedExport: true });
+  const billingCompany = escapeHtml(pdfBilling.displayName);
+  const billingCnpj = escapeHtml(pdfBilling.displayDoc);
+  const billingHolderLabel = escapeHtml(pdfBilling.holderLabel);
+  const billingDocTypeLabel = escapeHtml(pdfBilling.docTypeLabel);
 
   const onlineProposalUrl = typeof window !== 'undefined' && window.location && window.location.href
     ? window.location.href.split('#')[0]
@@ -8229,24 +8389,78 @@ function renderPdfDocument(m) {
     </section>
   ` : '';
 
-  // 5. DIRECIONAMENTO MÍNIMO PARA A PROPOSTA VIRTUAL (UMA LINHA, ZERO CARGA COGNITIVA)
-  const artTableSectionHtml = `
-    <section class="mt-4 pdf-avoid-break">
-      <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <span class="font-semibold text-slate-700">
-          Especificações técnicas e contratação disponíveis na proposta virtual.
+  // 5. ESPECIFICAÇÕES TÉCNICAS EM PÁGINA SEPARADA E EM LISTA SEM ÍCONES
+  const artListItemsHtml = (m.artFormats || []).map((af) => {
+    const channelLabel = af.isGlobo ? 'Digital (Portais e Revistas)' : (af.isStatic ? 'OOH Estático / Impresso' : 'OOH Digital');
+    const ambientesText = (af.ambientes && af.ambientes.length > 0) ? af.ambientes.join(', ') : af.title;
+    const dimText = `${af.width}x${af.height} ${af.unit}`;
+    const safeAreaText = (af.availableWidth && af.availableHeight)
+      ? `Área útil: ${af.availableWidth}x${af.availableHeight} ${af.unit}`
+      : null;
+    const filesText = af.isStatic
+      ? `Arquivo: ${af.extensions || 'PDF'} (${af.maxWeightPdf || 'até 80 MB'})${af.dpi ? ` · ${af.dpi} DPI` : ''}${af.colorProfile ? ` · ${af.colorProfile}` : ''}`
+      : af.types && af.types.includes('video')
+        ? `Imagem: ${af.extensions || 'JPG, PNG'} (${af.maxWeightImage || 'até 5 MB'}) · Vídeo: ${af.videoExtensions || 'MP4'} (${af.maxWeightVideo || 'até 20 MB'})${af.clipLength ? ` · Duração: ${af.clipLength}s (sem áudio)` : ''}`
+        : `Arquivo: ${af.extensions || 'JPG, PNG'} (${af.maxWeightImage || 'até 150 KB'})`;
+
+    return `
+      <li class="py-2.5 px-3.5 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 text-xs">
+        <div class="min-w-0">
+          <span class="font-display font-bold text-slate-900">${escapeHtml(af.title)}</span>
+          <span class="text-slate-500"> — ${escapeHtml(channelLabel)} (${escapeHtml(ambientesText)})</span>
+        </div>
+        <div class="text-[11px] text-slate-700 sm:text-right shrink-0">
+          <strong class="font-semibold text-slate-900">Dimensão: ${escapeHtml(dimText)}</strong>${safeAreaText ? ` · ${escapeHtml(safeAreaText)}` : ''} · ${escapeHtml(filesText)}
+        </div>
+      </li>
+    `;
+  });
+
+  if (hasRadio) {
+    const radioDur = Array.from(new Set((m.radioItems || []).map((r) => `${r.spotDuration || 30}s`))).join(' / ') || '30s';
+    artListItemsHtml.push(`
+      <li class="py-2.5 px-3.5 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 text-xs">
+        <div class="min-w-0">
+          <span class="font-display font-bold text-slate-900">Rádio CBN — Spot Comercial</span>
+          <span class="text-slate-500"> — Áudio Publicitário (${escapeHtml(radioDur)})</span>
+        </div>
+        <div class="text-[11px] text-slate-700 sm:text-right shrink-0">
+          <strong class="font-semibold text-slate-900">Duração: ${escapeHtml(radioDur)}</strong> · Arquivo: MP3 ou WAV (44.1 kHz, 16 bits, estéreo) · Entrega: até 2 dias úteis antes da veiculação
+        </div>
+      </li>
+    `);
+  }
+
+  const artTableSectionHtml = artListItemsHtml.length > 0 ? `
+    <section class="mt-6 pt-4 border-t-2 border-dashed border-slate-200 pdf-break-before-print pdf-avoid-break">
+      <div class="mb-2.5 flex items-baseline justify-between gap-2">
+        <div>
+          <h2 class="font-display font-bold text-sm sm:text-base text-slate-900">
+            Especificações técnicas dos criativos
+          </h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">
+            Relação de formatos, dimensões e requisitos técnicos para produção e envio das peças desta proposta (página exclusiva).
+          </p>
+        </div>
+        <span class="text-[11px] font-semibold text-slate-600 shrink-0">
+          ${artListItemsHtml.length} ${artListItemsHtml.length === 1 ? 'formato listado' : 'formatos listados'}
         </span>
+      </div>
+      <ul class="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white overflow-hidden">
+        ${artListItemsHtml.join('')}
+      </ul>
+      <div class="mt-2.5 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
+        <span>Gabaritos e envio das peças disponíveis na proposta virtual.</span>
         <a
           href="${escapeHtml(onlineProposalUrl)}"
-          onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); switchMainTab('artes'); }"
-          class="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-white font-display font-bold text-[11px] transition inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap shadow-xs"
+          onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); switchMainTab('arte'); }"
+          class="font-display font-bold text-[11px] text-primary hover:underline shrink-0"
         >
-          <span>Acessar proposta virtual</span>
-          <i class="uil uil-external-link-alt text-xs"></i>
+          Acessar proposta virtual
         </a>
       </div>
     </section>
-  `;
+  ` : '';
 
   container.innerHTML = `
     <!-- BARRA DE AÇÕES DO PREVIEW DO PDF (OCULTA NA IMPRESSÃO) -->
@@ -8376,29 +8590,26 @@ function renderPdfDocument(m) {
               </div>
             </div>
 
-            <!-- Card 2: Dados de faturamento -->
+            <!-- Card 2: Dados de faturamento (Protegidos para compartilhamento — LGPD) -->
             <div class="rounded-2xl border border-ds-border bg-white p-3.5 flex flex-col justify-between">
-              <div class="pb-2 mb-2 border-b border-ds-border">
+              <div class="pb-2 mb-2 border-b border-ds-border flex items-center justify-between gap-2">
                 <h2 class="font-display font-bold text-sm text-ds-textMain">
                   Dados de faturamento
                 </h2>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800 whitespace-nowrap">
+                  Dados protegidos · LGPD
+                </span>
               </div>
-              ${!hasBilling ? `
-                <div class="text-xs text-ds-textSecondary py-0.5">
-                  Dados de faturamento ainda não cadastrados.
+              <div class="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
+                <div class="min-w-0">
+                  <div class="text-[11px] text-ds-textSecondary">${billingHolderLabel}</div>
+                  <div class="font-bold text-ds-textMain mt-0.5">${billingCompany}</div>
                 </div>
-              ` : `
-                <div class="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
-                  <div class="min-w-0">
-                    <div class="text-[11px] text-ds-textSecondary">Razão social / Anunciante</div>
-                    <div class="font-bold text-ds-textMain mt-0.5">${billingCompany}</div>
-                  </div>
-                  <div>
-                    <div class="text-[11px] text-ds-textSecondary">CNPJ de faturamento</div>
-                    <div class="font-mono font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${billingCnpj}</div>
-                  </div>
+                <div>
+                  <div class="text-[11px] text-ds-textSecondary">${billingDocTypeLabel}</div>
+                  <div class="font-mono font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${billingCnpj}</div>
                 </div>
-              `}
+              </div>
             </div>
           </div>
 
@@ -8502,6 +8713,17 @@ function renderPdfDocument(m) {
         <!-- ÚLTIMA PÁGINA DO PDF: PROVA SOCIAL (+23% & DEPOIMENTOS) + BANNER "SUA MARCA NO LUGAR CERTO" EM PÁGINA ÚNICA -->
         <section class="mt-6 pt-2 pdf-break-before-print pdf-avoid-break flex flex-col justify-between">
           
+          <!-- SEPARADOR EXPLICATIVO DE CASES DE SUCESSO (EVITA INTERPRETAÇÃO COMO PROMESSA DE RETORNO) -->
+          <div class="flex items-center gap-3 pb-3 mb-2 border-b border-slate-200">
+            <span class="px-3 py-1 rounded-full bg-orange-50 border border-orange-200 font-display font-bold text-xs text-primary uppercase tracking-wider shrink-0">
+              Conheça nossos cases de sucesso
+            </span>
+            <div class="h-px bg-slate-200 flex-1"></div>
+            <span class="text-[11px] text-ds-textSecondary shrink-0">
+              Resultados reais relatados por clientes que anunciaram pelo Aqui ads
+            </span>
+          </div>
+
           <!-- 1. SEÇÃO: MAIS PRESENÇA. MAIS RESULTADO. (+23% + 8 DEPOIMENTOS) -->
           <div class="bg-white py-2">
             <!-- Topo: Big Number +23% à esquerda + Depoimento Destaque à direita -->
@@ -8751,12 +8973,25 @@ function toggleMobileArtFiltersDrawer() {
   renderArtTab(getCurrentModel());
 }
 
+function setMobilePlanPage(page) {
+  state.mobilePlanPage = Math.max(1, Number(page) || 1);
+  const m = getCurrentModel();
+  renderMediaPlanList(m, true);
+  setTimeout(() => {
+    const scrollBox = document.getElementById('mediaPlanScrollBox') || document.getElementById('mainTabsSection');
+    if (scrollBox) {
+      scrollBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 30);
+}
+
 function setChannelFilter(ch) {
   state.channelFilter = ch;
   state.searchQuery = '';
   state.ambienteFilter = '';
   state.categoriaFilter = '';
   state.geoFilter = '';
+  state.mobilePlanPage = 1;
   const m = getCurrentModel();
   renderFilterBar(m);
   renderMediaPlanList(m);
@@ -8768,6 +9003,7 @@ function switchChannelPreservingSearch(ch) {
   state.ambienteFilter = '';
   state.categoriaFilter = '';
   state.geoFilter = '';
+  state.mobilePlanPage = 1;
   const m = getCurrentModel();
   renderFilterBar(m);
   renderMediaPlanList(m);
@@ -8777,6 +9013,7 @@ function switchChannelPreservingSearch(ch) {
 function setAmbienteFilter(val) {
   state.ambienteFilter = val;
   state.categoriaFilter = '';
+  state.mobilePlanPage = 1;
   const m = getCurrentModel();
   renderFilterBar(m);
   renderMediaPlanList(m);
@@ -8785,6 +9022,7 @@ function setAmbienteFilter(val) {
 
 function setCategoriaFilter(val) {
   state.categoriaFilter = val;
+  state.mobilePlanPage = 1;
   const m = getCurrentModel();
   renderFilterBar(m);
   renderMediaPlanList(m);
@@ -8793,6 +9031,7 @@ function setCategoriaFilter(val) {
 
 function setGeoFilter(val) {
   state.geoFilter = val;
+  state.mobilePlanPage = 1;
   const m = getCurrentModel();
   renderFilterBar(m);
   renderMediaPlanList(m);
@@ -9948,13 +10187,11 @@ function exportFullCsv() {
     ? `#${m.id}-C${state.clonedScenariosCount}`
     : `#${m.id}`;
 
-  const hasBilling = !state.simulateUnlogged || state.billingUnlockedInline;
-  const billingCompany = hasBilling
-    ? (state.billingCompany || 'Padaria & Confeitaria Bela Paulista LTDA')
-    : 'Dados de faturamento ainda não cadastrados.';
-  const billingCnpj = hasBilling
-    ? (state.billingDoc || '12.345.678/0001-99')
-    : '—';
+  const excelBilling = getProtectedBillingInfo({ isSharedExport: true });
+  const billingCompany = excelBilling.displayName;
+  const billingCnpj = excelBilling.displayDoc;
+  const billingHolderLabel = excelBilling.holderLabel;
+  const billingDocTypeLabel = excelBilling.docTypeLabel;
 
   const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
   const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
@@ -10024,12 +10261,13 @@ function exportFullCsv() {
 
   pushResumoRow([], { type: 'spacer' });
 
-  // Bloco 2: Dados de Faturamento
-  const secFatIdx = pushResumoRow(['DADOS DE FATURAMENTO'], { type: 'orange_section', maxCol: 2 });
+  // Bloco 2: Dados de Faturamento (Protegidos para compartilhamento — LGPD)
+  const secFatIdx = pushResumoRow(['DADOS DE FATURAMENTO (PROTEGIDOS · LGPD)'], { type: 'orange_section', maxCol: 2 });
   resumoMerges.push({ s: { r: secFatIdx, c: 0 }, e: { r: secFatIdx, c: 1 } });
   pushResumoRow(['Campo', 'Informação'], { type: 'table_header', maxCol: 2 });
-  pushResumoRow(['Razão social / Anunciante', billingCompany], { type: 'kv_row', maxCol: 2, boldValue: true });
-  pushResumoRow(['CNPJ de faturamento', billingCnpj], { type: 'kv_row', maxCol: 2 });
+  pushResumoRow([billingHolderLabel, billingCompany], { type: 'kv_row', maxCol: 2, boldValue: true });
+  pushResumoRow([billingDocTypeLabel, billingCnpj], { type: 'kv_row', maxCol: 2 });
+  pushResumoRow(['Status de privacidade (LGPD)', 'Dados de faturamento protegidos para compartilhamento'], { type: 'kv_row', maxCol: 2 });
 
   pushResumoRow([], { type: 'spacer' });
 
@@ -10156,7 +10394,7 @@ function exportFullCsv() {
         'Alcance',
         'Impacto',
         'Valor Bruto (R$)',
-        'Desconto Condomínio (R$)',
+        'Desconto (R$)',
         'Valor Líquido (R$)'
       ]
     ];
