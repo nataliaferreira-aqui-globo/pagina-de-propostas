@@ -463,10 +463,27 @@
           <span>Simular Cupom (-10% OOH)</span>
         </label>
 
-        <label class="inline-flex items-center gap-1.5 cursor-pointer select-none text-ds-textSecondary hover:text-ds-textMain">
-          <input type="checkbox" id="toggleUnlogged" checked class="rounded text-primary focus:ring-primary" />
-          <span>Simular Jornada Deslogado / IA Andreia</span>
-        </label>
+        <div class="flex items-center bg-ds-bg p-0.5 rounded-lg border border-ds-borderStrong">
+          <button
+            type="button"
+            id="btnJourneyLoggedCpf"
+            onclick="setJourneySimulationMode('logged_cpf')"
+            class="px-2.5 py-1 rounded-md font-bold bg-primary text-white transition flex items-center gap-1 cursor-pointer"
+          >
+            <i class="uil uil-user-check"></i>
+            <span>Jornada Logada (CPF)</span>
+          </button>
+          <button
+            type="button"
+            id="btnJourneyUnlogged"
+            onclick="setJourneySimulationMode('unlogged')"
+            class="px-2.5 py-1 rounded-md font-semibold text-ds-textSecondary hover:text-ds-textMain transition flex items-center gap-1 cursor-pointer"
+          >
+            <i class="uil uil-robot"></i>
+            <span>Simular Jornada Deslogado</span>
+          </button>
+          <input type="checkbox" id="toggleUnlogged" class="hidden" />
+        </div>
 
         <div class="flex items-center bg-ds-bg p-0.5 rounded-lg border border-ds-borderStrong">
           <button id="btnViewDesktop" onclick="setViewportMode('desktop')" class="px-3 py-1 rounded-md font-bold bg-primary text-white transition flex items-center gap-1">
@@ -629,7 +646,7 @@
     <span id="toastMessage">Ação realizada</span>
   </div>
 
-  <script src="data-scenarios.js?v=20261103_150"></script>
-  <script src="app.js?v=20261103_150"></script>
+  <script src="data-scenarios.js?v=20261103_151"></script>
+  <script src="app.js?v=20261103_151"></script>
 </body>
 </html>

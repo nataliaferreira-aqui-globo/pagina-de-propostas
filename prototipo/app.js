@@ -24,8 +24,8 @@ const state = {
   heroCouponOpen: false,   // controle do input de cupom direto no card de Valor Total do Hero
   couponCode: 'AQUIADS10',
   simulateCoupon: false,
-  simulateUnlogged: true,  // inicia ativo para simular usuário deslogado -> login/cadastro -> IA Andreia
-  authCompleted: false,    // true após concluir Login ou Cadastro no modal
+  simulateUnlogged: false, // por padrão carrega na Jornada Logada Padrão (CPF) ao atualizar
+  authCompleted: true,     // true na jornada logada padrão (ou após concluir Login/Cadastro)
   authModalOpen: false,    // controla exibição do modal de Login / Cadastro (Imagens 1 e 2)
   authModalTab: 'login',   // 'login' | 'cadastro'
   authLoginEmail: '',
@@ -37,24 +37,24 @@ const state = {
   authRegForeigner: false,
   billingCnpjRestricted: false, // true quando a IA Andreia sinaliza restrição no CNPJ (encarteirado)
   andreiaChatOpen: false,       // controla exibição do chatbot da IA Andreia
-  andreiaStep: 'select_type',   // 'select_type' | 'fill_form' | 'restricted_result' | 'unlocked_result'
-  andreiaProfileType: null,     // 'CNPJ' | 'CPF'
+  andreiaStep: 'unlocked',      // 'select_type' | 'fill_data' | 'restricted' | 'unlocked'
+  andreiaProfileType: 'CPF',    // 'CNPJ' | 'CPF' (Padrão CPF na jornada logada)
   andreiaSimulateRestricted: true, // por padrão simula CNPJ encarteirado conforme regra de negócio
-  andreiaInputDoc: '12.345.678/0001-99',
-  andreiaInputName: 'Padaria & Confeitaria Bela Paulista LTDA',
+  andreiaInputDoc: '123.456.789-00',
+  andreiaInputName: 'Natalia Ferreira',
   andreiaInputCep: '04538-132',
   andreiaInputAddress: 'Av. Brigadeiro Faria Lima, 3477 - Itaim Bibi, São Paulo/SP',
   expandedCondos: { '1624': false },
   expandedCardMetrics: {},
-  paymentMethod: null,     // null | 'card' | 'pix' | 'boleto'
+  paymentMethod: 'card',   // null | 'card' | 'pix' | 'boleto'
   cardMode: 'saved',       // 'saved' | 'new'
   selectedInstallments: 6,
   couponDrawerOpen: false,
   billingDrawerOpen: false,
-  billingCompany: 'Padaria & Confeitaria Bela Paulista LTDA',
-  billingDoc: '12.345.678/0001-99',
+  billingCompany: 'Natalia Ferreira',
+  billingDoc: '123.456.789-00',
   billingCep: '04538-132',
-  billingUnlockedInline: false,
+  billingUnlockedInline: true,
   proposalStatus: 'awaiting', // 'awaiting' | 'processing' | 'completed'
   pixGenerated: false,
   boletoGenerated: false,
@@ -1439,13 +1439,11 @@ function initApp() {
     const couponChk = document.getElementById('toggleCoupon');
     if (couponChk) couponChk.checked = true;
   }
-  if (params.get('unlogged') === '0') {
-    state.simulateUnlogged = false;
-  } else if (params.get('unlogged') === '1') {
-    state.simulateUnlogged = true;
+  if (params.get('unlogged') === '1') {
+    applyJourneySimulationMode('unlogged', false);
+  } else {
+    applyJourneySimulationMode('logged_cpf', false);
   }
-  const unloggedChk = document.getElementById('toggleUnlogged');
-  if (unloggedChk) unloggedChk.checked = state.simulateUnlogged;
 
   const select = document.getElementById('scenarioSelect');
   select.innerHTML = Object.values(window.PROPOSAL_SCENARIOS)
@@ -1480,21 +1478,12 @@ function initApp() {
     renderAll();
   });
 
-  document.getElementById('toggleUnlogged').addEventListener('change', (e) => {
-    state.simulateUnlogged = e.target.checked;
-    state.authCompleted = false;
-    state.authModalOpen = false;
-    state.billingUnlockedInline = false;
-    state.billingCnpjRestricted = false;
-    state.andreiaChatOpen = false;
-    state.andreiaStep = 'select_type';
-    state.andreiaProfileType = null;
-    state.paymentMethod = null;
-    if (state.simulateUnlogged && state.activeTab === 'pagamento') {
-      state.activeTab = 'plano';
-    }
-    renderAll();
-  });
+  const unloggedInput = document.getElementById('toggleUnlogged');
+  if (unloggedInput) {
+    unloggedInput.addEventListener('change', (e) => {
+      applyJourneySimulationMode(e.target.checked ? 'unlogged' : 'logged_cpf', true);
+    });
+  }
 
   document.addEventListener('click', (ev) => {
     const container = document.getElementById('exportDropdownContainer');
@@ -1684,8 +1673,69 @@ function isPaymentMethodsBlocked() {
   return Boolean(state.simulateUnlogged && (!state.billingUnlockedInline || state.billingCnpjRestricted));
 }
 
+function syncJourneySimulationControls() {
+  if (typeof document === 'undefined') return;
+  const unloggedChk = document.getElementById('toggleUnlogged');
+  if (unloggedChk) {
+    unloggedChk.checked = Boolean(state.simulateUnlogged);
+  }
+  const btnLoggedCpf = document.getElementById('btnJourneyLoggedCpf');
+  const btnUnlogged = document.getElementById('btnJourneyUnlogged');
+  if (btnLoggedCpf && btnUnlogged) {
+    const isUnlogged = Boolean(state.simulateUnlogged);
+    btnLoggedCpf.className = !isUnlogged
+      ? 'px-2.5 py-1 rounded-md font-bold bg-primary text-white transition flex items-center gap-1 cursor-pointer'
+      : 'px-2.5 py-1 rounded-md font-semibold text-ds-textSecondary hover:text-ds-textMain transition flex items-center gap-1 cursor-pointer';
+    btnUnlogged.className = isUnlogged
+      ? 'px-2.5 py-1 rounded-md font-bold bg-primary text-white transition flex items-center gap-1 cursor-pointer'
+      : 'px-2.5 py-1 rounded-md font-semibold text-ds-textSecondary hover:text-ds-textMain transition flex items-center gap-1 cursor-pointer';
+  }
+}
+
+function applyJourneySimulationMode(mode, shouldRender = true) {
+  const isUnlogged = mode === 'unlogged';
+  state.simulateUnlogged = isUnlogged;
+  if (isUnlogged) {
+    state.authCompleted = false;
+    state.authModalOpen = false;
+    state.billingUnlockedInline = false;
+    state.billingCnpjRestricted = false;
+    state.andreiaChatOpen = false;
+    state.andreiaStep = 'select_type';
+    state.andreiaProfileType = null;
+    state.paymentMethod = null;
+    if (state.activeTab === 'pagamento') {
+      state.activeTab = 'plano';
+    }
+  } else {
+    state.authCompleted = true;
+    state.authModalOpen = false;
+    state.billingUnlockedInline = true;
+    state.billingCnpjRestricted = false;
+    state.andreiaChatOpen = false;
+    state.andreiaStep = 'unlocked';
+    state.andreiaProfileType = 'CPF';
+    state.andreiaInputDoc = '123.456.789-00';
+    state.andreiaInputName = 'Natalia Ferreira';
+    state.billingCompany = 'Natalia Ferreira';
+    state.billingDoc = '123.456.789-00';
+    if (!state.paymentMethod) {
+      state.paymentMethod = 'card';
+    }
+  }
+  syncJourneySimulationControls();
+  if (shouldRender) {
+    renderAll();
+  }
+}
+
+function setJourneySimulationMode(mode) {
+  applyJourneySimulationMode(mode, true);
+}
+
 function renderAll() {
   const model = getCurrentModel();
+  syncJourneySimulationControls();
   if (state.simulateUnlogged && state.billingUnlockedInline) {
     const onlyOoh = isCampaignOnlyOoh(model);
     if (onlyOoh || state.andreiaProfileType === 'CPF') {
@@ -2328,53 +2378,66 @@ function renderHeroSection(m) {
             </div>
           </div>
 
-          <!-- Card 2: Dados de faturamento -->
-          <div class="bg-white rounded-[14px] border border-ds-borderStrong ${mobile ? 'p-3.5' : 'p-5'} shadow-xs flex flex-col justify-between">
-            <div class="pb-2.5 mb-3 border-b border-ds-border flex items-center justify-between gap-2">
-              <h2 class="font-display font-bold text-xs sm:text-sm text-ds-textMain">
-                Dados de faturamento
-              </h2>
-              ${isUserUnlogged() ? `
-                <button type="button" onclick="openAuthModal('login')" class="text-[11px] font-display font-bold text-primary hover:underline">
-                  Entrar / Cadastrar →
-                </button>
-              ` : state.simulateUnlogged && !state.billingUnlockedInline ? `
-                <button type="button" onclick="openAndreiaBillingChat()" class="text-[11px] font-display font-bold text-primary hover:underline inline-flex items-center gap-1">
-                  <i class="uil uil-comment-alt-dots text-xs"></i>
-                  <span>Cadastrar</span>
-                </button>
-              ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
-                <span class="px-2 py-0.5 rounded-full bg-ds-surface border border-ds-borderStrong text-ds-textSecondary font-display font-bold text-[10px]">
-                  Aguardando especialista
-                </span>
-              ` : ''}
-            </div>
-            ${isUserUnlogged() ? `
-              <div class="text-xs text-ds-textSecondary py-0.5 flex flex-wrap items-center justify-between gap-2">
-                <span>Faça login ou crie sua conta para vincular o perfil de faturamento.</span>
-              </div>
-            ` : state.simulateUnlogged && !state.billingUnlockedInline ? `
-              <div class="text-xs text-ds-textSecondary py-0.5 flex flex-wrap items-center justify-between gap-2">
-                <span>Cadastre o perfil de faturamento para prosseguir com o pagamento.</span>
-              </div>
-            ` : `
-              <div class="grid ${mobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5'} sim-grid-1 text-xs">
-                <div class="min-w-0">
-                  <div class="text-[11px] text-ds-textSecondary">Razão social / Anunciante</div>
-                  <div class="font-bold text-ds-textMain mt-0.5 ${mobile ? 'break-words' : 'truncate'}">${escapeHtml(state.billingCompany)}</div>
+          <!-- Card 2: Dados de faturamento (Sincronizado com Proteção LGPD) -->
+          ${(() => {
+            const heroBilling = getProtectedBillingInfo();
+            const isBillingPending = isUserUnlogged() || (state.simulateUnlogged && !state.billingUnlockedInline);
+            return `
+              <div class="bg-white rounded-[14px] border border-ds-borderStrong ${mobile ? 'p-3.5' : 'p-5'} shadow-xs flex flex-col justify-between">
+                <div class="pb-2.5 mb-3 border-b border-ds-border flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 min-w-0 flex-wrap">
+                    <h2 class="font-display font-bold text-xs sm:text-sm text-ds-textMain">
+                      Dados de faturamento
+                    </h2>
+                    ${!isBillingPending && heroBilling.isProtectedLgpd ? `
+                      <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800 whitespace-nowrap">
+                        Protegido · LGPD
+                      </span>
+                    ` : ''}
+                  </div>
+                  ${isUserUnlogged() ? `
+                    <button type="button" onclick="openAuthModal('login')" class="text-[11px] font-display font-bold text-primary hover:underline">
+                      Entrar / Cadastrar →
+                    </button>
+                  ` : state.simulateUnlogged && !state.billingUnlockedInline ? `
+                    <button type="button" onclick="openAndreiaBillingChat()" class="text-[11px] font-display font-bold text-primary hover:underline inline-flex items-center gap-1">
+                      <i class="uil uil-comment-alt-dots text-xs"></i>
+                      <span>Cadastrar</span>
+                    </button>
+                  ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
+                    <span class="px-2 py-0.5 rounded-full bg-ds-surface border border-ds-borderStrong text-ds-textSecondary font-display font-bold text-[10px]">
+                      Aguardando especialista
+                    </span>
+                  ` : ''}
                 </div>
-                <div>
-                  <div class="text-[11px] text-ds-textSecondary">${state.andreiaProfileType === 'CPF' ? 'CPF de faturamento' : 'CNPJ de faturamento'}</div>
-                  <div class="font-mono font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${escapeHtml(state.billingDoc)}</div>
-                </div>
+                ${isUserUnlogged() ? `
+                  <div class="text-xs text-ds-textSecondary py-0.5 flex flex-wrap items-center justify-between gap-2">
+                    <span>Faça login ou crie sua conta para vincular o perfil de faturamento.</span>
+                  </div>
+                ` : state.simulateUnlogged && !state.billingUnlockedInline ? `
+                  <div class="text-xs text-ds-textSecondary py-0.5 flex flex-wrap items-center justify-between gap-2">
+                    <span>Cadastre o perfil de faturamento para prosseguir com o pagamento.</span>
+                  </div>
+                ` : `
+                  <div class="grid ${mobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5'} sim-grid-1 text-xs">
+                    <div class="min-w-0">
+                      <div class="text-[11px] text-ds-textSecondary">${escapeHtml(heroBilling.holderLabel)}</div>
+                      <div class="font-bold text-ds-textMain mt-0.5 ${mobile ? 'break-words' : 'truncate'}">${escapeHtml(heroBilling.displayName)}</div>
+                    </div>
+                    <div>
+                      <div class="text-[11px] text-ds-textSecondary">${escapeHtml(heroBilling.docTypeLabel)}</div>
+                      <div class="font-mono font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${escapeHtml(heroBilling.displayDoc)}</div>
+                    </div>
+                  </div>
+                  ${state.simulateUnlogged && state.billingCnpjRestricted ? `
+                    <div class="mt-2.5 pt-2 border-t border-ds-border text-[11px] text-ds-textSecondary flex items-center justify-between gap-2">
+                      <span>Proposta enviada para um especialista. Aguarde o retorno.</span>
+                    </div>
+                  ` : ''}
+                `}
               </div>
-              ${state.simulateUnlogged && state.billingCnpjRestricted ? `
-                <div class="mt-2.5 pt-2 border-t border-ds-border text-[11px] text-ds-textSecondary flex items-center justify-between gap-2">
-                  <span>Proposta enviada para um especialista. Aguarde o retorno.</span>
-                </div>
-              ` : ''}
-            `}
-          </div>
+            `;
+          })()}
         </div>
 
         <!-- Coluna Direita (5 cols): Resumo Financeiro e Status de Pagamento -->
@@ -6632,7 +6695,7 @@ function renderPaymentTab(m) {
                       </div>
                       <div class="min-w-0">
                         <div class="font-display font-bold text-xs text-ds-textMain truncate">•••• 7492 · Principal</div>
-                        <div class="text-[11px] text-ds-textSecondary truncate">Natalia Ferreira · Val. 08/29</div>
+                        <div class="text-[11px] text-ds-textSecondary truncate">${escapeHtml(getProtectedBillingInfo().isCpf ? getProtectedBillingInfo().displayName : 'Natalia F***')} · Val. 08/29</div>
                       </div>
                     </div>
                   </div>
@@ -7008,9 +7071,11 @@ function renderPaymentTab(m) {
           <div class="flex items-center justify-between gap-2">
             <div class="inline-flex items-center gap-1.5">
               <span class="text-ds-textSecondary">Faturamento</span>
-              <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800">
-                Protegido · LGPD
-              </span>
+              ${!(state.simulateUnlogged && !state.billingUnlockedInline) && getProtectedBillingInfo().isProtectedLgpd ? `
+                <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800">
+                  Protegido · LGPD
+                </span>
+              ` : ''}
             </div>
             ${state.simulateUnlogged && !state.billingUnlockedInline ? `
               <button type="button" onclick="openAndreiaBillingChat()" class="text-primary font-display font-bold hover:underline inline-flex items-center gap-1">
@@ -7164,7 +7229,7 @@ function saveInlineBilling() {
   if (compEl && compEl.value.trim()) state.billingCompany = compEl.value.trim();
   state.billingUnlockedInline = true;
   state.billingDrawerOpen = false;
-  renderPaymentTab(getCurrentModel());
+  renderAll();
   showToast('Dados de faturamento atualizados com sucesso!');
 }
 
@@ -9725,10 +9790,10 @@ function renderAndreiaChat() {
               </div>
               <div class="bg-white rounded-2xl rounded-tl-xs border border-ds-border p-3.5 shadow-2xs space-y-2.5 max-w-[90%]">
                 <p class="text-ds-textMain leading-relaxed">
-                  Olá! Vi que você deseja alterar o perfil de faturamento <strong>${escapeHtml(state.billingCompany)}</strong> (${escapeHtml(state.billingDoc)}).
+                  Olá! Vi que você deseja alterar o perfil de faturamento <strong>${escapeHtml(getProtectedBillingInfo().displayName)}</strong> (${escapeHtml(getProtectedBillingInfo().displayDoc)}).
                 </p>
                 <p class="text-ds-textSecondary leading-relaxed">
-                  Uma vez cadastrado o perfil de faturamento de <strong>PJ</strong>, não é possível alterá-lo na plataforma — será necessário um <strong>executivo</strong>. Como você ainda não possui outro perfil cadastrado, escolha como prefere seguir:
+                  Uma vez cadastrado o perfil de faturamento de <strong>PJ</strong>, não é possível alterá-lo na plataforma — será necessário um <strong>executivo</strong>. Escolha como prefere seguir:
                 </p>
                 <div class="flex flex-col gap-2 pt-1">
                   <button
@@ -9750,6 +9815,14 @@ function renderAndreiaChat() {
                   >
                     <i class="uil uil-user text-sm"></i>
                     <span>Cadastrar outro perfil (CPF)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onclick="selectAndreiaProfileType('CNPJ')"
+                    class="w-full px-3.5 py-2 rounded-xl font-display font-bold text-xs border bg-white hover:bg-primary-light/60 text-ds-textMain border-ds-borderStrong transition inline-flex items-center justify-center gap-1.5"
+                  >
+                    <i class="uil uil-building text-sm"></i>
+                    <span>Cadastrar perfil CNPJ (PJ)</span>
                   </button>
                 </div>
               </div>
@@ -9959,7 +10032,7 @@ function renderAndreiaChat() {
               </div>
               <div class="bg-white rounded-2xl rounded-tl-xs border border-emerald-300 p-3.5 shadow-2xs space-y-2.5 w-full">
                 <p class="text-ds-textMain leading-relaxed">
-                  Tudo certo! O perfil de faturamento <strong>${escapeHtml(state.billingCompany)}</strong> (${escapeHtml(state.billingDoc)}) foi cadastrado e os métodos de pagamento já estão liberados.
+                  Tudo certo! O perfil de faturamento <strong>${escapeHtml(getProtectedBillingInfo().displayName)}</strong> (${escapeHtml(getProtectedBillingInfo().displayDoc)}) foi cadastrado e os métodos de pagamento já estão liberados.
                 </p>
                 <button
                   type="button"
