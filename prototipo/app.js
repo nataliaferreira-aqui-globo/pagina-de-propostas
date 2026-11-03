@@ -7190,7 +7190,7 @@ function renderFaqSection() {
       q: 'Como faço para tirar dúvidas ou compartilhar esta proposta?',
       a: `
         <div class="space-y-1.5">
-          <p>Estamos sempre por perto! Se pintar qualquer dúvida, chame a <strong>Andreia</strong> aqui na página ou fale com nosso atendimento pelos canais oficiais do Aqui Ads.</p>
+          <p>Se houver qualquer dúvida, chame a <strong>Andreia</strong> aqui na página ou fale com nosso atendimento pelos canais oficiais do Aqui Ads.</p>
           <p>Para mostrar a proposta ao seu sócio ou financeiro, use os botões <strong>"Compartilhar"</strong> ou <strong>"Exportar" (PDF/Excel)</strong> no topo da página.</p>
         </div>
       `
