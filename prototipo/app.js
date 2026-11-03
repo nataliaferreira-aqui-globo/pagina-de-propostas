@@ -6845,7 +6845,7 @@ function renderPaymentTab(m) {
             ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
               <span class="text-ds-textMuted font-semibold text-[11px]">Em análise</span>
             ` : `
-              <button onclick="toggleBillingDrawer()" class="text-primary font-bold hover:underline inline-flex items-center gap-1">
+              <button type="button" onclick="toggleBillingDrawer()" class="text-primary font-bold hover:underline inline-flex items-center gap-1">
                 <i class="uil uil-pen"></i>
                 <span>${state.billingDrawerOpen ? 'fechar' : needsBillingWarning ? 'informar CNPJ' : 'alterar'}</span>
               </button>
@@ -6855,20 +6855,26 @@ function renderPaymentTab(m) {
             <div class="mt-0.5 text-[11px] text-ds-textMuted">
               Perfil de faturamento pendente de cadastro.
             </div>
-          ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
+          ` : `
             <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(state.billingCompany)}</div>
             <div class="text-[11px] text-ds-textMuted">${state.andreiaProfileType === 'CPF' ? 'CPF' : 'CNPJ'} ${escapeHtml(state.billingDoc)}</div>
-          ` : !state.billingDrawerOpen ? `
-            <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(state.billingCompany)}</div>
-            <div class="text-[11px] text-ds-textMuted">${state.andreiaProfileType === 'CPF' ? 'CPF' : 'CNPJ'} ${escapeHtml(state.billingDoc)}</div>
-          ` : ''}
+          `}
 
-          ${!state.simulateUnlogged && state.billingDrawerOpen ? `
-            <div class="mt-2 p-3 rounded-xl bg-ds-bg border border-ds-borderStrong space-y-2">
-              <input id="inputBillingDoc" type="text" value="${state.billingDoc}" placeholder="CNPJ ou CPF" class="w-full px-3 py-1.5 rounded-lg border border-ds-borderStrong bg-white text-xs font-semibold" />
-              <input id="inputBillingCompany" type="text" value="${state.billingCompany}" placeholder="Razão Social" class="w-full px-3 py-1.5 rounded-lg border border-ds-borderStrong bg-white text-xs font-semibold" />
-              <button onclick="saveInlineBilling()" class="w-full py-1.5 rounded-lg bg-primary text-white font-display font-bold text-xs">
-                Salvar faturamento
+          ${state.billingDrawerOpen && (!state.simulateUnlogged || (state.billingUnlockedInline && !state.billingCnpjRestricted)) ? `
+            <div class="mt-2.5 p-3 rounded-xl bg-ds-bg border border-ds-borderStrong space-y-2 text-[11px] leading-relaxed text-ds-textSecondary">
+              <p>
+                <strong class="text-ds-textMain">Não há outro perfil de faturamento cadastrado.</strong> Uma vez cadastrado o perfil de faturamento de <strong>PJ</strong>, não é possível alterá-lo na plataforma — será necessário um <strong>executivo</strong>.
+              </p>
+              <p>
+                Para cadastrar outro perfil de faturamento ou solicitar alteração com um executivo, acione a <strong>Andreia</strong>:
+              </p>
+              <button
+                type="button"
+                onclick="openAndreiaBillingChangeChat()"
+                class="w-full py-2 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-2xs"
+              >
+                <i class="uil uil-comment-alt-dots text-sm"></i>
+                <span>Acionar a Andreia</span>
               </button>
             </div>
           ` : ''}
@@ -7152,6 +7158,7 @@ function renderFaqSection() {
           <p>Você cadastra seu <strong>CNPJ ou CPF</strong> rapidinho na aba de pagamento com a ajuda da <strong>Andreia</strong>, nossa assistente virtual:</p>
           <ul class="space-y-1 list-disc pl-4">
             <li><strong>Liberação:</strong> cadastros com CPF e campanhas 100% OOH liberam o pagamento na hora. Se o seu CNPJ precisar de atendimento dedicado nos demais canais, um especialista assume com você.</li>
+            <li><strong>Alteração de faturamento:</strong> se quiser alterar o perfil de faturamento e não tiver outro cadastrado, precisará acionar a <strong>Andreia</strong>. Uma vez cadastrado o perfil de faturamento de <strong>PJ</strong>, não é possível alterar na plataforma — será necessário um executivo.</li>
             <li><strong>Notas fiscais:</strong> ficam na página <a href="https://aqui.globo/faturamento" target="_blank" rel="noopener noreferrer" class="font-bold text-primary hover:underline">Faturamento</a> da plataforma (exceto rádio). Precisa de alguma observação específica na NF? É só chamar nosso time!</li>
           </ul>
           <div class="pt-0.5">
@@ -9276,9 +9283,22 @@ function renderAuthModal() {
  */
 function openAndreiaBillingChat() {
   state.andreiaChatOpen = true;
-  if (!state.andreiaStep) {
+  if (!state.andreiaStep || state.andreiaStep === 'change_billing' || state.andreiaStep === 'executive_billing_change') {
     state.andreiaStep = 'select_type';
   }
+  renderAndreiaChat();
+}
+
+function openAndreiaBillingChangeChat() {
+  state.billingDrawerOpen = false;
+  state.andreiaChatOpen = true;
+  state.andreiaStep = 'change_billing';
+  renderPaymentTab(getCurrentModel());
+  renderAndreiaChat();
+}
+
+function requestExecutiveForPjBillingChange() {
+  state.andreiaStep = 'executive_billing_change';
   renderAndreiaChat();
 }
 
@@ -9420,6 +9440,70 @@ function renderAndreiaChat() {
 
         <!-- Corpo de Mensagens do Chat -->
         <div class="p-4 space-y-3.5 overflow-y-auto bounded-scroll bg-[#F9F6F2] flex-1 text-xs">
+          ${state.andreiaStep === 'change_billing' || state.andreiaStep === 'executive_billing_change' ? `
+            <!-- Fluxo de Alteração de Faturamento / Regra de PJ Imutável -->
+            <div class="flex items-start gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-primary text-white font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                A
+              </div>
+              <div class="bg-white rounded-2xl rounded-tl-xs border border-ds-border p-3.5 shadow-2xs space-y-2.5 max-w-[90%]">
+                <p class="text-ds-textMain leading-relaxed">
+                  Olá! Vi que você deseja alterar o perfil de faturamento <strong>${escapeHtml(state.billingCompany)}</strong> (${escapeHtml(state.billingDoc)}).
+                </p>
+                <p class="text-ds-textSecondary leading-relaxed">
+                  Uma vez cadastrado o perfil de faturamento de <strong>PJ</strong>, não é possível alterá-lo na plataforma — será necessário um <strong>executivo</strong>. Como você ainda não possui outro perfil cadastrado, escolha como prefere seguir:
+                </p>
+                <div class="flex flex-col gap-2 pt-1">
+                  <button
+                    type="button"
+                    onclick="requestExecutiveForPjBillingChange()"
+                    class="w-full px-3.5 py-2 rounded-xl font-display font-bold text-xs border transition inline-flex items-center justify-center gap-1.5 ${
+                      state.andreiaStep === 'executive_billing_change'
+                        ? 'bg-primary text-white border-primary shadow-2xs'
+                        : 'bg-ds-surface hover:bg-primary-light/60 text-ds-textMain border-ds-borderStrong'
+                    }"
+                  >
+                    <i class="uil uil-user-check text-sm"></i>
+                    <span>Acionar executivo para alterar PJ</span>
+                  </button>
+                  <button
+                    type="button"
+                    onclick="selectAndreiaProfileType('CPF')"
+                    class="w-full px-3.5 py-2 rounded-xl font-display font-bold text-xs border bg-white hover:bg-primary-light/60 text-ds-textMain border-ds-borderStrong transition inline-flex items-center justify-center gap-1.5"
+                  >
+                    <i class="uil uil-user text-sm"></i>
+                    <span>Cadastrar outro perfil (CPF)</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            ${state.andreiaStep === 'executive_billing_change' ? `
+              <div class="flex justify-end">
+                <div class="bg-ds-textMain text-white rounded-2xl rounded-tr-xs px-3.5 py-2.5 max-w-[85%] shadow-2xs">
+                  Preciso alterar os dados do perfil de faturamento PJ com um executivo.
+                </div>
+              </div>
+
+              <div class="flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-full bg-primary text-white font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                  A
+                </div>
+                <div class="bg-white rounded-2xl rounded-tl-xs border border-ds-borderStrong p-3.5 shadow-sm space-y-3 w-full">
+                  <p class="text-ds-textMain font-medium leading-relaxed text-xs sm:text-[13px]">
+                    Perfeito! Como perfis de faturamento de PJ não podem ser alterados diretamente na plataforma, <strong>já acionei um executivo da nossa equipe para atualizar o cadastro com você.</strong>
+                  </p>
+                  <button
+                    type="button"
+                    onclick="confirmSpecialistTransferFromAndreia()"
+                    class="w-full py-2.5 px-3 rounded-xl bg-aqui-grad text-white font-display font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs hover:opacity-95 transition"
+                  >
+                    <span>Entendi</span>
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+          ` : `
           <!-- Mensagem 1 da Andreia: Pergunta inicial obrigatória -->
           <div class="flex items-start gap-2.5">
             <div class="w-7 h-7 rounded-full bg-primary text-white font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
@@ -9460,6 +9544,7 @@ function renderAndreiaChat() {
               </div>
             </div>
           </div>
+          `}
 
           ${state.andreiaStep === 'fill_data' || state.andreiaStep === 'restricted' || state.andreiaStep === 'unlocked' ? `
             <!-- Resposta do Usuário (Escolha CPF ou CNPJ) -->
