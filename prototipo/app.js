@@ -7174,7 +7174,7 @@ function renderFaqSection() {
       a: `
         <div class="space-y-1.5">
           <p>Basta clicar em <strong>"+ digitar cupom"</strong> no Resumo da Campanha (aba de pagamento) para atualizar o valor na hora.</p>
-          <p>Se algum ponto já tiver <strong>Desconto Condômino</strong>, os descontos não se acumulam no mesmo edifício — mas fique tranquilo, a plataforma mantém sempre o maior desconto para você.</p>
+          <p>E uma ótima notícia: como o <strong>Desconto Condômino</strong> é um desconto cadastral, ele <strong>acumula</strong> com o seu cupom promocional — o cupom é aplicado em cima!</p>
         </div>
       `
     },

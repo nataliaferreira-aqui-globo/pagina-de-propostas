@@ -15,7 +15,7 @@
 ### 1.1. Edifícios Residenciais — **Cobrança POR TORRE (Ativo)**
 > **Regra de Negócio Crítica:** Em edifícios residenciais, o valor é **único por torre/ativo**, **independentemente da quantidade de telas** instaladas nos elevadores daquela torre (ex.: uma torre residencial com 1 tela custa `R$ 441,60` e uma torre residencial com 2 telas também custa `R$ 441,60`).
 > - Quando um condomínio residencial possui **múltiplas torres** (ex.: 5 torres em SP/Osasco), o valor total do condomínio é **`Nº de Torres × Valor por Torre`** (`5 × R$ 441,60 = R$ 2.208,00`).
-> - **Desconto de Condômino (Morador):** Aplica tarifa promocional fixa (**`R$ 99,00` / 28 dias**) para o condomínio residencial do morador (ex.: de `R$ 441,60` por `R$ 99,00`, economia de `-R$ 342,60`).
+> - **Desconto de Condômino (Morador):** Aplica tarifa promocional fixa (**`R$ 99,00` / 28 dias**) para o condomínio residencial do morador (ex.: de `R$ 441,60` por `R$ 99,00`, economia de `-R$ 342,60`). Por ser um **desconto cadastral**, o Desconto de Condômino **acumula** com cupons promocionais (o cupom é aplicado em cima do subtotal líquido).
 
 | Tier / Praça | 28 dias | 14 dias (`60%`) | 3 meses (`-5%`) | 6 meses (`-10%`) | 7 dias (`60% do 14d`) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
