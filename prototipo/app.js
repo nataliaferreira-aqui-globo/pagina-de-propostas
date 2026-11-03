@@ -9214,14 +9214,17 @@ function selectAndreiaProfileType(type) {
 }
 
 function submitAndreiaBillingForm() {
-  const docVal = (state.andreiaInputDoc || '').trim() || (state.andreiaProfileType === 'CPF' ? '123.456.789-00' : '12.345.678/0001-99');
-  const nameVal = (state.andreiaInputName || '').trim() || (state.andreiaProfileType === 'CPF' ? 'Natalia Ferreira' : 'Padaria & Confeitaria Bela Paulista LTDA');
+  const isCpf = state.andreiaProfileType === 'CPF';
+  const docVal = (state.andreiaInputDoc || '').trim() || (isCpf ? '123.456.789-00' : '12.345.678/0001-99');
+  const nameVal = (state.andreiaInputName || '').trim() || (isCpf ? 'Natalia Ferreira' : 'Padaria & Confeitaria Bela Paulista LTDA');
 
   state.billingDoc = docVal;
   state.billingCompany = nameVal;
   state.billingUnlockedInline = true;
 
-  if (state.andreiaSimulateRestricted) {
+  // CPF nunca possui restrição: libera os métodos de pagamento imediatamente.
+  // Apenas CNPJ entra no fluxo de restrição / encaminhamento ao especialista.
+  if (!isCpf && state.andreiaSimulateRestricted) {
     state.billingCnpjRestricted = true;
     state.paymentMethod = null;
     state.andreiaStep = 'restricted';
