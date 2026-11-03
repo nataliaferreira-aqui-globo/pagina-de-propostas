@@ -7192,13 +7192,10 @@ function renderFaqSection() {
   container.innerHTML = `
     <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-6 sm:px-10 py-8 sm:py-12">
       <div class="max-w-[960px] mx-auto flex flex-col lg:flex-row items-start justify-center gap-6 lg:gap-12 sim-stack-mobile">
-        <div class="shrink-0 lg:max-w-[240px]">
+        <div class="shrink-0">
           <h2 class="font-display font-medium text-2xl sm:text-[32px] grad-text leading-tight">
             Perguntas frequentes
           </h2>
-          <p class="mt-2 text-xs sm:text-sm text-ds-textSecondary leading-relaxed">
-            Tudo o que você precisa saber, direto ao ponto, para aprovar sua campanha com tranquilidade.
-          </p>
         </div>
 
         <div class="flex-1 w-full border-b border-[#EAEAEA] divide-y divide-[#EAEAEA]">
