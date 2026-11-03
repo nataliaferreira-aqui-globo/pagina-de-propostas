@@ -24,7 +24,26 @@ const state = {
   heroCouponOpen: false,   // controle do input de cupom direto no card de Valor Total do Hero
   couponCode: 'AQUIADS10',
   simulateCoupon: false,
-  simulateUnlogged: false,
+  simulateUnlogged: true,  // inicia ativo para simular usuário deslogado -> login/cadastro -> IA Andreia
+  authCompleted: false,    // true após concluir Login ou Cadastro no modal
+  authModalOpen: false,    // controla exibição do modal de Login / Cadastro (Imagens 1 e 2)
+  authModalTab: 'login',   // 'login' | 'cadastro'
+  authLoginEmail: '',
+  authRegEmail: '',
+  authRegName: '',
+  authRegPhone: '',
+  authRegCnpj: '',
+  authRegNoCnpj: false,
+  authRegForeigner: false,
+  billingCnpjRestricted: false, // true quando a IA Andreia sinaliza restrição no CNPJ (encarteirado)
+  andreiaChatOpen: false,       // controla exibição do chatbot da IA Andreia
+  andreiaStep: 'select_type',   // 'select_type' | 'fill_form' | 'restricted_result' | 'unlocked_result'
+  andreiaProfileType: null,     // 'CNPJ' | 'CPF'
+  andreiaSimulateRestricted: true, // por padrão simula CNPJ encarteirado conforme regra de negócio
+  andreiaInputDoc: '12.345.678/0001-99',
+  andreiaInputName: 'Padaria & Confeitaria Bela Paulista LTDA',
+  andreiaInputCep: '04538-132',
+  andreiaInputAddress: 'Av. Brigadeiro Faria Lima, 3477 - Itaim Bibi, São Paulo/SP',
   expandedCondos: { '1624': false },
   expandedCardMetrics: {},
   paymentMethod: null,     // null | 'card' | 'pix' | 'boleto'
@@ -1357,11 +1376,13 @@ function initApp() {
     const couponChk = document.getElementById('toggleCoupon');
     if (couponChk) couponChk.checked = true;
   }
-  if (params.get('unlogged') === '1') {
+  if (params.get('unlogged') === '0') {
+    state.simulateUnlogged = false;
+  } else if (params.get('unlogged') === '1') {
     state.simulateUnlogged = true;
-    const unloggedChk = document.getElementById('toggleUnlogged');
-    if (unloggedChk) unloggedChk.checked = true;
   }
+  const unloggedChk = document.getElementById('toggleUnlogged');
+  if (unloggedChk) unloggedChk.checked = state.simulateUnlogged;
 
   const select = document.getElementById('scenarioSelect');
   select.innerHTML = Object.values(window.PROPOSAL_SCENARIOS)
@@ -1398,7 +1419,17 @@ function initApp() {
 
   document.getElementById('toggleUnlogged').addEventListener('change', (e) => {
     state.simulateUnlogged = e.target.checked;
+    state.authCompleted = false;
+    state.authModalOpen = false;
     state.billingUnlockedInline = false;
+    state.billingCnpjRestricted = false;
+    state.andreiaChatOpen = false;
+    state.andreiaStep = 'select_type';
+    state.andreiaProfileType = null;
+    state.paymentMethod = null;
+    if (state.simulateUnlogged && state.activeTab === 'pagamento') {
+      state.activeTab = 'plano';
+    }
     renderAll();
   });
 
@@ -1550,6 +1581,14 @@ function syncMobileHoverElimination() {
   });
 }
 
+function isUserUnlogged() {
+  return Boolean(state.simulateUnlogged && !state.authCompleted);
+}
+
+function isPaymentMethodsBlocked() {
+  return Boolean(state.simulateUnlogged && (!state.billingUnlockedInline || state.billingCnpjRestricted));
+}
+
 function renderAll() {
   const model = getCurrentModel();
   ensureValidActiveChannel(model);
@@ -1563,6 +1602,8 @@ function renderAll() {
   renderPaymentTab(model);
   renderFaqSection(model);
   renderPdfDocument(model);
+  renderAuthModal();
+  renderAndreiaChat();
   syncMobileHoverElimination();
 
   document.getElementById('tabCountPlano').textContent = model.counts.totalItems;
@@ -1693,11 +1734,19 @@ function goToJourneyStep(stepNum) {
     switchMainTab('plano');
     scrollActiveViewportToTop(true);
   } else if (stepNum === 2) {
+    if (isUserUnlogged()) {
+      openAuthModal('login');
+      return;
+    }
     if (state.proposalStatus !== 'awaiting') {
       setProposalStatus('awaiting');
     }
     goToPaymentAnchor();
   } else if (stepNum === 3) {
+    if (isUserUnlogged()) {
+      openAuthModal('login');
+      return;
+    }
     if (state.proposalStatus === 'awaiting') {
       setProposalStatus('processing');
     }
@@ -2170,14 +2219,32 @@ function renderHeroSection(m) {
 
           <!-- Card 2: Dados de faturamento -->
           <div class="bg-white rounded-[14px] border border-ds-borderStrong ${mobile ? 'p-3.5' : 'p-5'} shadow-xs flex flex-col justify-between">
-            <div class="pb-2.5 mb-3 border-b border-ds-border">
+            <div class="pb-2.5 mb-3 border-b border-ds-border flex items-center justify-between gap-2">
               <h2 class="font-display font-bold text-xs sm:text-sm text-ds-textMain">
                 Dados de faturamento
               </h2>
+              ${isUserUnlogged() ? `
+                <button type="button" onclick="openAuthModal('login')" class="text-[11px] font-display font-bold text-primary hover:underline">
+                  Entrar / Cadastrar →
+                </button>
+              ` : state.simulateUnlogged && !state.billingUnlockedInline ? `
+                <button type="button" onclick="openAndreiaBillingChat()" class="text-[11px] font-display font-bold text-primary hover:underline inline-flex items-center gap-1">
+                  <i class="uil uil-comment-alt-dots text-xs"></i>
+                  <span>Cadastrar</span>
+                </button>
+              ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
+                <span class="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 font-display font-bold text-[10px]">
+                  Restrição comercial
+                </span>
+              ` : ''}
             </div>
-            ${state.simulateUnlogged && !state.billingUnlockedInline ? `
-              <div class="text-xs text-ds-textSecondary py-0.5">
-                Dados de faturamento ainda não cadastrados.
+            ${isUserUnlogged() ? `
+              <div class="text-xs text-ds-textSecondary py-0.5 flex flex-wrap items-center justify-between gap-2">
+                <span>Faça login ou crie sua conta para vincular o perfil de faturamento.</span>
+              </div>
+            ` : state.simulateUnlogged && !state.billingUnlockedInline ? `
+              <div class="text-xs text-ds-textSecondary py-0.5 flex flex-wrap items-center justify-between gap-2">
+                <span>Cadastre o perfil de faturamento para prosseguir com o pagamento.</span>
               </div>
             ` : `
               <div class="grid ${mobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5'} sim-grid-1 text-xs">
@@ -2186,10 +2253,16 @@ function renderHeroSection(m) {
                   <div class="font-bold text-ds-textMain mt-0.5 ${mobile ? 'break-words' : 'truncate'}">${escapeHtml(state.billingCompany)}</div>
                 </div>
                 <div>
-                  <div class="text-[11px] text-ds-textSecondary">CNPJ de faturamento</div>
+                  <div class="text-[11px] text-ds-textSecondary">${state.andreiaProfileType === 'CPF' ? 'CPF de faturamento' : 'CNPJ de faturamento'}</div>
                   <div class="font-mono font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${escapeHtml(state.billingDoc)}</div>
                 </div>
               </div>
+              ${state.simulateUnlogged && state.billingCnpjRestricted ? `
+                <div class="mt-2.5 pt-2 border-t border-amber-200/70 text-[11px] text-amber-900 flex items-center justify-between gap-2">
+                  <span><i class="uil uil-info-circle text-amber-700"></i> CNPJ encarteirado · Em atendimento com especialista.</span>
+                  <button type="button" onclick="openAndreiaBillingChat()" class="font-display font-bold text-primary hover:underline shrink-0">Ver chat</button>
+                </div>
+              ` : ''}
             `}
           </div>
         </div>
@@ -6264,17 +6337,92 @@ function renderPaymentTab(m) {
   // ==========================================================================
   const pixCodeString = `00020126580014BR.GOV.BCB.PIX0136aquiads-proposta-${m.id}-eletromidia5204000053039865408${f.onlinePayableNow.toFixed(2)}5802BR5918AQUI ADS GLOBO ELE6009SAO PAULO62070503***6304ABCD`;
   const boletoLineString = `34191.79001 01043.510047 91020.150008 8 989500000${Math.round(f.onlinePayableNow)}`;
+  const methodsBlocked = isPaymentMethodsBlocked();
+
+  const billingDisclaimerBannerHtml = state.simulateUnlogged && !state.billingUnlockedInline ? `
+    <div id="billingDisclaimerBanner" class="rounded-[14px] border-2 border-amber-300 bg-[#FFFDF7] ${mobile ? 'p-3.5' : 'p-4'} shadow-xs flex ${mobile ? 'flex-col items-stretch' : 'flex-col sm:flex-row sm:items-center justify-between'} gap-3.5">
+      <div class="flex items-start gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center text-lg shrink-0 mt-0.5">
+          <i class="uil uil-exclamation-triangle"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="font-display font-bold text-sm sm:text-[15px] text-ds-textMain leading-snug">
+            Cadastre o perfil de faturamento para prosseguir
+          </div>
+          <p class="text-xs text-ds-textSecondary mt-0.5 leading-relaxed">
+            Para liberar a seleção dos métodos de pagamento, conclua o cadastro dos dados de faturamento com a nossa assistente <strong class="text-ds-textMain">Andreia</strong>.
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        onclick="openAndreiaBillingChat()"
+        class="${mobile ? 'w-full' : 'w-full sm:w-auto'} px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-1.5 shadow-xs transition shrink-0"
+      >
+        <i class="uil uil-comment-alt-dots text-base"></i>
+        <span>Cadastrar</span>
+      </button>
+    </div>
+  ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
+    <div id="billingDisclaimerBanner" class="rounded-[14px] border-2 border-rose-200 bg-rose-50/70 ${mobile ? 'p-3.5' : 'p-4'} shadow-xs space-y-3">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-xl bg-rose-100 border border-rose-300 text-rose-800 flex items-center justify-center text-lg shrink-0 mt-0.5">
+          <i class="uil uil-user-arrows"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-display font-bold text-sm sm:text-[15px] text-rose-950 leading-snug">
+              Restrição neste CNPJ (${escapeHtml(state.billingDoc)})
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-rose-100 border border-rose-300 text-rose-900 font-display font-bold text-[10px] uppercase tracking-wider">
+              Cliente encarteirado
+            </span>
+          </div>
+          <p class="text-xs text-rose-900 mt-1 leading-relaxed">
+            <strong>Andreia (IA):</strong> "Identificamos que existe uma restrição neste CNPJ. Estou te encaminhando para um dos nossos especialistas. Com ele você poderá dar seguimento à sua proposta."
+          </p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-end gap-2 pt-1 border-t border-rose-200/80">
+        <button
+          type="button"
+          onclick="unlockPaymentFromAndreia()"
+          class="px-3 py-1.5 rounded-lg border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-display font-semibold text-[11px] transition"
+        >
+          Simular CNPJ sem restrição (Liberar pagamento)
+        </button>
+        <button
+          type="button"
+          onclick="openAndreiaBillingChat()"
+          class="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shadow-2xs transition"
+        >
+          <i class="uil uil-comment-alt-dots text-sm"></i>
+          <span>Ver conversa com a Andreia</span>
+        </button>
+      </div>
+    </div>
+  ` : '';
 
   const leftPaymentColumnHtml = `
     <div class="bg-white rounded-[18px] border border-ds-borderStrong ${mobile ? 'p-3.5 space-y-3.5' : 'p-6 space-y-5'} shadow-aqui-card">
-      <div class="border-b border-ds-border pb-3">
-        <h3 class="font-display font-bold text-ds-textMain ${mobile ? 'text-base' : 'text-xl'}">
-          Escolha a forma de pagamento
-        </h3>
-        <p class="text-xs text-ds-textSecondary mt-0.5">
-          Selecione como deseja pagar os canais de ativação online (${onlineChannelsLabel})
-        </p>
+      <div class="border-b border-ds-border pb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h3 class="font-display font-bold text-ds-textMain ${mobile ? 'text-base' : 'text-xl'}">
+            Escolha a forma de pagamento
+          </h3>
+          <p class="text-xs text-ds-textSecondary mt-0.5">
+            Selecione como deseja pagar os canais de ativação online (${onlineChannelsLabel})
+          </p>
+        </div>
+        ${methodsBlocked ? `
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 font-display font-bold text-[11px]">
+            <i class="uil uil-lock text-xs"></i>
+            <span>Aguardando perfil de faturamento</span>
+          </span>
+        ` : ''}
       </div>
+
+      ${billingDisclaimerBannerHtml}
 
       <div class="space-y-3">
 
@@ -6283,17 +6431,28 @@ function renderPaymentTab(m) {
           <button
             type="button"
             onclick="setPaymentMethod('card')"
+            aria-disabled="${methodsBlocked}"
             class="w-full ${mobile ? 'p-3.5' : 'p-4'} rounded-[14px] border text-left flex items-center justify-between gap-2.5 transition ${
-              state.paymentMethod === 'card'
+              methodsBlocked
+                ? 'border-ds-border bg-[#F4F3F1] opacity-65 cursor-not-allowed'
+                : state.paymentMethod === 'card'
                 ? 'border-2 border-primary bg-white shadow-xs'
                 : 'border-ds-borderStrong bg-ds-surface/40 hover:bg-white'
             }"
           >
             <div class="flex items-center gap-2.5 min-w-0">
               <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                state.paymentMethod === 'card' ? 'border-primary' : 'border-ds-textMuted'
+                methodsBlocked
+                  ? 'border-ds-borderStrong bg-white text-ds-textMuted'
+                  : state.paymentMethod === 'card'
+                  ? 'border-primary'
+                  : 'border-ds-textMuted'
               }">
-                ${state.paymentMethod === 'card' ? '<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>' : ''}
+                ${methodsBlocked
+                  ? '<i class="uil uil-lock text-[11px] leading-none"></i>'
+                  : state.paymentMethod === 'card'
+                  ? '<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>'
+                  : ''}
               </span>
               <div class="min-w-0">
                 <div class="font-display font-bold text-sm sm:text-base text-ds-textMain">Cartão de crédito</div>
@@ -6301,15 +6460,17 @@ function renderPaymentTab(m) {
               </div>
             </div>
             <span class="px-2.5 py-1 rounded-full text-[11px] font-bold shrink-0 ${
-              state.paymentMethod === 'card'
+              methodsBlocked
+                ? 'bg-stone-200/80 text-stone-600 inline-flex items-center gap-1'
+                : state.paymentMethod === 'card'
                 ? 'bg-primary-light text-primary'
                 : 'bg-ds-bg text-ds-textSecondary'
             }">
-              ${state.paymentMethod === 'card' ? 'Selecionado' : 'Até 6x s/ juros'}
+              ${methodsBlocked ? '<i class="uil uil-lock text-xs"></i><span>Bloqueado</span>' : state.paymentMethod === 'card' ? 'Selecionado' : 'Até 6x s/ juros'}
             </span>
           </button>
 
-          ${state.paymentMethod === 'card' ? `
+          ${!methodsBlocked && state.paymentMethod === 'card' ? `
             <div class="${mobile ? 'ml-3 pl-3' : 'ml-4 pl-4'} border-l-2 border-dashed border-amber-400/90 space-y-2">
               <div class="flex items-center justify-between gap-2">
                 <span class="text-xs font-bold text-ds-textSecondary">
@@ -6433,17 +6594,28 @@ function renderPaymentTab(m) {
           <button
             type="button"
             onclick="setPaymentMethod('pix')"
+            aria-disabled="${methodsBlocked}"
             class="w-full ${mobile ? 'p-3.5' : 'p-4'} rounded-[14px] border text-left flex items-center justify-between gap-2.5 transition ${
-              state.paymentMethod === 'pix'
+              methodsBlocked
+                ? 'border-ds-border bg-[#F4F3F1] opacity-65 cursor-not-allowed'
+                : state.paymentMethod === 'pix'
                 ? 'border-2 border-primary bg-white shadow-xs'
                 : 'border-ds-borderStrong bg-ds-surface/40 hover:bg-white'
             }"
           >
             <div class="flex items-center gap-2.5 min-w-0">
               <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                state.paymentMethod === 'pix' ? 'border-primary' : 'border-ds-textMuted'
+                methodsBlocked
+                  ? 'border-ds-borderStrong bg-white text-ds-textMuted'
+                  : state.paymentMethod === 'pix'
+                  ? 'border-primary'
+                  : 'border-ds-textMuted'
               }">
-                ${state.paymentMethod === 'pix' ? '<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>' : ''}
+                ${methodsBlocked
+                  ? '<i class="uil uil-lock text-[11px] leading-none"></i>'
+                  : state.paymentMethod === 'pix'
+                  ? '<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>'
+                  : ''}
               </span>
               <div class="min-w-0">
                 <div class="font-display font-bold text-sm sm:text-base text-ds-textMain">PIX</div>
@@ -6451,15 +6623,17 @@ function renderPaymentTab(m) {
               </div>
             </div>
             <span class="px-2.5 py-1 rounded-full text-[11px] font-bold shrink-0 ${
-              state.paymentMethod === 'pix'
+              methodsBlocked
+                ? 'bg-stone-200/80 text-stone-600 inline-flex items-center gap-1'
+                : state.paymentMethod === 'pix'
                 ? 'bg-primary-light text-primary'
                 : 'bg-ds-bg text-ds-textSecondary'
             }">
-              ${state.paymentMethod === 'pix' ? (state.pixGenerated ? (mobile ? 'Código gerado' : 'QR Code gerado') : 'Selecionado') : 'Aprovação imediata'}
+              ${methodsBlocked ? '<i class="uil uil-lock text-xs"></i><span>Bloqueado</span>' : state.paymentMethod === 'pix' ? (state.pixGenerated ? (mobile ? 'Código gerado' : 'QR Code gerado') : 'Selecionado') : 'Aprovação imediata'}
             </span>
           </button>
 
-          ${state.paymentMethod === 'pix' ? `
+          ${!methodsBlocked && state.paymentMethod === 'pix' ? `
             <div id="generatedPixSection" class="${mobile ? 'ml-3 pl-3' : 'ml-4 pl-4'} border-l-2 border-dashed border-amber-400/90">
               ${state.pixGenerated ? `
                 <div class="rounded-[14px] border-2 border-primary/40 bg-ds-surface p-3.5 space-y-3.5 shadow-sm">
@@ -6520,31 +6694,47 @@ function renderPaymentTab(m) {
           <button
             type="button"
             onclick="setPaymentMethod('boleto')"
+            aria-disabled="${methodsBlocked}"
             class="w-full ${mobile ? 'p-3.5' : 'p-4'} rounded-[14px] border text-left flex items-center justify-between gap-2.5 transition ${
-              state.paymentMethod === 'boleto'
+              methodsBlocked
+                ? 'border-ds-border bg-[#F4F3F1] opacity-65 cursor-not-allowed'
+                : state.paymentMethod === 'boleto'
                 ? 'border-2 border-primary bg-white shadow-xs'
                 : 'border-ds-borderStrong bg-ds-surface/40 hover:bg-white'
             }"
           >
             <div class="flex items-center gap-2.5 min-w-0">
               <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                state.paymentMethod === 'boleto' ? 'border-primary' : 'border-ds-textMuted'
+                methodsBlocked
+                  ? 'border-ds-borderStrong bg-white text-ds-textMuted'
+                  : state.paymentMethod === 'boleto'
+                  ? 'border-primary'
+                  : 'border-ds-textMuted'
               }">
-                ${state.paymentMethod === 'boleto' ? '<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>' : ''}
+                ${methodsBlocked
+                  ? '<i class="uil uil-lock text-[11px] leading-none"></i>'
+                  : state.paymentMethod === 'boleto'
+                  ? '<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>'
+                  : ''}
               </span>
               <div class="min-w-0">
                 <div class="font-display font-bold text-sm sm:text-base text-ds-textMain">Boleto bancário</div>
                 <div class="text-xs text-ds-textSecondary">Compensação em até 2 dias úteis</div>
               </div>
             </div>
-            ${state.paymentMethod === 'boleto' ? `
+            ${methodsBlocked ? `
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-stone-200/80 text-stone-600 inline-flex items-center gap-1 shrink-0">
+                <i class="uil uil-lock text-xs"></i>
+                <span>Bloqueado</span>
+              </span>
+            ` : state.paymentMethod === 'boleto' ? `
               <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary-light text-primary shrink-0">
                 ${state.boletoGenerated ? 'Boleto gerado' : 'Selecionado'}
               </span>
             ` : ''}
           </button>
 
-          ${state.paymentMethod === 'boleto' ? `
+          ${!methodsBlocked && state.paymentMethod === 'boleto' ? `
             <div id="generatedBoletoSection" class="${mobile ? 'ml-3 pl-3' : 'ml-4 pl-4'} border-l-2 border-dashed border-amber-400/90">
               ${state.boletoGenerated ? `
                 <div class="rounded-[14px] border-2 border-primary/40 bg-ds-surface p-3.5 space-y-3 shadow-sm">
@@ -6625,7 +6815,7 @@ function renderPaymentTab(m) {
   const isAwaitingGeneratedPayment =
     (state.paymentMethod === 'pix' && state.pixGenerated) ||
     (state.paymentMethod === 'boleto' && state.boletoGenerated);
-  const canActivateCampaign = Boolean(state.paymentMethod) && !isAwaitingGeneratedPayment;
+  const canActivateCampaign = Boolean(state.paymentMethod) && !isAwaitingGeneratedPayment && !methodsBlocked;
 
   const rightSummaryColumnHtml = `
     <div class="bg-white rounded-[18px] border border-ds-borderStrong ${mobile ? 'p-4 space-y-4' : 'p-6 space-y-4'} shadow-aqui-card">
@@ -6653,21 +6843,42 @@ function renderPaymentTab(m) {
         <div class="text-xs">
           <div class="flex items-center justify-between gap-2">
             <span class="text-ds-textSecondary">Faturamento</span>
-            <button onclick="toggleBillingDrawer()" class="text-primary font-bold hover:underline inline-flex items-center gap-1">
-              <i class="uil uil-pen"></i>
-              <span>${state.billingDrawerOpen ? 'fechar' : needsBillingWarning ? 'informar CNPJ' : 'alterar'}</span>
-            </button>
+            ${state.simulateUnlogged && !state.billingUnlockedInline ? `
+              <button type="button" onclick="openAndreiaBillingChat()" class="text-primary font-display font-bold hover:underline inline-flex items-center gap-1">
+                <i class="uil uil-comment-alt-dots"></i>
+                <span>Cadastrar</span>
+              </button>
+            ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
+              <button type="button" onclick="openAndreiaBillingChat()" class="text-rose-700 font-display font-bold hover:underline inline-flex items-center gap-1">
+                <i class="uil uil-exclamation-circle"></i>
+                <span>Ver restrição</span>
+              </button>
+            ` : `
+              <button onclick="toggleBillingDrawer()" class="text-primary font-bold hover:underline inline-flex items-center gap-1">
+                <i class="uil uil-pen"></i>
+                <span>${state.billingDrawerOpen ? 'fechar' : needsBillingWarning ? 'informar CNPJ' : 'alterar'}</span>
+              </button>
+            `}
           </div>
-          ${needsBillingWarning && !state.billingDrawerOpen ? `
-            <div class="mt-1.5 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px]">
-              <strong>Informe o CNPJ/CPF</strong> para emissão da nota fiscal.
+          ${state.simulateUnlogged && !state.billingUnlockedInline ? `
+            <div class="mt-1.5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-[11px] flex items-center justify-between gap-2">
+              <span><strong>Cadastre o perfil de faturamento</strong> para prosseguir.</span>
+              <button type="button" onclick="openAndreiaBillingChat()" class="px-2.5 py-1 rounded-lg bg-primary text-white font-display font-bold text-[11px] shrink-0">
+                Cadastrar
+              </button>
+            </div>
+          ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
+            <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(state.billingCompany)}</div>
+            <div class="text-[11px] text-ds-textMuted">${state.andreiaProfileType === 'CPF' ? 'CPF' : 'CNPJ'} ${escapeHtml(state.billingDoc)}</div>
+            <div class="mt-1.5 p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-[11px] leading-snug">
+              <strong>CNPJ com restrição (Encarteirado):</strong> Encaminhado para especialista Aqui Ads.
             </div>
           ` : !state.billingDrawerOpen ? `
-            <div class="mt-0.5 font-semibold text-ds-textMain truncate">${state.billingCompany}</div>
-            <div class="text-[11px] text-ds-textMuted">CNPJ ${state.billingDoc}</div>
+            <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(state.billingCompany)}</div>
+            <div class="text-[11px] text-ds-textMuted">${state.andreiaProfileType === 'CPF' ? 'CPF' : 'CNPJ'} ${escapeHtml(state.billingDoc)}</div>
           ` : ''}
 
-          ${state.billingDrawerOpen ? `
+          ${!state.simulateUnlogged && state.billingDrawerOpen ? `
             <div class="mt-2 p-3 rounded-xl bg-ds-bg border border-ds-borderStrong space-y-2">
               <input id="inputBillingDoc" type="text" value="${state.billingDoc}" placeholder="CNPJ ou CPF" class="w-full px-3 py-1.5 rounded-lg border border-ds-borderStrong bg-white text-xs font-semibold" />
               <input id="inputBillingCompany" type="text" value="${state.billingCompany}" placeholder="Razão Social" class="w-full px-3 py-1.5 rounded-lg border border-ds-borderStrong bg-white text-xs font-semibold" />
@@ -6816,18 +7027,16 @@ function saveInlineBilling() {
 }
 
 function submitPaymentOrder() {
+  if (isPaymentMethodsBlocked()) {
+    openAndreiaBillingChat();
+    showToast('Cadastre o perfil de faturamento com a Andreia para prosseguir.');
+    return;
+  }
   if (!state.paymentMethod) {
     showToast('Escolha uma forma de pagamento para ativar sua campanha.');
     return;
   }
   if ((state.paymentMethod === 'pix' && state.pixGenerated) || (state.paymentMethod === 'boleto' && state.boletoGenerated)) {
-    return;
-  }
-
-  if (state.simulateUnlogged && !state.billingUnlockedInline) {
-    state.billingDrawerOpen = true;
-    renderPaymentTab(getCurrentModel());
-    showToast('Informe o CNPJ ou CPF de faturamento no Resumo para concluir.');
     return;
   }
 
@@ -7326,6 +7535,11 @@ function updateMobileInlineMap(m) {
 }
 
 function switchMainTab(tab) {
+  if (tab === 'pagamento' && isUserUnlogged()) {
+    openAuthModal('login');
+    showToast('Faça login ou cadastre sua conta para acessar o pagamento.');
+    return;
+  }
   state.activeTab = tab;
   ['plano', 'arte', 'pagamento'].forEach((t) => {
     const content = document.getElementById(`tabContent-${t}`);
@@ -7344,6 +7558,11 @@ function switchMainTab(tab) {
 }
 
 function goToPaymentAnchor() {
+  if (isUserUnlogged()) {
+    openAuthModal('login');
+    showToast('Faça login ou cadastre sua conta para acessar o pagamento.');
+    return;
+  }
   switchMainTab('pagamento');
   const target = document.getElementById('mainTabsSection');
   if (target) {
@@ -8684,6 +8903,16 @@ function setPaymentMethod(pm) {
     showToast('Após gerar o pagamento, não é possível alterar a forma de pagamento.');
     return;
   }
+  if (isPaymentMethodsBlocked()) {
+    if (state.billingCnpjRestricted) {
+      openAndreiaBillingChat();
+      showToast('Este CNPJ possui restrição comercial (encarteirado). Continue o atendimento com o especialista.');
+    } else {
+      openAndreiaBillingChat();
+      showToast('Cadastre o perfil de faturamento com a Andreia para liberar os métodos de pagamento.');
+    }
+    return;
+  }
   state.paymentMethod = pm;
   renderPaymentTab(getCurrentModel());
   if (pm === 'pix' && isMobileView() && !state.pixGenerated) {
@@ -8698,8 +8927,670 @@ function setPaymentMethod(pm) {
 
 function unlockInlineBilling() {
   state.billingUnlockedInline = true;
-  renderPaymentTab(getCurrentModel());
+  state.billingCnpjRestricted = false;
+  renderAll();
   showToast('Dados de faturamento salvos.');
+}
+
+/**
+ * ============================================================================
+ * 8. JORNADA DO USUÁRIO DESLOGADO: MODAL DE LOGIN / CADASTRO (FIEL ÀS IMAGENS 1 E 2)
+ *    + CHATBOT DA IA ANDREIA (CADASTRO DE PERFIL DE FATURAMENTO & REGRA DE CNPJ ENCARTEIRADO)
+ * ============================================================================
+ */
+function openAuthModal(initialTab) {
+  state.authModalTab = initialTab === 'cadastro' ? 'cadastro' : 'login';
+  state.authModalOpen = true;
+  renderAuthModal();
+}
+
+function closeAuthModal() {
+  state.authModalOpen = false;
+  renderAuthModal();
+}
+
+function setAuthModalTab(tab) {
+  state.authModalTab = tab === 'cadastro' ? 'cadastro' : 'login';
+  renderAuthModal();
+}
+
+function toggleSignupNoCnpj(checked) {
+  state.signupNoCnpj = Boolean(checked);
+  renderAuthModal();
+}
+
+function toggleSignupForeigner(checked) {
+  state.signupForeigner = Boolean(checked);
+  renderAuthModal();
+}
+
+function submitAuthModal(sourceLabel) {
+  state.authCompleted = true;
+  state.authModalOpen = false;
+  // Quando o usuário cria a conta ou entra pela 1ª vez nesta simulação, não há perfil de faturamento previamente criado:
+  state.billingUnlockedInline = false;
+  state.billingCnpjRestricted = false;
+  state.paymentMethod = null;
+  state.activeTab = 'pagamento';
+  renderAll();
+  setTimeout(() => {
+    const target = document.getElementById('mainTabsSection');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 60);
+  showToast(
+    sourceLabel === 'cadastro'
+      ? 'Conta criada com sucesso! Cadastre o perfil de faturamento para liberar o pagamento.'
+      : 'Login realizado! Cadastre o perfil de faturamento para prosseguir.'
+  );
+}
+
+function renderAuthModal() {
+  const container = document.getElementById('authModalContainer');
+  if (!container) return;
+
+  if (!state.authModalOpen) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const mobile = isMobileView();
+  const isLogin = state.authModalTab !== 'cadastro';
+
+  const googleSvgIcon = `
+    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.6 3.8-5.5 3.8-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.4 14.6 2.5 12 2.5 6.8 2.5 2.5 6.8 2.5 12s4.3 9.5 9.5 9.5c5.5 0 9.1-3.8 9.1-9.2 0-.6-.1-1.1-.2-1.6H12z"/>
+      <path fill="#34A853" d="M3.6 7.4l3.2 2.3C7.7 7.6 9.7 6 12 6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.4 14.6 2.5 12 2.5 8.3 2.5 5.1 4.6 3.6 7.4z"/>
+      <path fill="#FBBC05" d="M12 21.5c2.5 0 4.7-.8 6.3-2.3l-2.9-2.4c-.8.6-1.9 1-3.4 1-3.8 0-5.2-2.5-5.5-3.8l-3.2 2.5c1.5 3 4.8 5 8.7 5z"/>
+      <path fill="#4285F4" d="M21.1 12.3c0-.6-.1-1.1-.2-1.6H12v3.9h5.5c-.3 1.3-1.1 2.4-2.1 3.1l2.9 2.4c1.7-1.6 2.8-4 2.8-7.8z"/>
+    </svg>
+  `;
+
+  container.innerHTML = `
+    <div
+      class="fixed inset-0 z-[120] bg-black/55 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      onclick="if (event.target === this) closeAuthModal()"
+    >
+      <div class="relative w-full ${mobile ? 'max-w-[358px] p-5' : 'max-w-[440px] p-7 sm:p-8'} bg-white rounded-[24px] border border-[#EAEAEA] shadow-2xl my-auto">
+        <!-- Botão fechar discreto no canto -->
+        <button
+          type="button"
+          onclick="closeAuthModal()"
+          aria-label="Fechar janela de acesso"
+          class="absolute top-3.5 right-3.5 w-8 h-8 rounded-full text-ds-textMuted hover:text-ds-textMain hover:bg-ds-surface flex items-center justify-center transition"
+        >
+          <i class="uil uil-times text-lg"></i>
+        </button>
+
+        <!-- Toggle Pílula Topo: Cadastro | Login (Fiel às Imagens 1 e 2) -->
+        <div class="grid grid-cols-2 p-1 rounded-full bg-[#F7F7F7] border border-[#EEEEEE] mb-6">
+          <button
+            type="button"
+            onclick="setAuthModalTab('cadastro')"
+            class="py-2 px-4 rounded-full font-display font-bold text-xs sm:text-sm transition ${
+              !isLogin
+                ? 'bg-[#FF5500] text-white shadow-xs'
+                : 'text-[#6B6B6B] hover:text-[#1E1E1E]'
+            }"
+          >
+            Cadastro
+          </button>
+          <button
+            type="button"
+            onclick="setAuthModalTab('login')"
+            class="py-2 px-4 rounded-full font-display font-bold text-xs sm:text-sm transition ${
+              isLogin
+                ? 'bg-[#FF5500] text-white shadow-xs'
+                : 'text-[#6B6B6B] hover:text-[#1E1E1E]'
+            }"
+          >
+            Login
+          </button>
+        </div>
+
+        ${isLogin ? `
+          <!-- ================= ABA LOGIN (IMAGEM 1) ================= -->
+          <div class="text-center mb-6">
+            <h2 class="font-display font-bold ${mobile ? 'text-2xl' : 'text-[28px]'} text-[#1E1E1E] leading-tight">
+              Entrar
+            </h2>
+            <p class="text-xs sm:text-sm text-[#6B6B6B] mt-1.5 leading-relaxed">
+              Acesse sua conta de forma segura sem precisar de senha.
+            </p>
+          </div>
+
+          <form onsubmit="event.preventDefault(); submitAuthModal('login');" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-[#4A4A4A] mb-1.5">
+                e-mail<span class="text-[#FF5500]">*</span>
+              </label>
+              <input
+                type="email"
+                required
+                value="${escapeHtml(state.loginEmail)}"
+                oninput="state.loginEmail = this.value"
+                placeholder="seuemail@empresa.com.br"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-[#DCDCDC] bg-white text-xs sm:text-sm text-[#1E1E1E] placeholder-[#B0B0B0] focus:border-[#FF5500] focus:outline-none transition"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3 rounded-xl bg-[#FF5500] hover:bg-[#E04800] text-white font-display font-bold text-sm transition shadow-sm"
+            >
+              continuar
+            </button>
+          </form>
+        ` : `
+          <!-- ================= ABA CADASTRO (IMAGEM 2) ================= -->
+          <div class="text-center mb-5">
+            <h2 class="font-display font-bold ${mobile ? 'text-xl' : 'text-[26px]'} text-[#1E1E1E] leading-tight">
+              Não tem cadastro?
+            </h2>
+            <p class="text-xs sm:text-sm text-[#6B6B6B] mt-1 leading-relaxed">
+              Cadastre-se na plataforma e comece a navegar
+            </p>
+          </div>
+
+          <form onsubmit="event.preventDefault(); submitAuthModal('cadastro');" class="space-y-3.5">
+            <div>
+              <label class="block text-xs font-medium text-[#4A4A4A] mb-1">
+                E-mail<span class="text-[#FF5500]">*</span>
+              </label>
+              <input
+                type="email"
+                required
+                value="${escapeHtml(state.signupEmail)}"
+                oninput="state.signupEmail = this.value"
+                placeholder="seuemail@empresa.com.br"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-[#DCDCDC] bg-white text-xs sm:text-sm text-[#1E1E1E] placeholder-[#B0B0B0] focus:border-[#FF5500] focus:outline-none transition"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-[#4A4A4A] mb-1">
+                Nome completo<span class="text-[#FF5500]">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value="${escapeHtml(state.signupName)}"
+                oninput="state.signupName = this.value"
+                placeholder="Seu nome completo"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-[#DCDCDC] bg-white text-xs sm:text-sm text-[#1E1E1E] placeholder-[#B0B0B0] focus:border-[#FF5500] focus:outline-none transition"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-[#4A4A4A] mb-1">
+                WhatsApp<span class="text-[#FF5500]">*</span>
+              </label>
+              <div class="flex items-center gap-2">
+                <div class="px-3 py-2.5 rounded-xl border border-[#DCDCDC] bg-[#FAFAFA] text-xs sm:text-sm font-medium text-[#4A4A4A] shrink-0 select-none">
+                  +55
+                </div>
+                <input
+                  type="tel"
+                  required
+                  value="${escapeHtml(state.signupPhone)}"
+                  oninput="state.signupPhone = this.value"
+                  placeholder="(11) 99999-9999"
+                  class="flex-1 min-w-0 px-3.5 py-2.5 rounded-xl border border-[#DCDCDC] bg-white text-xs sm:text-sm text-[#1E1E1E] placeholder-[#B0B0B0] focus:border-[#FF5500] focus:outline-none transition"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-[#4A4A4A] mb-1">
+                CNPJ da empresa<span class="text-[#FF5500]">*</span>
+              </label>
+              <input
+                type="text"
+                ${state.signupNoCnpj ? 'disabled' : ''}
+                value="${state.signupNoCnpj ? '' : escapeHtml(state.signupCnpj)}"
+                oninput="state.signupCnpj = this.value"
+                placeholder="00.000.000/0000-00"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-[#DCDCDC] ${state.signupNoCnpj ? 'bg-[#F3F3F3] text-[#9E9E9E] cursor-not-allowed' : 'bg-white text-[#1E1E1E]'} text-xs sm:text-sm placeholder-[#B0B0B0] focus:border-[#FF5500] focus:outline-none transition"
+              />
+            </div>
+
+            <div class="space-y-2 pt-0.5">
+              <label class="flex items-center gap-2 text-xs text-[#4A4A4A] cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  ${state.signupNoCnpj ? 'checked' : ''}
+                  onchange="toggleSignupNoCnpj(this.checked)"
+                  class="w-3.5 h-3.5 rounded border-[#CFCFCF] text-[#FF5500] focus:ring-[#FF5500]"
+                />
+                <span>Não possuo CNPJ</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-[#4A4A4A] cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  ${state.signupForeigner ? 'checked' : ''}
+                  onchange="toggleSignupForeigner(this.checked)"
+                  class="w-3.5 h-3.5 rounded border-[#CFCFCF] text-[#FF5500] focus:ring-[#FF5500]"
+                />
+                <span>I'm a foreigner</span>
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3 rounded-xl bg-[#FF5500] hover:bg-[#E04800] text-white font-display font-bold text-sm transition shadow-sm mt-1"
+            >
+              avançar
+            </button>
+          </form>
+        `}
+
+        <!-- Divisor OU -->
+        <div class="flex items-center gap-3 my-4">
+          <div class="h-px bg-[#EAEAEA] flex-1"></div>
+          <span class="text-[11px] font-semibold text-[#9E9E9E] uppercase">OU</span>
+          <div class="h-px bg-[#EAEAEA] flex-1"></div>
+        </div>
+
+        <!-- Botões sociais: Google e Conta Globo -->
+        <div class="space-y-2.5">
+          <button
+            type="button"
+            onclick="submitAuthModal('${isLogin ? 'login' : 'cadastro'}')"
+            class="w-full py-2.5 px-4 rounded-xl border border-[#E0E0E0] bg-white hover:bg-[#F9F9F9] text-xs sm:text-sm font-medium text-[#2E2E2E] flex items-center justify-center gap-2.5 transition"
+          >
+            ${googleSvgIcon}
+            <span>Entrar com Google</span>
+          </button>
+
+          <button
+            type="button"
+            onclick="submitAuthModal('${isLogin ? 'login' : 'cadastro'}')"
+            class="w-full py-2.5 px-4 rounded-xl border border-[#E0E0E0] bg-white hover:bg-[#F9F9F9] text-xs sm:text-sm font-medium text-[#2E2E2E] flex items-center justify-center gap-1.5 transition"
+          >
+            <span>Entrar com</span>
+            <span class="font-display font-extrabold tracking-tight text-[#1E1E1E]">conta<span class=" font-normal">globo</span></span>
+          </button>
+        </div>
+
+        <!-- Rodapé Legal -->
+        <p class="text-[11px] text-[#8C8C8C] text-center leading-relaxed mt-5">
+          Ao continuar, você declara que leu e concorda com os
+          <a href="javascript:void(0)" onclick="showToast('Termos de Uso Aqui Ads')" class="text-[#FF5500] underline">Termos de Uso</a>
+          e a
+          <a href="javascript:void(0)" onclick="showToast('Política de Privacidade Aqui Ads')" class="text-[#FF5500] underline">Política de Privacidade</a>.
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * ============================================================================
+ * 9. CHATBOT DA IA ANDREIA (FLUXO DE CADASTRO DE PERFIL DE FATURAMENTO + CNPJ ENCARTEIRADO)
+ * ============================================================================
+ */
+function openAndreiaBillingChat() {
+  state.andreiaChatOpen = true;
+  if (!state.andreiaStep) {
+    state.andreiaStep = 'select_type';
+  }
+  renderAndreiaChat();
+}
+
+function closeAndreiaBillingChat() {
+  state.andreiaChatOpen = false;
+  renderAndreiaChat();
+}
+
+function selectAndreiaProfileType(type) {
+  state.andreiaProfileType = type === 'CPF' ? 'CPF' : 'CNPJ';
+  if (state.andreiaProfileType === 'CPF') {
+    state.andreiaInputDoc = '123.456.789-00';
+    state.andreiaInputName = state.signupName || 'Natalia Ferreira';
+  } else {
+    state.andreiaInputDoc = state.signupCnpj || '12.345.678/0001-99';
+    state.andreiaInputName = 'Padaria & Confeitaria Bela Paulista LTDA';
+  }
+  state.andreiaStep = 'fill_data';
+  renderAndreiaChat();
+}
+
+function submitAndreiaBillingForm() {
+  const docVal = (state.andreiaInputDoc || '').trim() || (state.andreiaProfileType === 'CPF' ? '123.456.789-00' : '12.345.678/0001-99');
+  const nameVal = (state.andreiaInputName || '').trim() || (state.andreiaProfileType === 'CPF' ? 'Natalia Ferreira' : 'Padaria & Confeitaria Bela Paulista LTDA');
+
+  state.billingDoc = docVal;
+  state.billingCompany = nameVal;
+  state.billingUnlockedInline = true;
+
+  if (state.andreiaSimulateRestricted) {
+    state.billingCnpjRestricted = true;
+    state.paymentMethod = null;
+    state.andreiaStep = 'restricted';
+    renderAll();
+    showToast('Andreia identificou restrição comercial neste CNPJ e encaminhou para um especialista.');
+  } else {
+    state.billingCnpjRestricted = false;
+    state.paymentMethod = 'card';
+    state.andreiaStep = 'unlocked';
+    renderAll();
+    showToast('Perfil de faturamento cadastrado! Métodos de pagamento liberados.');
+  }
+}
+
+function resetAndreiaBillingChat() {
+  state.andreiaStep = 'select_type';
+  state.andreiaProfileType = null;
+  state.billingUnlockedInline = false;
+  state.billingCnpjRestricted = false;
+  state.paymentMethod = null;
+  renderAll();
+}
+
+function unlockPaymentFromAndreia() {
+  state.andreiaSimulateRestricted = false;
+  state.billingUnlockedInline = true;
+  state.billingCnpjRestricted = false;
+  state.paymentMethod = 'card';
+  state.andreiaChatOpen = false;
+  renderAll();
+  showToast('Perfil de faturamento validado sem restrições! Métodos de pagamento liberados.');
+}
+
+function confirmSpecialistTransferFromAndreia() {
+  state.andreiaChatOpen = false;
+  renderAll();
+  showToast('Proposta encaminhada para o especialista Aqui Ads responsável pela carteira.');
+}
+
+function renderAndreiaChat() {
+  const container = document.getElementById('andreiaChatContainer');
+  if (!container) return;
+
+  // Se estivermos na aba de pagamento e o usuário estiver na jornada deslogada/Andreia, exibe também o botão flutuante da Andreia quando o chat estiver minimizado
+  if (!state.andreiaChatOpen) {
+    if (state.simulateUnlogged && state.authCompleted) {
+      container.innerHTML = `
+        <div class="fixed bottom-4 right-4 z-[110]">
+          <button
+            type="button"
+            onclick="openAndreiaBillingChat()"
+            class="px-4 py-3 rounded-full bg-aqui-grad text-white font-display font-bold text-xs sm:text-sm shadow-2xl flex items-center gap-2.5 hover:opacity-95 transition border border-white/20"
+          >
+            <span class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-base relative">
+              <i class="uil uil-robot"></i>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#FF5500] absolute -bottom-0.5 -right-0.5"></span>
+            </span>
+            <span>Falar com a Andreia (IA)</span>
+          </button>
+        </div>
+      `;
+    } else {
+      container.innerHTML = '';
+    }
+    return;
+  }
+
+  const mobile = isMobileView();
+  const profileType = state.andreiaProfileType || 'CNPJ';
+  const isCpf = profileType === 'CPF';
+
+  container.innerHTML = `
+    <div
+      class="fixed inset-0 z-[125] bg-black/45 backdrop-blur-[1px] flex ${mobile ? 'items-end justify-center p-2' : 'items-end sm:items-center justify-end sm:p-6'}"
+      onclick="if (event.target === this) closeAndreiaBillingChat()"
+    >
+      <div class="w-full ${mobile ? 'max-w-[374px] max-h-[88vh]' : 'max-w-[430px] max-h-[86vh]'} bg-white rounded-[22px] border border-ds-borderStrong shadow-2xl flex flex-col overflow-hidden">
+        <!-- Cabeçalho do Chatbot da Andreia -->
+        <div class="bg-aqui-grad px-4 py-3.5 text-white flex items-center justify-between gap-3 shrink-0">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-10 h-10 rounded-full bg-white/20 border border-white/35 flex items-center justify-center text-xl shrink-0 relative">
+              <i class="uil uil-sparkles"></i>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#F15A22] absolute bottom-0 right-0"></span>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <h3 class="font-display font-bold text-sm sm:text-base text-white truncate">Andreia</h3>
+                <span class="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-display font-bold uppercase tracking-wider">IA Aqui Ads</span>
+              </div>
+              <p class="text-[11px] text-white/90 truncate">Assistente de Cadastro e Faturamento</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onclick="closeAndreiaBillingChat()"
+            aria-label="Minimizar chat da Andreia"
+            class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition shrink-0"
+          >
+            <i class="uil uil-times text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Corpo de Mensagens do Chat -->
+        <div class="p-4 space-y-3.5 overflow-y-auto bounded-scroll bg-[#F9F6F2] flex-1 text-xs">
+          <!-- Mensagem 1 da Andreia: Pergunta inicial obrigatória -->
+          <div class="flex items-start gap-2.5">
+            <div class="w-7 h-7 rounded-full bg-primary text-white font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+              A
+            </div>
+            <div class="bg-white rounded-2xl rounded-tl-xs border border-ds-border p-3.5 shadow-2xs space-y-2 max-w-[88%]">
+              <p class="text-ds-textMain leading-relaxed">
+                Olá! Eu sou a <strong>Andreia</strong>, assistente virtual do Aqui Ads. Para liberarmos a etapa de pagamento da sua proposta, precisamos concluir o seu cadastro de faturamento.
+              </p>
+              <p class="font-display font-bold text-ds-textMain text-xs sm:text-[13px]">
+                Qual perfil de faturamento deseja cadastrar?
+              </p>
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onclick="selectAndreiaProfileType('CNPJ')"
+                  class="px-3.5 py-2 rounded-xl font-display font-bold text-xs border transition inline-flex items-center gap-1.5 ${
+                    state.andreiaProfileType === 'CNPJ'
+                      ? 'bg-primary text-white border-primary shadow-2xs'
+                      : 'bg-ds-surface hover:bg-primary-light/60 text-ds-textMain border-ds-borderStrong'
+                  }"
+                >
+                  <i class="uil uil-building text-sm"></i>
+                  <span>CNPJ (Pessoa Jurídica)</span>
+                </button>
+                <button
+                  type="button"
+                  onclick="selectAndreiaProfileType('CPF')"
+                  class="px-3.5 py-2 rounded-xl font-display font-bold text-xs border transition inline-flex items-center gap-1.5 ${
+                    state.andreiaProfileType === 'CPF'
+                      ? 'bg-primary text-white border-primary shadow-2xs'
+                      : 'bg-ds-surface hover:bg-primary-light/60 text-ds-textMain border-ds-borderStrong'
+                  }"
+                >
+                  <i class="uil uil-user text-sm"></i>
+                  <span>CPF (Pessoa Física)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          ${state.andreiaStep === 'fill_data' || state.andreiaStep === 'restricted' || state.andreiaStep === 'unlocked' ? `
+            <!-- Resposta do Usuário (Escolha CPF ou CNPJ) -->
+            <div class="flex justify-end">
+              <div class="bg-ds-textMain text-white rounded-2xl rounded-tr-xs px-3.5 py-2.5 max-w-[82%] shadow-2xs">
+                Quero cadastrar perfil de faturamento com <strong>${profileType}</strong>.
+              </div>
+            </div>
+
+            <!-- Mensagem 2 da Andreia: Solicitação dos dados de faturamento -->
+            <div class="flex items-start gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-primary text-white font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                A
+              </div>
+              <div class="bg-white rounded-2xl rounded-tl-xs border border-ds-border p-3.5 shadow-2xs space-y-3 w-full">
+                <p class="text-ds-textMain leading-relaxed">
+                  Perfeito! Insira os dados de faturamento do seu <strong>${profileType}</strong> abaixo para validarmos o cadastro:
+                </p>
+
+                <form onsubmit="event.preventDefault(); submitAndreiaBillingForm();" class="space-y-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold text-ds-textSecondary mb-1">
+                      ${isCpf ? 'CPF de faturamento*' : 'CNPJ de faturamento*'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value="${escapeHtml(state.andreiaInputDoc)}"
+                      oninput="state.andreiaInputDoc = this.value"
+                      placeholder="${isCpf ? '000.000.000-00' : '00.000.000/0000-00'}"
+                      class="w-full px-3 py-2 rounded-lg border border-ds-borderStrong bg-white font-mono text-xs font-bold text-ds-textMain focus:border-primary focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-[11px] font-bold text-ds-textSecondary mb-1">
+                      ${isCpf ? 'Nome completo do titular*' : 'Razão Social / Empresa*'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value="${escapeHtml(state.andreiaInputName)}"
+                      oninput="state.andreiaInputName = this.value"
+                      placeholder="${isCpf ? 'Nome completo' : 'Razão social da empresa'}"
+                      class="w-full px-3 py-2 rounded-lg border border-ds-borderStrong bg-white text-xs font-semibold text-ds-textMain focus:border-primary focus:outline-none"
+                    />
+                  </div>
+
+                  <div class="grid grid-cols-12 gap-2">
+                    <div class="col-span-5">
+                      <label class="block text-[11px] font-bold text-ds-textSecondary mb-1">CEP*</label>
+                      <input
+                        type="text"
+                        required
+                        value="${escapeHtml(state.andreiaInputCep)}"
+                        oninput="state.andreiaInputCep = this.value"
+                        placeholder="00000-000"
+                        class="w-full px-2.5 py-2 rounded-lg border border-ds-borderStrong bg-white font-mono text-xs text-ds-textMain focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div class="col-span-7">
+                      <label class="block text-[11px] font-bold text-ds-textSecondary mb-1">Endereço*</label>
+                      <input
+                        type="text"
+                        required
+                        value="${escapeHtml(state.andreiaInputAddress)}"
+                        oninput="state.andreiaInputAddress = this.value"
+                        placeholder="Rua, número e cidade"
+                        class="w-full px-2.5 py-2 rounded-lg border border-ds-borderStrong bg-white text-xs text-ds-textMain focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <label class="flex items-start gap-2 p-2 rounded-lg bg-amber-50/90 border border-amber-200 text-[11px] text-amber-950 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      ${state.andreiaSimulateRestricted ? 'checked' : ''}
+                      onchange="state.andreiaSimulateRestricted = this.checked"
+                      class="mt-0.5 rounded border-amber-400 text-primary focus:ring-primary"
+                    />
+                    <span><strong>Simular cliente encarteirado:</strong> sinalizar restrição neste CNPJ e encaminhar para especialista</span>
+                  </label>
+
+                  ${state.andreiaStep === 'fill_data' ? `
+                    <button
+                      type="submit"
+                      class="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs transition shadow-xs flex items-center justify-center gap-1.5"
+                    >
+                      <span>Validar e cadastrar faturamento</span>
+                      <i class="uil uil-arrow-right text-sm"></i>
+                    </button>
+                  ` : ''}
+                </form>
+              </div>
+            </div>
+          ` : ''}
+
+          ${state.andreiaStep === 'restricted' ? `
+            <!-- Resposta do Usuário com os dados enviados -->
+            <div class="flex justify-end">
+              <div class="bg-ds-textMain text-white rounded-2xl rounded-tr-xs px-3.5 py-2.5 max-w-[85%] shadow-2xs space-y-0.5">
+                <div class="font-bold">${escapeHtml(state.billingCompany)}</div>
+                <div class="font-mono text-[11px] text-white/85">${profileType}: ${escapeHtml(state.billingDoc)}</div>
+              </div>
+            </div>
+
+            <!-- Mensagem 3 da Andreia: Sinalização de Restrição no CNPJ (Cliente Encarteirado) -->
+            <div class="flex items-start gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-primary text-white font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                A
+              </div>
+              <div class="bg-white rounded-2xl rounded-tl-xs border-2 border-rose-300 p-3.5 shadow-sm space-y-3 w-full">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-rose-800 font-display font-bold text-[10px] uppercase tracking-wider">
+                  <i class="uil uil-exclamation-triangle text-xs"></i>
+                  <span>Restrição identificada neste CNPJ</span>
+                </div>
+
+                <p class="text-ds-textMain font-medium leading-relaxed text-xs sm:text-[13px]">
+                  Identificamos que existe uma restrição neste CNPJ (cliente encarteirado). <strong>Estou te encaminhando para um dos nossos especialistas. Com ele você poderá dar seguimento à sua proposta.</strong>
+                </p>
+
+                <div class="p-3 rounded-xl bg-ds-surface border border-ds-borderStrong space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 flex items-center justify-center font-display font-bold text-xs shrink-0">
+                        EA
+                      </span>
+                      <div class="min-w-0">
+                        <div class="font-display font-bold text-xs text-ds-textMain truncate">Especialista de Contas Aqui Ads</div>
+                        <div class="text-[11px] text-ds-textSecondary truncate">Atendimento Comercial Encarteirado · Online</div>
+                      </div>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onclick="confirmSpecialistTransferFromAndreia()"
+                    class="w-full py-2.5 px-3 rounded-xl bg-aqui-grad text-white font-display font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs hover:opacity-95 transition"
+                  >
+                    <i class="uil uil-comments text-sm"></i>
+                    <span>Dar seguimento com especialista</span>
+                  </button>
+                </div>
+
+                <div class="flex items-center justify-between gap-2 pt-1 text-[11px]">
+                  <button type="button" onclick="resetAndreiaBillingChat()" class="text-ds-textSecondary hover:text-ds-textMain underline">
+                    Informar outro CPF/CNPJ
+                  </button>
+                  <button type="button" onclick="unlockPaymentFromAndreia()" class="text-primary font-display font-bold hover:underline">
+                    Simular CNPJ sem restrição →
+                  </button>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+
+          ${state.andreiaStep === 'unlocked' ? `
+            <!-- Caso o usuário desmarque a restrição para testar o desbloqueio -->
+            <div class="flex items-start gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-emerald-600 text-white font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                <i class="uil uil-check"></i>
+              </div>
+              <div class="bg-white rounded-2xl rounded-tl-xs border border-emerald-300 p-3.5 shadow-2xs space-y-2.5 w-full">
+                <p class="text-ds-textMain leading-relaxed">
+                  Tudo certo! O perfil de faturamento <strong>${escapeHtml(state.billingCompany)}</strong> (${escapeHtml(state.billingDoc)}) foi cadastrado e os métodos de pagamento já estão liberados.
+                </p>
+                <button
+                  type="button"
+                  onclick="closeAndreiaBillingChat()"
+                  class="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-xs transition"
+                >
+                  Ir para métodos de pagamento
+                </button>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function toggleExportMenu() {
