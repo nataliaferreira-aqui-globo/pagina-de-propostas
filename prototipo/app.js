@@ -7157,7 +7157,6 @@ function renderFaqSection() {
         <div class="space-y-2.5">
           <p>Você cadastra seu <strong>CNPJ ou CPF</strong> rapidinho na aba de pagamento com a ajuda da <strong>Andreia</strong>, nossa assistente virtual:</p>
           <ul class="space-y-1 list-disc pl-4">
-            <li><strong>Liberação:</strong> cadastros com CPF e campanhas 100% OOH liberam o pagamento na hora. Se o seu CNPJ precisar de atendimento dedicado nos demais canais, um especialista assume com você.</li>
             <li><strong>Alteração de faturamento:</strong> se quiser alterar o perfil de faturamento e não tiver outro cadastrado, precisará acionar a <strong>Andreia</strong>. Uma vez cadastrado o perfil de faturamento de <strong>PJ</strong>, não é possível alterar na plataforma — será necessário um executivo.</li>
             <li><strong>Notas fiscais:</strong> ficam na página <a href="https://aqui.globo/faturamento" target="_blank" rel="noopener noreferrer" class="font-bold text-primary hover:underline">Faturamento</a> da plataforma (exceto rádio). Precisa de alguma observação específica na NF? É só chamar nosso time!</li>
           </ul>
