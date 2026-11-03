@@ -1547,17 +1547,32 @@ function syncMainTabLabels() {
 
   if (headerBar) {
     headerBar.className = mobile
-      ? 'border-b border-ds-border px-3 bg-ds-surface overflow-x-auto no-scrollbar'
+      ? 'border-b border-ds-border px-1.5 pt-1 bg-ds-surface overflow-hidden'
       : 'border-b border-ds-border px-3.5 sm:px-6 bg-ds-surface overflow-x-auto no-scrollbar';
   }
   if (nav) {
     nav.className = mobile
-      ? 'flex items-center justify-start gap-4 -mb-px w-full'
+      ? 'grid grid-cols-3 gap-1 -mb-px w-full items-stretch'
       : 'flex items-center justify-between sm:justify-start gap-3 sm:gap-8 -mb-px w-full';
   }
-  if (lblPlano) lblPlano.textContent = 'Plano de mídia';
-  if (lblArte) lblArte.textContent = 'Especificações de arte';
-  if (lblPag) lblPag.textContent = 'Pagamento e aprovação';
+  if (lblPlano) {
+    lblPlano.textContent = 'Plano de mídia';
+    lblPlano.className = mobile
+      ? 'order-3 w-full text-center text-[11px] leading-[1.15] min-h-[26px] flex items-center justify-center'
+      : '';
+  }
+  if (lblArte) {
+    lblArte.textContent = 'Especificações de arte';
+    lblArte.className = mobile
+      ? 'order-3 w-full text-center text-[11px] leading-[1.15] min-h-[26px] flex items-center justify-center'
+      : '';
+  }
+  if (lblPag) {
+    lblPag.textContent = 'Pagamento e aprovação';
+    lblPag.className = mobile
+      ? 'order-3 w-full text-center text-[11px] leading-[1.15] min-h-[26px] flex items-center justify-center'
+      : '';
+  }
 
   ['plano', 'arte', 'pagamento'].forEach((t) => {
     const isActive = state.activeTab === t;
@@ -1570,12 +1585,14 @@ function syncMainTabLabels() {
     const iconEl = btn.querySelector('i');
     if (iconEl) {
       const iconName = t === 'plano' ? 'uil-layer-group' : t === 'arte' ? 'uil-image-check' : 'uil-credit-card';
-      iconEl.className = `uil ${iconName} ${mobile ? 'text-sm' : 'text-sm sm:text-lg'}`;
+      iconEl.className = mobile
+        ? `uil ${iconName} text-sm leading-none order-1 h-4 inline-flex items-center`
+        : `uil ${iconName} text-sm sm:text-lg`;
     }
     if (mobile) {
       btn.className = isActive
-        ? 'py-2.5 px-1 border-b-2 border-primary text-primary font-display font-bold text-xs flex items-center justify-center gap-1.5 whitespace-nowrap transition focus:outline-none'
-        : 'py-2.5 px-1 border-b-2 border-transparent text-ds-textSecondary hover:text-ds-textMain font-display font-bold text-xs flex items-center justify-center gap-1.5 whitespace-nowrap transition focus:outline-none';
+        ? 'py-2 px-1 rounded-t-xl bg-white/90 border-b-2 border-primary text-primary font-display font-bold text-[11px] flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none'
+        : 'py-2 px-1 rounded-t-xl border-b-2 border-transparent text-ds-textSecondary font-display font-bold text-[11px] flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none';
     } else {
       btn.className = isActive
         ? 'py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-primary text-primary font-display font-bold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap transition focus:outline-none'
@@ -1584,14 +1601,20 @@ function syncMainTabLabels() {
   });
 
   if (cntPlano) {
-    cntPlano.className =
-      state.activeTab === 'plano'
+    cntPlano.className = mobile
+      ? state.activeTab === 'plano'
+        ? 'order-2 h-4 px-1.5 rounded-full text-[10px] font-bold bg-primary-light text-primary inline-flex items-center justify-center leading-none'
+        : 'order-2 h-4 px-1.5 rounded-full text-[10px] font-bold bg-ds-bg text-ds-textSecondary inline-flex items-center justify-center leading-none'
+      : state.activeTab === 'plano'
         ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary-light text-primary'
         : 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-ds-bg text-ds-textSecondary';
   }
   if (cntArte) {
-    cntArte.className =
-      state.activeTab === 'arte'
+    cntArte.className = mobile
+      ? state.activeTab === 'arte'
+        ? 'order-2 h-4 px-1.5 rounded-full text-[10px] font-bold bg-primary-light text-primary inline-flex items-center justify-center leading-none'
+        : 'order-2 h-4 px-1.5 rounded-full text-[10px] font-bold bg-ds-bg text-ds-textSecondary inline-flex items-center justify-center leading-none'
+      : state.activeTab === 'arte'
         ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary-light text-primary'
         : 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-ds-bg text-ds-textSecondary';
   }
