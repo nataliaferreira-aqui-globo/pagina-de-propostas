@@ -8817,40 +8817,10 @@ function renderPdfDocument(m) {
             </p>
           </div>
 
-          <!-- 1. SEÇÃO: MAIS PRESENÇA. MAIS RESULTADO. (+23% + 8 DEPOIMENTOS) -->
+          <!-- 1. SEÇÃO: 8 DEPOIMENTOS QUALITATIVOS DE CLIENTES (BIG NUMBER +23% SALVO EM PONTO DE RESGATE: docs/06_PONTO_DE_RESGATE_BIGNUMBERS_PDF.md) -->
           <div class="bg-white py-2">
-            <!-- Topo: Big Number +23% à esquerda + Depoimento Destaque à direita -->
-            <div class="grid grid-cols-12 gap-6 items-center pb-2">
-              <div class="col-span-5">
-                <h2 class="font-display font-bold text-xl sm:text-2xl text-primary leading-tight">
-                  Mais presença.<br />Mais resultado.
-                </h2>
-                <div class="font-display font-extrabold text-5xl sm:text-[54px] leading-none mt-2.5 tracking-tight">
-                  <span class="text-[#E83C39]">+</span><span class="text-[#EE5229]">2</span><span class="text-[#F37219]">3</span><span class="text-[#F7980F]">%</span>
-                </div>
-                <p class="text-[11px] text-ds-textSecondary mt-1.5">
-                  de faturamento onde a campanha foi veiculada
-                </p>
-              </div>
-
-              <div class="col-span-7">
-                <blockquote class="font-display font-medium text-base sm:text-lg text-ds-textMain leading-snug">
-                  “A experiência está sendo positiva! Onde a campanha foi veiculada, notamos crescimento de 23% no faturamento.”
-                </blockquote>
-                <div class="mt-3 flex items-center gap-2.5">
-                  <div class="w-9 h-9 rounded-full border-[1.5px] border-primary text-primary font-display font-bold text-xs flex items-center justify-center shrink-0">
-                    G
-                  </div>
-                  <div class="leading-tight">
-                    <div class="font-bold text-xs text-ds-textMain">Guilherme</div>
-                    <div class="text-[11px] text-ds-textSecondary">Athena Candy Shop</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <!-- Grid 4x2 com os 8 depoimentos de clientes -->
-            <div class="mt-4 grid grid-cols-4 gap-2.5">
+            <div class="grid grid-cols-4 gap-2.5">
               <div class="rounded-xl border border-ds-border bg-white p-3 flex flex-col justify-between">
                 <p class="text-[11px] text-ds-textMain leading-snug">
                   “Muitos não conheciam o restaurante antes de ver o anúncio nos elevadores.”
