@@ -1609,8 +1609,8 @@ function syncMainTabLabels() {
     }
     if (mobile) {
       btn.className = isActive
-        ? 'py-2 px-1 rounded-t-xl bg-white/90 border-b-2 border-primary text-primary font-display font-bold text-xs flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none'
-        : 'py-2 px-1 rounded-t-xl border-b-2 border-transparent text-ds-textSecondary font-display font-bold text-xs flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none';
+        ? 'py-2.5 px-1 border-b-2 border-primary text-primary font-display font-bold text-xs flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none'
+        : 'py-2.5 px-1 border-b-2 border-transparent text-ds-textSecondary font-display font-bold text-xs flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none';
     } else {
       btn.className = isActive
         ? 'py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-primary text-primary font-display font-bold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap transition focus:outline-none'
