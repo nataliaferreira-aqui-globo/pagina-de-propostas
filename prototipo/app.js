@@ -2318,95 +2318,314 @@ function renderModularMetrics(m) {
   const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
   const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
 
-  if (c.oohPointsCount > 0) {
-    const oohDailyExhibitionsVal = oohDigitalPts > 0
-      ? fmtInt(c.oohDailyInsertions)
-      : 'Fixa';
-    const oohPeriodExhibitionsVal = oohDigitalPts > 0
-      ? fmtInt(c.oohTotalInsertions)
-      : 'Fixa';
+  // =========================================================================
+  // CASO 1A: CAMPANHA ÚNICA — SOMENTE OOH (6 métricas separadas visualmente)
+  // =========================================================================
+  if (activeChannelsCount === 1 && c.oohPointsCount > 0) {
+    singleChannelTitle = 'Estimativa de entrega — OOH';
 
-    cards.push(buildExpandableSummaryChannelCard({
-      cardKey: 'ooh',
-      channelTitle: 'OOH',
-      primaryLabel: 'Impacto estimado',
-      primaryValue: fmtInt(c.oohImpacts),
-      mobile,
-      subCards: [
-        { label: 'Alcance único', value: fmtInt(c.oohReach || c.oohImpacts) },
-        { label: 'Pontos', value: fmtInt(c.oohPointsCount) },
-        { label: 'Telas', value: fmtInt(c.oohScreensCount) },
-        { label: 'Exibição diária', value: oohDailyExhibitionsVal },
-        { label: 'Exibições', value: oohPeriodExhibitionsVal },
-        { label: 'Frequência', value: fmtFreq(c.oohFrequency || 1.88) }
-      ]
-    }));
-  }
+    cards = [
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Pontos</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohPointsCount)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Locais selecionados</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Telas</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohScreensCount)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Ativas na campanha</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Exibições</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${oohDigitalPts > 0 ? fmtInt(c.oohTotalInsertions) : 'Fixa'}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Total no período</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Alcance</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohReach || c.oohImpacts)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Pessoas únicas</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Impacto</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohImpacts)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Volume no período</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Frequência</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtFreq(c.oohFrequency || 1.88)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Média por pessoa</div>
+          </div>
+        </div>
+      `
+    ];
 
-  if (c.portaisCount > 0) {
-    const portaisCpms = Array.from(new Set((m.portaisItems || []).map((it) => it.cpm).filter((v) => v > 0)));
-    const portaisAvgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : (portaisCpms[0] || 0);
-    const portaisCpmLabel = portaisCpms.length === 1 ? fmtBRL(portaisCpms[0]) : fmtBRL(portaisAvgCpm);
+  // =========================================================================
+  // CASO 1B: CAMPANHA ÚNICA — SÓ DIGITAL (PORTAIS E GLOBOPLAY)
+  // =========================================================================
+  } else if (activeChannelsCount === 1 && c.portaisCount > 0) {
+    singleChannelTitle = 'Estimativa de entrega — Portais e Globoplay';
+    const avgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : 31.6;
 
-    cards.push(buildExpandableSummaryChannelCard({
-      cardKey: 'portais',
-      channelTitle: 'PORTAIS E GLOBOPLAY',
-      primaryLabel: 'Impressões contratadas',
-      primaryValue: fmtInt(c.portaisImpressions),
-      mobile,
-      subCards: [
-        {
-          label: 'Veículos',
-          rawHtml: `<strong class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug block mt-0.5">${portaisVehiclesList.join(', ')}</strong>`
-        },
-        { label: 'CPM médio', value: portaisCpmLabel }
-      ]
-    }));
-  }
+    cards = [
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Impressões</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.portaisImpressions)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Vídeo e Display</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Portais</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${portaisVehiclesList.length} veículos</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${portaisVehiclesList.join(', ')}</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">CPM</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtBRL(avgCpm)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Custo por mil impressões</div>
+          </div>
+        </div>
+      `
+    ];
 
-  if (c.revistasCount > 0) {
-    const revistasCpms = Array.from(new Set((m.revistasItems || []).map((it) => it.cpm).filter((v) => v > 0)));
-    const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : (revistasCpms[0] || 0);
-    const revistasCpmLabel = revistasCpms.length === 1 ? fmtBRL(revistasCpms[0]) : fmtBRL(revistasAvgCpm);
+  // =========================================================================
+  // CASO 1C: CAMPANHA ÚNICA — SÓ REVISTAS DIGITAIS
+  // =========================================================================
+  } else if (activeChannelsCount === 1 && c.revistasCount > 0) {
+    singleChannelTitle = 'Estimativa de entrega — Revistas e Jornais';
+    const avgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : 9.6;
 
-    cards.push(buildExpandableSummaryChannelCard({
-      cardKey: 'revistas',
-      channelTitle: 'REVISTAS E JORNAIS',
-      primaryLabel: 'Impressões contratadas',
-      primaryValue: fmtInt(c.revistasImpressions),
-      mobile,
-      subCards: [
-        {
-          label: 'Títulos',
-          rawHtml: `<strong class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug block mt-0.5">${effectiveRevistasTitles.join(', ')}</strong>`
-        },
-        { label: 'CPM médio', value: revistasCpmLabel }
-      ]
-    }));
-  }
+    cards = [
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Impressões</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.revistasImpressions)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Revistas Digitais</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Títulos</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${effectiveRevistasTitles.join(', ')}</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">CPM</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtBRL(avgCpm)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Custo por mil impressões</div>
+          </div>
+        </div>
+      `
+    ];
 
-  if (c.radioCount > 0) {
+  // =========================================================================
+  // CASO 1D: CAMPANHA ÚNICA — SÓ RÁDIO CBN
+  // =========================================================================
+  } else if (activeChannelsCount === 1 && c.radioCount > 0) {
+    singleChannelTitle = 'Estimativa de entrega — Rádio CBN';
     const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
 
-    cards.push(buildExpandableSummaryChannelCard({
-      cardKey: 'radio',
-      channelTitle: 'RÁDIO CBN',
-      primaryLabel: 'Inserções no período',
-      primaryValue: fmtInt(c.radioTotalInsertions),
-      mobile,
-      subCards: [
-        { label: 'Rádio / programa', value: `${fmtInt(c.radioCount)} ${c.radioCount === 1 ? 'programa' : 'programas'}` },
-        { label: 'Inserções/semana', value: fmtInt(c.radioWeeklyInsertions) },
-        { label: 'Formato e duração', value: radioDurationsLabel, fullWidth: true }
-      ]
-    }));
+    cards = [
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Inserções</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.radioTotalInsertions)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Total no período</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Rádio/programa</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.radioCount)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Grade selecionada</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Inserções/semana</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.radioWeeklyInsertions)}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Ritmo semanal</div>
+          </div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
+          <div class="min-w-0">
+            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Duração</h3>
+          </div>
+          <div class="mt-3">
+            <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${radioDurationsLabel}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Formato comercial</div>
+          </div>
+        </div>
+      `
+    ];
+  } else {
+    // =========================================================================
+    // CASO 2: MAIS DE UMA VERTICAL NA PROPOSTA — Cards expansíveis por canal
+    // =========================================================================
+    if (c.oohPointsCount > 0) {
+      const oohDailyExhibitionsVal = oohDigitalPts > 0
+        ? fmtInt(c.oohDailyInsertions)
+        : 'Fixa';
+      const oohPeriodExhibitionsVal = oohDigitalPts > 0
+        ? fmtInt(c.oohTotalInsertions)
+        : 'Fixa';
+
+      cards.push(buildExpandableSummaryChannelCard({
+        cardKey: 'ooh',
+        channelTitle: 'OOH',
+        primaryLabel: 'Impacto estimado',
+        primaryValue: fmtInt(c.oohImpacts),
+        mobile,
+        subCards: [
+          { label: 'Alcance único', value: fmtInt(c.oohReach || c.oohImpacts) },
+          { label: 'Pontos', value: fmtInt(c.oohPointsCount) },
+          { label: 'Telas', value: fmtInt(c.oohScreensCount) },
+          { label: 'Exibição diária', value: oohDailyExhibitionsVal },
+          { label: 'Exibições', value: oohPeriodExhibitionsVal },
+          { label: 'Frequência', value: fmtFreq(c.oohFrequency || 1.88) }
+        ]
+      }));
+    }
+
+    if (c.portaisCount > 0) {
+      const portaisCpms = Array.from(new Set((m.portaisItems || []).map((it) => it.cpm).filter((v) => v > 0)));
+      const portaisAvgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : (portaisCpms[0] || 0);
+      const portaisCpmLabel = portaisCpms.length === 1 ? fmtBRL(portaisCpms[0]) : fmtBRL(portaisAvgCpm);
+
+      cards.push(buildExpandableSummaryChannelCard({
+        cardKey: 'portais',
+        channelTitle: 'PORTAIS E GLOBOPLAY',
+        primaryLabel: 'Impressões contratadas',
+        primaryValue: fmtInt(c.portaisImpressions),
+        mobile,
+        subCards: [
+          {
+            label: 'Veículos',
+            rawHtml: `<strong class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug block mt-0.5">${portaisVehiclesList.join(', ')}</strong>`
+          },
+          { label: 'CPM médio', value: portaisCpmLabel }
+        ]
+      }));
+    }
+
+    if (c.revistasCount > 0) {
+      const revistasCpms = Array.from(new Set((m.revistasItems || []).map((it) => it.cpm).filter((v) => v > 0)));
+      const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : (revistasCpms[0] || 0);
+      const revistasCpmLabel = revistasCpms.length === 1 ? fmtBRL(revistasCpms[0]) : fmtBRL(revistasAvgCpm);
+
+      cards.push(buildExpandableSummaryChannelCard({
+        cardKey: 'revistas',
+        channelTitle: 'REVISTAS E JORNAIS',
+        primaryLabel: 'Impressões contratadas',
+        primaryValue: fmtInt(c.revistasImpressions),
+        mobile,
+        subCards: [
+          {
+            label: 'Títulos',
+            rawHtml: `<strong class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug block mt-0.5">${effectiveRevistasTitles.join(', ')}</strong>`
+          },
+          { label: 'CPM médio', value: revistasCpmLabel }
+        ]
+      }));
+    }
+
+    if (c.radioCount > 0) {
+      const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
+
+      cards.push(buildExpandableSummaryChannelCard({
+        cardKey: 'radio',
+        channelTitle: 'RÁDIO CBN',
+        primaryLabel: 'Inserções no período',
+        primaryValue: fmtInt(c.radioTotalInsertions),
+        mobile,
+        subCards: [
+          { label: 'Rádio / programa', value: `${fmtInt(c.radioCount)} ${c.radioCount === 1 ? 'programa' : 'programas'}` },
+          { label: 'Inserções/semana', value: fmtInt(c.radioWeeklyInsertions) },
+          { label: 'Formato e duração', value: radioDurationsLabel, fullWidth: true }
+        ]
+      }));
+    }
   }
 
   const colsClass =
+    cards.length === 6 ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 sim-grid-1' :
     cards.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sim-grid-1' :
     cards.length === 3 ? 'grid-cols-1 sm:grid-cols-3 sim-grid-1' :
-    cards.length === 2 ? 'grid-cols-1 sm:grid-cols-2 sim-grid-1' :
-    cards.length === 1 ? 'grid-cols-1 max-w-md sim-grid-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sim-grid-1';
+    cards.length === 2 ? 'grid-cols-1 sm:grid-cols-2 sim-grid-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sim-grid-1';
 
   document.getElementById('modularMetricsSection').innerHTML = `
     <div class="space-y-3">
@@ -2418,7 +2637,7 @@ function renderModularMetrics(m) {
           Projeção para ${m.durationDays} dias de campanha
         </span>
       </div>
-      <div class="grid ${colsClass} gap-3.5 sm:gap-4 items-start">
+      <div class="grid ${colsClass} gap-3.5 sm:gap-4 ${activeChannelsCount === 1 ? 'items-stretch' : 'items-start'}">
         ${cards.join('')}
       </div>
     </div>
