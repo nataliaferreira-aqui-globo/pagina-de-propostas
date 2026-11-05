@@ -1605,22 +1605,10 @@ function syncMainTabLabels() {
   });
 
   if (cntPlano) {
-    cntPlano.className = mobile
-      ? state.activeTab === 'plano'
-        ? 'order-2 h-4 px-1.5 rounded-full text-xs font-bold bg-primary-light text-primary inline-flex items-center justify-center leading-none'
-        : 'order-2 h-4 px-1.5 rounded-full text-xs font-bold bg-ds-bg text-ds-textSecondary inline-flex items-center justify-center leading-none'
-      : state.activeTab === 'plano'
-        ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary'
-        : 'px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold bg-ds-bg text-ds-textSecondary';
+    cntPlano.className = 'hidden';
   }
   if (cntArte) {
-    cntArte.className = mobile
-      ? state.activeTab === 'arte'
-        ? 'order-2 h-4 px-1.5 rounded-full text-xs font-bold bg-primary-light text-primary inline-flex items-center justify-center leading-none'
-        : 'order-2 h-4 px-1.5 rounded-full text-xs font-bold bg-ds-bg text-ds-textSecondary inline-flex items-center justify-center leading-none'
-      : state.activeTab === 'arte'
-        ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary'
-        : 'px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold bg-ds-bg text-ds-textSecondary';
+    cntArte.className = 'hidden';
   }
 
   const heroEl = document.getElementById('proposalHeroSection');
