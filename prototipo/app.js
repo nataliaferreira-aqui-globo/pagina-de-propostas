@@ -6002,74 +6002,41 @@ function renderPaymentTab(m) {
     </div>
   `;
 
-  // Conteúdo da Etapa 1: Dados de faturamento (Cenário 1: Sócia loga e cadastra | Cenário 2: Titular atualiza priorizando CNPJ)
+  // Conteúdo da Etapa 1: Dados de faturamento com hierarquia visual limpa
   const step1BillingContentHtml = (unlogged && !state.billingFormOpen) ? `
-    <div class="space-y-4">
-      <!-- Cenário 1: Sócia / Pagador precisa logar para preencher seus dados de faturamento e pagar -->
-      <div class="rounded-2xl border border-ds-borderStrong bg-ds-surface/70 p-4 sm:p-5 space-y-3.5">
-        <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-xl bg-white border border-ds-borderStrong text-primary flex items-center justify-center text-lg shrink-0">
-            <i class="uil uil-user-check"></i>
-          </div>
-          <div class="min-w-0 space-y-1">
-            <h4 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
-              Entre na sua conta para preencher o faturamento e pagar
-            </h4>
-            <p class="text-xs text-ds-textSecondary leading-relaxed">
-              Vai realizar o pagamento desta proposta compartilhada? Faça login na sua conta ou preencha seus dados de faturamento aqui mesmo na página para concluir o pagamento.
-            </p>
-          </div>
-        </div>
-        <div class="flex flex-wrap items-center gap-2.5">
-          <button
-            type="button"
-            onclick="openAuthModal('login')"
-            class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-xs transition cursor-pointer"
-          >
-            <i class="uil uil-signin text-base"></i>
-            <span>Entrar para informar faturamento</span>
-          </button>
-          <button
-            type="button"
-            onclick="state.billingFormOpen = true; state.billingPersonType = 'CNPJ'; renderPaymentTab(getCurrentModel());"
-            class="px-4 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 transition cursor-pointer"
-          >
-            <i class="uil uil-file-edit-alt text-sm text-primary"></i>
-            <span>Cadastrar faturamento direto aqui</span>
-          </button>
-        </div>
+    <div class="rounded-2xl border border-ds-border bg-ds-surface/50 p-5 space-y-4">
+      <div class="space-y-1">
+        <h4 class="font-display font-bold text-base text-ds-textMain">
+          Identifique-se para informar o faturamento
+        </h4>
+        <p class="text-xs text-ds-textSecondary leading-relaxed">
+          Entre na sua conta ou preencha os dados de faturamento diretamente abaixo para avançar para o pagamento.
+        </p>
       </div>
-
-      <!-- Cenário 2: Titular / Perfil gerador da proposta atualiza os dados de faturamento (Priorizando CNPJ) -->
-      <div class="rounded-2xl border border-dashed border-ds-borderStrong bg-white p-4 sm:p-5 space-y-3">
-        <div class="flex items-start justify-between gap-3">
-          <div class="space-y-1">
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-xs font-bold text-amber-900">
-              <i class="uil uil-sync"></i> Sincronização automática com o titular
-            </span>
-            <h5 class="font-display font-bold text-xs sm:text-sm text-ds-textMain">
-              Aguardando o titular cadastrar os dados de faturamento?
-            </h5>
-            <p class="text-xs text-ds-textSecondary leading-relaxed">
-              Assim que o perfil gerador da proposta atualizar os dados de faturamento, esta proposta atualiza automaticamente — <strong>sempre priorizando o CNPJ</strong>.
-            </p>
-          </div>
-        </div>
+      <div class="flex flex-wrap items-center gap-2.5">
         <button
           type="button"
-          onclick="simulateCreatorBillingUpdate()"
-          class="w-full sm:w-auto px-4 py-2 rounded-xl border border-primary/40 bg-primary-light/40 hover:bg-primary-light text-primary font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
+          onclick="openAuthModal('login')"
+          class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-xs transition cursor-pointer"
         >
-          <i class="uil uil-bolt-alt text-sm"></i>
-          <span>Simular atualização pelo titular (Priorizar CNPJ)</span>
+          <i class="uil uil-signin text-base"></i>
+          <span>Entrar na minha conta</span>
+        </button>
+        <button
+          type="button"
+          onclick="state.billingFormOpen = true; state.billingPersonType = 'CNPJ'; renderPaymentTab(getCurrentModel());"
+          class="px-4 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 transition cursor-pointer"
+        >
+          <i class="uil uil-file-edit-alt text-sm text-primary"></i>
+          <span>Preencher dados de faturamento</span>
         </button>
       </div>
     </div>
   ` : (state.billingFormOpen || !hasBillingData) ? `
-    <!-- Formulário Inline de Cadastro / Edição de Dados de Faturamento (Sem Chatbot Renata/Andreia, fiel à Imagem 3) -->
+    <!-- Formulário Inline de Cadastro / Edição de Dados de Faturamento -->
     <div class="space-y-5">
-      <!-- Alternador Pessoa Jurídica (CNPJ Prioritário) vs Pessoa Física (CPF) -->
-      <div class="flex flex-wrap items-center justify-between gap-2 bg-ds-surface/60 p-2 rounded-xl border border-ds-border">
+      <!-- Alternador Pessoa Jurídica (CNPJ) vs Pessoa Física (CPF) -->
+      <div class="inline-flex items-center bg-ds-surface/60 p-1.5 rounded-xl border border-ds-border w-full sm:w-auto">
         <div class="grid grid-cols-2 gap-1.5 w-full sm:w-auto">
           <button
             type="button"
@@ -6094,9 +6061,6 @@ function renderPaymentTab(m) {
             Pessoa Física (CPF)
           </button>
         </div>
-        <span class="text-xs text-ds-textSecondary px-2">
-          <i class="uil uil-check-circle text-primary"></i> Prioridade para CNPJ
-        </span>
       </div>
 
       ${isPjForm ? `
@@ -6239,72 +6203,46 @@ function renderPaymentTab(m) {
   ` : `
     <!-- Resumo dos Dados de Faturamento Confirmados na Etapa 1 + Botão para Avançar para Etapa 2 (Pagamento) -->
     <div class="space-y-4">
-      <div class="rounded-2xl border border-ds-borderStrong bg-ds-surface/60 p-4 sm:p-5 space-y-3">
-        <div class="flex flex-wrap items-start justify-between gap-2">
-          <div class="space-y-1">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary">
-                ${escapeHtml(getProtectedBillingInfo().holderLabel)}
-              </span>
-              ${getProtectedBillingInfo().isProtectedLgpd ? `
-                <span class="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
-                  Protegido · LGPD
-                </span>
-              ` : `
-                <span class="px-2 py-0.5 rounded-md bg-primary-light border border-primary/25 text-xs font-bold text-primary">
-                  CNPJ Prioritário
-                </span>
-              `}
-              ${state.creatorSyncedCnpj ? `
-                <span class="px-2 py-0.5 rounded-md bg-sky-50 border border-sky-200 text-xs font-bold text-sky-800">
-                  Sincronizado pelo titular
-                </span>
-              ` : ''}
+      <div class="rounded-2xl border border-ds-border bg-white p-4 sm:p-5 space-y-4">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-xs font-medium text-ds-textSecondary">
+              ${escapeHtml(getProtectedBillingInfo().holderLabel)}
             </div>
-            <div class="font-display font-bold text-base text-ds-textMain">
+            <div class="font-display font-bold text-base sm:text-lg text-ds-textMain leading-snug mt-0.5">
               ${escapeHtml(getProtectedBillingInfo().displayName)}
-            </div>
-            <div class="text-xs text-ds-textSecondary">
-              ${escapeHtml(getProtectedBillingInfo().docTypeLabel)}: <strong class="text-ds-textMain">${escapeHtml(getProtectedBillingInfo().displayDoc)}</strong>
-              ${state.billingPhone ? ` · Celular: <strong class="text-ds-textMain">${escapeHtml(state.billingPhone)}</strong>` : ''}
             </div>
           </div>
 
           <button
             type="button"
             onclick="openBillingStepForm()"
-            class="px-3 py-1.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-primary font-display font-bold text-xs inline-flex items-center gap-1 transition cursor-pointer"
+            class="shrink-0 px-3 py-1.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-semibold text-xs inline-flex items-center gap-1.5 transition cursor-pointer"
           >
-            <i class="uil uil-pen"></i>
-            <span>Editar / Cadastrar outro</span>
+            <i class="uil uil-pen text-xs"></i>
+            <span>Editar</span>
           </button>
         </div>
 
-        <div class="pt-3 border-t border-ds-border text-xs text-ds-textSecondary flex flex-wrap items-center justify-between gap-2">
+        <div class="pt-3.5 border-t border-ds-border grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div>
-            <span class="text-ds-textMuted">Endereço:</span>
-            <strong class="text-ds-textMain font-medium">
+            <div class="text-ds-textSecondary">${escapeHtml(getProtectedBillingInfo().docTypeLabel)}</div>
+            <div class="font-semibold text-ds-textMain mt-0.5">${escapeHtml(getProtectedBillingInfo().displayDoc)}</div>
+          </div>
+          ${state.billingPhone ? `
+            <div>
+              <div class="text-ds-textSecondary">Celular</div>
+              <div class="font-semibold text-ds-textMain mt-0.5">${escapeHtml(state.billingPhone)}</div>
+            </div>
+          ` : ''}
+          <div class="sm:col-span-2">
+            <div class="text-ds-textSecondary">Endereço</div>
+            <div class="font-medium text-ds-textMain mt-0.5 leading-relaxed">
               ${escapeHtml(state.billingStreet || 'Av. Brigadeiro Faria Lima')}, ${escapeHtml(state.billingNumber || '3477')}${state.billingComplement ? ` (${escapeHtml(state.billingComplement)})` : ''} — ${escapeHtml(state.billingDistrict || 'Itaim Bibi')}, ${escapeHtml(state.billingCity || 'São Paulo')}/${escapeHtml(state.billingState || 'SP')} · CEP ${escapeHtml(state.billingCep || '04538-132')}
-            </strong>
+            </div>
           </div>
         </div>
       </div>
-
-      ${getProtectedBillingInfo().isCpf ? `
-        <!-- Atalho de Cenário 2: Caso o titular atualize os dados de faturamento com CNPJ -->
-        <div class="rounded-xl border border-dashed border-ds-borderStrong bg-white p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div class="text-ds-textSecondary">
-            <strong class="text-ds-textMain">Cenário Titular:</strong> Se o perfil gerador da proposta atualizar o cadastro com CNPJ, a proposta atualiza automaticamente priorizando o CNPJ.
-          </div>
-          <button
-            type="button"
-            onclick="simulateCreatorBillingUpdate()"
-            class="px-3.5 py-2 rounded-xl border border-primary/40 bg-primary-light/40 hover:bg-primary-light text-primary font-display font-bold text-xs whitespace-nowrap transition cursor-pointer shrink-0"
-          >
-            <i class="uil uil-sync"></i> Simular atualização CNPJ pelo titular
-          </button>
-        </div>
-      ` : ''}
 
       <div class="pt-1">
         <button
@@ -6747,18 +6685,7 @@ function renderPaymentTab(m) {
         <!-- Bloco 2: Faturamento (Integrado com a Etapa 1 de Dados de faturamento, sem chatbot) -->
         <div class="text-xs pt-2 border-t border-ds-border">
           <div class="flex items-center justify-between gap-2">
-            <div class="inline-flex items-center gap-1.5">
-              <span class="text-ds-textSecondary">Faturamento</span>
-              ${hasBillingData && getProtectedBillingInfo().isProtectedLgpd ? `
-                <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
-                  Protegido · LGPD
-                </span>
-              ` : hasBillingData ? `
-                <span class="px-1.5 py-0.5 rounded bg-primary-light border border-primary/25 text-xs font-bold text-primary">
-                  CNPJ Prioritário
-                </span>
-              ` : ''}
-            </div>
+            <span class="text-ds-textSecondary">Faturamento</span>
             ${unlogged ? `
               <button type="button" onclick="openAuthModal('login')" class="text-primary font-display font-bold hover:underline inline-flex items-center gap-1 cursor-pointer">
                 <i class="uil uil-signin"></i>
@@ -6773,7 +6700,7 @@ function renderPaymentTab(m) {
           </div>
           ${!hasBillingData ? `
             <div class="mt-0.5 text-xs text-ds-textMuted">
-              ${unlogged ? 'Entre na sua conta ou aguarde o titular atualizar o CNPJ.' : 'Cadastre os dados de faturamento na Etapa 1 ao lado.'}
+              ${unlogged ? 'Entre na sua conta ou preencha os dados ao lado.' : 'Cadastre os dados de faturamento na Etapa 1 ao lado.'}
             </div>
           ` : `
             <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(getProtectedBillingInfo().displayName)}</div>
