@@ -3328,9 +3328,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                           #${g.displayCode}
                         </span>
                       ` : ''}
-                      <span class="px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
-                        ${g.towersCount} torres
-                      </span>
                     </div>
 
                     <div class="text-right shrink-0 flex items-baseline gap-1">
@@ -3418,9 +3415,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                           ID: #${g.displayCode}
                         </span>
                       ` : ''}
-                      <span class="px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
-                        ${g.towersCount} torres
-                      </span>
                     </div>
 
                     <h4
@@ -7161,11 +7155,6 @@ function buildOohMapPinPopupHtml(g, m) {
         ${state.isAdminView ? `
           <span style="font-family:monospace;font-size:12px;font-weight:600;color:#56514B;">
             ID: #${g.displayCode}
-          </span>
-        ` : ''}
-        ${g.kind === 'condo_group' ? `
-          <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:600;background:#F3ECE4;color:#56514B;border:1px solid #DFD7CE;">
-            ${g.towersCount} torres
           </span>
         ` : ''}
       </div>
