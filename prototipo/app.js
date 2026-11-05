@@ -10115,9 +10115,9 @@ function exportFullCsv() {
       'OOH — Telas Digitais e Estáticas',
       `${fmtInt(c.oohPointsCount)} pontos · ${fmtInt(c.oohScreensCount)} telas`,
       `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
-      Number(f.oohGross.toFixed(2)),
-      Number((-f.oohResidentDiscounts).toFixed(2)),
-      Number(f.oohNet.toFixed(2))
+      Number((f.oohGross || 0).toFixed(2)),
+      Number((-(f.oohResidentDiscount || 0)).toFixed(2)),
+      Number((f.oohNet || 0).toFixed(2))
     ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5] });
   }
   if (hasPortais) {
@@ -10394,9 +10394,9 @@ function exportFullCsv() {
       oohDigitalPts > 0 ? c.oohTotalInsertions : 'Fixa',
       c.oohReach || c.oohImpacts,
       c.oohImpacts,
-      Number(f.oohGross.toFixed(2)),
-      Number(f.oohResidentDiscounts.toFixed(2)),
-      Number(f.oohNet.toFixed(2))
+      Number((f.oohGross || 0).toFixed(2)),
+      Number((f.oohResidentDiscount || 0).toFixed(2)),
+      Number((f.oohNet || 0).toFixed(2))
     ]);
     oohMeta[totOohIdx] = { type: 'black_total', maxCol: oohColCount };
 
