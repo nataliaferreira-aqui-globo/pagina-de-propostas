@@ -9618,28 +9618,34 @@ function applyStyledWorksheet(ws, cfg) {
   const colCount = cfg.colCount || Math.max(1, ...rows.map((r) => (Array.isArray(r) ? r.length : 0)));
 
   const borderThin = {
-    top: { style: 'thin', color: { rgb: 'DED6CC' } },
-    bottom: { style: 'thin', color: { rgb: 'DED6CC' } },
-    left: { style: 'thin', color: { rgb: 'DED6CC' } },
-    right: { style: 'thin', color: { rgb: 'DED6CC' } }
+    top: { style: 'thin', color: { rgb: 'C4B9AA' } },
+    bottom: { style: 'thin', color: { rgb: 'C4B9AA' } },
+    left: { style: 'thin', color: { rgb: 'C4B9AA' } },
+    right: { style: 'thin', color: { rgb: 'C4B9AA' } }
   };
   const borderHeader = {
-    top: { style: 'thin', color: { rgb: 'B8AEA2' } },
-    bottom: { style: 'medium', color: { rgb: 'B8AEA2' } },
-    left: { style: 'thin', color: { rgb: 'C8BFB3' } },
-    right: { style: 'thin', color: { rgb: 'C8BFB3' } }
+    top: { style: 'thin', color: { rgb: '8C8275' } },
+    bottom: { style: 'medium', color: { rgb: '8C8275' } },
+    left: { style: 'thin', color: { rgb: 'A89E91' } },
+    right: { style: 'thin', color: { rgb: 'A89E91' } }
   };
   const borderTotal = {
-    top: { style: 'medium', color: { rgb: 'B8AEA2' } },
-    bottom: { style: 'double', color: { rgb: 'B8AEA2' } },
-    left: { style: 'thin', color: { rgb: 'DED6CC' } },
-    right: { style: 'thin', color: { rgb: 'DED6CC' } }
+    top: { style: 'medium', color: { rgb: '8C8275' } },
+    bottom: { style: 'double', color: { rgb: '8C8275' } },
+    left: { style: 'thin', color: { rgb: 'A89E91' } },
+    right: { style: 'thin', color: { rgb: 'A89E91' } }
   };
   const borderOrangeSeamless = {
-    top: { style: 'thin', color: { rgb: 'F15A22' } },
-    bottom: { style: 'thin', color: { rgb: 'F15A22' } },
-    left: { style: 'thin', color: { rgb: 'F15A22' } },
-    right: { style: 'thin', color: { rgb: 'F15A22' } }
+    top: { style: 'thin', color: { rgb: 'C2410C' } },
+    bottom: { style: 'thin', color: { rgb: 'C2410C' } },
+    left: { style: 'thin', color: { rgb: 'C2410C' } },
+    right: { style: 'thin', color: { rgb: 'C2410C' } }
+  };
+  const borderDarkSection = {
+    top: { style: 'thin', color: { rgb: '1F2937' } },
+    bottom: { style: 'thin', color: { rgb: '1F2937' } },
+    left: { style: 'thin', color: { rgb: '1F2937' } },
+    right: { style: 'thin', color: { rgb: '1F2937' } }
   };
 
   ws['!ref'] = U.encode_range({
@@ -9710,11 +9716,6 @@ function applyStyledWorksheet(ws, cfg) {
           Target: targetUrl,
           Tooltip: 'Clique para acessar a proposta online'
         };
-        if (rMeta.useFormulaLink && cell.v) {
-          const safeUrl = String(targetUrl).replace(/"/g, '""');
-          const safeText = String(cell.v).replace(/"/g, '""');
-          cell.f = `HYPERLINK("${safeUrl}","${safeText}")`;
-        }
       }
 
       const isColCurrency = Boolean(
@@ -9759,8 +9760,8 @@ function applyStyledWorksheet(ws, cfg) {
 
       if (rType === 'orange_title') {
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 12, bold: true, color: { rgb: 'FFFFFF' } },
+          fill: { patternType: 'solid', fgColor: { rgb: 'C2410C' } },
+          font: { name: 'Segoe UI', sz: 12, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderOrangeSeamless
         };
@@ -9774,30 +9775,30 @@ function applyStyledWorksheet(ws, cfg) {
         };
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'FFFFFF' } },
-          font: { name: 'Century Gothic', sz: 9, bold: true, color: { rgb: 'FFFFFF' } },
+          font: { name: 'Segoe UI', sz: 9, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'center' },
           border: borderWhiteSeamless
         };
       } else if (rType === 'hero_banner_pad') {
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 9, color: { rgb: 'FFFFFF' } },
+          fill: { patternType: 'solid', fgColor: { rgb: 'C2410C' } },
+          font: { name: 'Segoe UI', sz: 9, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderOrangeSeamless
         };
       } else if (rType === 'hero_banner_brand') {
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 15, bold: true, color: { rgb: 'FFFFFF' } },
+          fill: { patternType: 'solid', fgColor: { rgb: 'C2410C' } },
+          font: { name: 'Segoe UI', sz: 15, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'bottom', horizontal: 'left' },
           border: borderOrangeSeamless
         };
       } else if (rType === 'hero_banner_main') {
         if (c === 3) {
-          // Botão Primário Branco ("Efetuar pagamento ➔") dentro do banner laranja (alto contraste #121212 no #FFFFFF)
+          // Botão Primário Branco ("Efetuar pagamento ➔") dentro do banner (alto contraste #000000 no #FFFFFF)
           cell.s = {
             fill: { patternType: 'solid', fgColor: { rgb: 'FFFFFF' } },
-            font: { name: 'Century Gothic', sz: 10, bold: true, color: { rgb: '121212' } },
+            font: { name: 'Segoe UI', sz: 10.5, bold: true, color: { rgb: '000000' } },
             alignment: { vertical: 'center', horizontal: 'center' },
             border: {
               top: { style: 'medium', color: { rgb: 'FFFFFF' } },
@@ -9807,10 +9808,10 @@ function applyStyledWorksheet(ws, cfg) {
             }
           };
         } else if (c === 5) {
-          // Botão Secundário Outlined ("💬 Falar com especialista") dentro do banner laranja (borda branca #FFFFFF e texto #FFFFFF)
+          // Botão Secundário Outlined ("💬 Falar com especialista") dentro do banner
           cell.s = {
-            fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-            font: { name: 'Century Gothic', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
+            fill: { patternType: 'solid', fgColor: { rgb: '9A3412' } },
+            font: { name: 'Segoe UI', sz: 10.5, bold: true, color: { rgb: 'FFFFFF' } },
             alignment: { vertical: 'center', horizontal: 'center' },
             border: {
               top: { style: 'thin', color: { rgb: 'FFFFFF' } },
@@ -9822,72 +9823,74 @@ function applyStyledWorksheet(ws, cfg) {
         } else {
           // Headline "Sua marca no lugar certo." e células de respiro do banner
           cell.s = {
-            fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-            font: { name: 'Century Gothic', sz: 18, bold: true, color: { rgb: 'FFFFFF' } },
+            fill: { patternType: 'solid', fgColor: { rgb: 'C2410C' } },
+            font: { name: 'Segoe UI', sz: 18, bold: true, color: { rgb: 'FFFFFF' } },
             alignment: { vertical: 'center', horizontal: 'left' },
             border: borderOrangeSeamless
           };
         }
       } else if (rType === 'hero_banner_sub') {
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 9.5, bold: false, color: { rgb: 'FFFFFF' } },
+          fill: { patternType: 'solid', fgColor: { rgb: 'C2410C' } },
+          font: { name: 'Segoe UI', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'top', horizontal: 'left' },
           border: borderOrangeSeamless
         };
       } else if (rType === 'orange_subtitle') {
+        // Alto contraste WCAG AAA (17.5:1): fundo areia #F4EFE6 com texto preto #000000 bold
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 9.5, italic: true, color: { rgb: 'FFFFFF' } },
+          fill: { patternType: 'solid', fgColor: { rgb: 'F4EFE6' } },
+          font: { name: 'Segoe UI', sz: 10, bold: true, color: { rgb: '000000' } },
           alignment: { vertical: 'center', horizontal: 'left' },
-          border: borderOrangeSeamless
+          border: borderHeader
         };
       } else if (rType === 'orange_section') {
+        // Barra de seção em grafite escuro #1F2937 com texto #FFFFFF bold (contraste 14.6:1 WCAG AAA)
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
+          fill: { patternType: 'solid', fgColor: { rgb: '1F2937' } },
+          font: { name: 'Segoe UI', sz: 10.5, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
-          border: borderOrangeSeamless
+          border: borderDarkSection
         };
       } else if (rType === 'cta_button') {
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 10, bold: true, underline: true, color: { rgb: 'FFFFFF' } },
+          fill: { patternType: 'solid', fgColor: { rgb: 'C2410C' } },
+          font: { name: 'Segoe UI', sz: 10.5, bold: true, underline: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'center' },
           border: borderOrangeSeamless
         };
       } else if (rType === 'cta_link') {
-        // Alto contraste WCAG AAA: texto sempre em #121212 (nunca laranja no bege!)
+        // Alto contraste WCAG AAA: texto sempre em #000000 bold (ou azul escuro #0F4C81 no link)
         const isLinkCell = c >= 1;
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: isLinkCell ? 'FFFFFF' : 'E8E0D5' } },
+          fill: { patternType: 'solid', fgColor: { rgb: isLinkCell ? 'FFFFFF' : 'E5DDD0' } },
           font: {
-            name: 'Century Gothic',
-            sz: 9.5,
+            name: 'Segoe UI',
+            sz: 10,
             bold: true,
             underline: isLinkCell,
-            color: { rgb: '121212' }
+            color: { rgb: isLinkCell ? '0F4C81' : '000000' }
           },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderHeader
         };
       } else if (rType === 'table_header' || rType === 'green_header') {
-        // Todos os headers de coluna padronizados na cor bege/areia #E8E0D5 com texto #121212 bold
+        // Todos os headers de coluna padronizados na cor pedra/areia #E5DDD0 com texto #000000 bold (15.4:1)
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'E8E0D5' } },
-          font: { name: 'Century Gothic', sz: 9.5, bold: true, color: { rgb: '121212' } },
+          fill: { patternType: 'solid', fgColor: { rgb: 'E5DDD0' } },
+          font: { name: 'Segoe UI', sz: 10.5, bold: true, color: { rgb: '000000' } },
           alignment: { vertical: 'center', horizontal: horiz, wrapText: true },
           border: borderHeader
         };
       } else if (rType === 'subtotal' || rType === 'total' || rType === 'highlight_total' || rType === 'black_total') {
-        // Subtotal / Total padronizado em todas as abas com alto contraste #121212 bold (zero laranja no bege!)
+        // Subtotal / Total padronizado em todas as abas com alto contraste #000000 bold (16.8:1)
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'FFF3EA' } },
+          fill: { patternType: 'solid', fgColor: { rgb: 'FDE6D2' } },
           font: {
-            name: 'Century Gothic',
-            sz: 10,
+            name: 'Segoe UI',
+            sz: 10.5,
             bold: true,
-            color: { rgb: '121212' }
+            color: { rgb: '000000' }
           },
           alignment: { vertical: 'center', horizontal: horiz },
           border: borderTotal,
@@ -9897,14 +9900,13 @@ function applyStyledWorksheet(ws, cfg) {
         const isKeyCol = c === 0 || (Array.isArray(rMeta.keyCols) && rMeta.keyCols.includes(c));
         const isLinkVal = Boolean(rMeta.hyperlinks && rMeta.hyperlinks[c]);
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: isKeyCol ? 'FBF8F4' : 'FFFFFF' } },
+          fill: { patternType: 'solid', fgColor: { rgb: isKeyCol ? 'F2ECE1' : 'FFFFFF' } },
           font: {
-            name: 'Century Gothic',
-            sz: 9.5,
-            bold: Boolean(isKeyCol || rMeta.boldValue || isLinkVal),
-            italic: Boolean(!isKeyCol && isItalicCol && !isLinkVal),
+            name: 'Segoe UI',
+            sz: 10,
+            bold: Boolean(isKeyCol || rMeta.boldValue || isLinkVal || !isItalicCol),
             underline: isLinkVal,
-            color: { rgb: !isKeyCol && isItalicCol && !isLinkVal ? '5C564F' : '121212' }
+            color: { rgb: isLinkVal ? '0F4C81' : '000000' }
           },
           alignment: { vertical: 'center', horizontal: horiz },
           border: borderThin,
@@ -9917,13 +9919,12 @@ function applyStyledWorksheet(ws, cfg) {
           (Array.isArray(rMeta.boldCols) && rMeta.boldCols.includes(c))
         );
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: isEvenData ? 'FAF7F2' : 'FFFFFF' } },
+          fill: { patternType: 'solid', fgColor: { rgb: isEvenData ? 'F7F3EC' : 'FFFFFF' } },
           font: {
-            name: 'Century Gothic',
-            sz: 9.5,
+            name: 'Segoe UI',
+            sz: 10,
             bold: isBoldCol,
-            italic: isItalicCol,
-            color: { rgb: isItalicCol && !isBoldCol ? '5C564F' : '121212' }
+            color: { rgb: '000000' }
           },
           alignment: { vertical: 'center', horizontal: horiz },
           border: borderThin,
@@ -9978,14 +9979,14 @@ function renderExcelHeroBannerSlices() {
   ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, totalW, totalH);
 
-  // Card principal arredondado com o gradiente institucional idêntico ao PDF (#E83C39 -> #F15A22 -> #F7980F)
+  // Card principal arredondado com gradiente institucional de alto contraste (#C82E2B -> #D9480F -> #C2410C)
   const padY = 4;
   const cardH = totalH - padY * 2;
   drawRoundedRectPath(ctx, 0, padY, totalW, cardH, 32);
   const grad = ctx.createLinearGradient(0, 0, totalW, 0);
-  grad.addColorStop(0, '#E83C39');
-  grad.addColorStop(0.55, '#F15A22');
-  grad.addColorStop(1, '#F7980F');
+  grad.addColorStop(0, '#C82E2B');
+  grad.addColorStop(0.55, '#D9480F');
+  grad.addColorStop(1, '#C2410C');
   ctx.fillStyle = grad;
   ctx.fill();
 
@@ -10002,13 +10003,13 @@ function renderExcelHeroBannerSlices() {
 
   // Título "Sua marca no lugar certo."
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '700 44px "Plus Jakarta Sans", "Century Gothic", "Segoe UI", Arial, sans-serif';
+  ctx.font = '700 44px "Segoe UI", "Plus Jakarta Sans", Arial, sans-serif';
   ctx.textBaseline = 'alphabetic';
   ctx.fillText('Sua marca no lugar certo.', 56, 158);
 
-  // Subtítulo institucional
-  ctx.fillStyle = '#FFF8F3';
-  ctx.font = '400 22px "Plus Jakarta Sans", "Century Gothic", "Segoe UI", Arial, sans-serif';
+  // Subtítulo institucional com peso semibold e branco puro para máximo contraste
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '600 22px "Segoe UI", "Plus Jakarta Sans", Arial, sans-serif';
   ctx.fillText('Revise o plano completo online, efetue o pagamento e acompanhe tudo no seu painel.', 56, 206);
 
   // Botão 1 (Fatia 2 — Coluna C, x = 1024..1440): Primário Branco "Efetuar pagamento →"
@@ -10017,7 +10018,7 @@ function renderExcelHeroBannerSlices() {
   const btn1W = 376;
   const btn1H = 88;
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.18)';
   ctx.shadowBlur = 14;
   ctx.shadowOffsetY = 4;
   drawRoundedRectPath(ctx, btn1X, btn1Y, btn1W, btn1H, 22);
@@ -10025,27 +10026,27 @@ function renderExcelHeroBannerSlices() {
   ctx.fill();
   ctx.restore();
 
-  ctx.fillStyle = '#0F172A';
-  ctx.font = '700 23px "Plus Jakarta Sans", "Century Gothic", "Segoe UI", Arial, sans-serif';
+  ctx.fillStyle = '#000000';
+  ctx.font = '700 23px "Segoe UI", "Plus Jakarta Sans", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('Efetuar pagamento  ➔', btn1X + btn1W / 2, btn1Y + btn1H / 2 + 1);
 
-  // Botão 2 (Fatia 3 — Coluna D, x = 1440..1856): Secundário Outlined "Falar com especialista"
+  // Botão 2 (Fatia 3 — Coluna D, x = 1440..1856): Secundário com fundo escuro translúcido de alto contraste
   const btn2X = 1456;
   const btn2Y = 100;
   const btn2W = 356;
   const btn2H = 88;
   drawRoundedRectPath(ctx, btn2X, btn2Y, btn2W, btn2H, 22);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.fillStyle = 'rgba(17, 24, 39, 0.34)';
   ctx.fill();
   ctx.lineWidth = 2.5;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.strokeStyle = '#FFFFFF';
   ctx.stroke();
 
   // Ícone de balão de conversa + label "Falar com especialista"
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '700 23px "Plus Jakarta Sans", "Century Gothic", "Segoe UI", Arial, sans-serif';
+  ctx.font = '700 23px "Segoe UI", "Plus Jakarta Sans", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('💬  Falar com especialista', btn2X + btn2W / 2, btn2Y + btn2H / 2 + 1);
@@ -11278,12 +11279,12 @@ function exportFullCsv() {
  xmlns:x="urn:schemas-microsoft-com:office:excel"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
  <Styles>
-  <Style ss:ID="sOrange"><Font ss:FontName="Century Gothic" ss:Size="11" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sOrangeSub"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Italic="1" ss:Color="#FFFFFF"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sLink"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Bold="1" ss:Underline="Single" ss:Color="#121212"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sHeader"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#E8E0D5" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sTotal"><Font ss:FontName="Century Gothic" ss:Size="10" ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#FFF3EA" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sData"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Color="#121212"/></Style>
+  <Style ss:ID="sOrange"><Font ss:FontName="Segoe UI" ss:Size="11" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#1F2937" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sOrangeSub"><Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#F4EFE6" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sLink"><Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Underline="Single" ss:Color="#0F4C81"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sHeader"><Font ss:FontName="Segoe UI" ss:Size="10.5" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#E5DDD0" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sTotal"><Font ss:FontName="Segoe UI" ss:Size="10.5" ss:Bold="1" ss:Color="#000000"/><Interior ss:Color="#FDE6D2" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sData"><Font ss:FontName="Segoe UI" ss:Size="10" ss:Color="#000000"/></Style>
  </Styles>
  ${worksheetsXml}
 </Workbook>`;
