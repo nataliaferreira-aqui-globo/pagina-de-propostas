@@ -2491,10 +2491,10 @@ function renderModularMetrics(m) {
     ];
 
   // =========================================================================
-  // CASO 1D: CAMPANHA ÚNICA — SÓ RÁDIO CBN
+  // CASO 1D: CAMPANHA ÚNICA — SÓ RÁDIO
   // =========================================================================
   } else if (activeChannelsCount === 1 && c.radioCount > 0) {
-    singleChannelTitle = 'Estimativa de entrega — Rádio CBN';
+    singleChannelTitle = 'Estimativa de entrega — Rádio';
     const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
 
     cards = [
@@ -2603,7 +2603,7 @@ function renderModularMetrics(m) {
 
       cards.push(buildExpandableSummaryChannelCard({
         cardKey: 'radio',
-        channelTitle: 'Rádio CBN',
+        channelTitle: 'Rádio',
         primaryLabel: 'Inserções no período',
         primaryValue: fmtInt(c.radioTotalInsertions),
         mobile,
@@ -5797,7 +5797,7 @@ function renderPaymentTab(m) {
             <i class="uil uil-microphone"></i>
           </div>
           <div class="min-w-0">
-            <h3 class="font-display font-bold text-sm sm:text-base text-ds-textMain truncate">Rádio CBN</h3>
+            <h3 class="font-display font-bold text-sm sm:text-base text-ds-textMain truncate">Rádio</h3>
             <p class="text-[11px] text-ds-textSecondary truncate">${c.radioCount} ${c.radioCount > 1 ? 'praças' : 'praça'} · Faturamento após confirmação de grade</p>
           </div>
         </div>
@@ -7094,7 +7094,7 @@ function requestRadioBilling() {
     window.lastHubspotRadioOrder = state.hubspotRadioOrder;
   }
   renderPaymentTab(m);
-  showToast('Faturamento solicitado! Pedido de Rádio CBN criado no HubSpot.');
+  showToast('Faturamento solicitado! Pedido de Rádio criado no HubSpot.');
 }
 
 /**
@@ -7786,7 +7786,7 @@ function renderPdfDocument(m) {
     modularCardsHtml.push(`
       <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-semibold text-ds-textSecondary">Rádio CBN</div>
+          <div class="text-xs font-semibold text-ds-textSecondary">Rádio</div>
           <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.radioTotalInsertions)}</div>
           <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Inserções no período</div>
         </div>
@@ -8079,14 +8079,14 @@ function renderPdfDocument(m) {
     </section>
   ` : '';
 
-  // 4. TABELA RÁDIO CBN
+  // 4. TABELA RÁDIO
   const radioTableSectionHtml = hasRadio ? `
     <section class="mt-4">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 pdf-keep-with-next">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
           <h2 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
-            Rádio CBN — Spots de 30 segundos
+            Rádio — Spots de 30 segundos
           </h2>
         </div>
       </div>
@@ -8127,7 +8127,7 @@ function renderPdfDocument(m) {
           </tbody>
           <tfoot class="bg-ds-surface border-t border-ds-borderStrong font-bold text-ds-textMain text-xs">
             <tr>
-              <td colspan="${state.isAdminView ? 4 : 3}" class="py-2.5 px-3">Total consolidado Rádio CBN</td>
+              <td colspan="${state.isAdminView ? 4 : 3}" class="py-2.5 px-3">Total consolidado Rádio</td>
               <td class="py-2.5 px-2.5 text-right">${fmtInt(c.radioWeeklyInsertions)}</td>
               <td class="py-2.5 px-2.5 text-right">${fmtInt(c.radioTotalInsertions)}</td>
               <td class="py-2.5 px-2.5 text-right">—</td>
@@ -8192,7 +8192,7 @@ function renderPdfDocument(m) {
         </td>
         <td class="py-2.5 px-3 align-top">
           <div class="font-semibold text-slate-900">Áudio (Rádio)</div>
-          <div class="text-[11px] text-slate-500 mt-0.5 leading-snug">Rádio CBN</div>
+          <div class="text-[11px] text-slate-500 mt-0.5 leading-snug">Rádio</div>
         </td>
         <td class="py-2.5 px-3 align-top whitespace-nowrap">
           <div class="font-semibold text-slate-900">Duração: ${escapeHtml(radioDur)}</div>
@@ -10413,7 +10413,7 @@ function exportFullCsv() {
     hasOoh ? 'OOH (Telas Digitais e Estáticas)' : null,
     hasPortais ? 'Portais e Globoplay' : null,
     hasRevistas ? 'Revistas Digitais' : null,
-    hasRadio ? 'Rádio CBN' : null
+    hasRadio ? 'Rádio' : null
   ].filter(Boolean).join(' · ');
 
   const pushCoverRow = (arr, meta) => {
@@ -10577,7 +10577,7 @@ function exportFullCsv() {
   }
   if (hasRadio) {
     pushResumoRow([
-      'Rádio CBN — Spots de 30s (Faturado à parte)',
+      'Rádio — Spots de 30s (Faturado à parte)',
       `${fmtInt(c.radioCount)} praças/programas (${fmtInt(c.radioTotalInsertions)} inserções)`,
       `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
       Number(f.radioNet.toFixed(2)),
@@ -10603,7 +10603,7 @@ function exportFullCsv() {
   resumoMerges.push({ s: { r: secObsIdx, c: 0 }, e: { r: secObsIdx, c: 1 } });
   pushResumoRow(['Condições de pagamento (Online)', 'Cartão de Crédito em até 6x sem juros, Pix ou Boleto Bancário para OOH, Portais e Revistas.'], { type: 'kv_row', maxCol: 2, italicValue: true });
   if (hasRadio) {
-    pushResumoRow(['Faturamento Rádio CBN', 'Faturado separadamente via boleto bancário mediante confirmação de grade junto à emissora.'], { type: 'kv_row', maxCol: 2, italicValue: true });
+    pushResumoRow(['Faturamento Rádio', 'Faturado separadamente via boleto bancário mediante confirmação de grade junto à emissora.'], { type: 'kv_row', maxCol: 2, italicValue: true });
   }
   pushResumoRow(['Disponibilidade de inventário', 'Sujeita a confirmação no momento do fechamento do pedido na plataforma Aqui Ads.'], { type: 'kv_row', maxCol: 2, italicValue: true });
 
@@ -10703,7 +10703,7 @@ function exportFullCsv() {
     const rIdx = metPeriodRows.length;
     totalPeriodPrimaryDeliveries += (c.radioTotalInsertions || 0);
     metPeriodRows.push([
-      `Rádio CBN (${radioDurationsLabel})`,
+      `Rádio (${radioDurationsLabel})`,
       'Praças selecionadas',
       `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
       c.radioCount,
@@ -11049,12 +11049,12 @@ function exportFullCsv() {
   }
 
   // ==========================================================================
-  // 7. ABA RÁDIO CBN
+  // 7. ABA RÁDIO
   // ==========================================================================
   if (hasRadio) {
     const radioColCount = 11;
     const radioRows = [
-      ['AQUI ADS (GLOBO & ELETROMIDIA) — RÁDIO CBN'],
+      ['AQUI ADS (GLOBO & ELETROMIDIA) — RÁDIO'],
       ['Grade de programação, praças e inserções comerciais de áudio contratadas'],
       [],
       [
@@ -11099,7 +11099,7 @@ function exportFullCsv() {
     const lastRadioItemRow1Based = radioRows.length;
     const totRadioIdx = radioRows.length;
     radioRows.push([
-      'SUBTOTAL RÁDIO CBN',
+      'SUBTOTAL RÁDIO',
       `${m.radioItems.length} ${m.radioItems.length === 1 ? 'praça/programa' : 'praças/programas'}`,
       '',
       '',
@@ -11114,7 +11114,7 @@ function exportFullCsv() {
     radioMeta[totRadioIdx] = { type: 'subtotal', maxCol: radioColCount };
 
     sheetsData.push({
-      name: 'RÁDIO CBN',
+      name: 'RÁDIO',
       rows: radioRows,
       colCount: radioColCount,
       merges: [
@@ -11161,7 +11161,7 @@ function exportFullCsv() {
     specMeta[specRows.length - 1] = { type: 'data', dataIndex: spIdx++, maxCol: specColCount };
   }
   if (hasRadio) {
-    specRows.push(['Rádio CBN', 'Spot Comercial de Áudio', 'Áudio Estéreo (44.1 kHz / 16 bits)', 'MP3 ou WAV (192 kbps mín.)', '30 segundos exatos', 'Enviar arquivo final ou roteiro para gravação']);
+    specRows.push(['Rádio', 'Spot Comercial de Áudio', 'Áudio Estéreo (44.1 kHz / 16 bits)', 'MP3 ou WAV (192 kbps mín.)', '30 segundos exatos', 'Enviar arquivo final ou roteiro para gravação']);
     specMeta[specRows.length - 1] = { type: 'data', dataIndex: spIdx++, maxCol: specColCount };
   }
   sheetsData.push({
