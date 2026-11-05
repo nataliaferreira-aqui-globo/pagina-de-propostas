@@ -6648,7 +6648,7 @@ function renderPaymentTab(m) {
           ` : ''}
         </div>
 
-        <div class="pt-2 border-t border-ds-border flex items-center justify-between">
+        <div class="pt-1 flex items-center justify-between">
           <button
             type="button"
             onclick="goToPaymentCheckoutStep(1)"
