@@ -7151,9 +7151,8 @@ function buildOohMapPinPopupHtml(g, m) {
   const screensBadgeText = isStaticOoh
     ? '1 face'
     : `${g.screens} ${g.screens > 1 ? 'telas' : 'tela'}`;
-  const dailyExhText = isStaticOoh ? 'Fixa' : `${fmtInt(g.dailyInsertions)} exib./dia`;
 
-  // Mesmo padrão exato de tag dos cards laterais (IMPRESSO roxo #F3E8FF/#6D28D9 | DIGITAL azul #EBF3FE/#1D4ED8)
+  // Mesmo padrão exato de tag dos cards laterais (Impresso roxo #F3E8FF/#6D28D9 | Digital azul #EBF3FE/#1D4ED8)
   const badgeStyle = isStaticOoh
     ? 'background:#F3E8FF;color:#6D28D9;border:1px solid #DDD6FE;'
     : 'background:#EBF3FE;color:#1D4ED8;border:1px solid #BFDBFE;';
@@ -7170,9 +7169,6 @@ function buildOohMapPinPopupHtml(g, m) {
             ID: #${g.displayCode}
           </span>
         ` : ''}
-        <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:600;background:#F3ECE4;color:#56514B;border:1px solid #DFD7CE;">
-          ${dailyExhText}
-        </span>
         ${g.kind === 'condo_group' ? `
           <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:600;background:#F3ECE4;color:#56514B;border:1px solid #DFD7CE;">
             ${g.towersCount} torres
