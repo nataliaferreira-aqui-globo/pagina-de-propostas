@@ -2228,11 +2228,68 @@ function toggleSummaryCardMetrics(cardKey) {
 function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey) {
   const list = Array.isArray(items) ? items : [];
   if (list.length === 0) return '<strong class="text-ds-textMain font-semibold">—</strong>';
-  return `<strong class="text-ds-textMain font-semibold">${list.join(', ')}</strong>`;
+  const visible = list.slice(0, visibleCount);
+  const remaining = list.slice(visibleCount);
+
+  if (remaining.length === 0) {
+    return `<strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain whitespace-nowrap">${visible.join(', ')}</strong>`;
+  }
+
+  return `
+    <div class="relative inline-flex items-center gap-1.5 group/veh" data-metric-popover="${popKey}">
+      <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain whitespace-nowrap">${visible.join(', ')}</strong>
+      <button
+        type="button"
+        onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
+        class="px-1.5 py-0.5 rounded-md text-[11px] leading-none font-bold bg-[#E2E5E9] text-[#38414E] hover:bg-primary-light hover:text-primary transition-colors cursor-pointer"
+        aria-label="Ver todos (${list.length})">
+        +${remaining.length}
+      </button>
+      <div
+        id="metricPopover-${popKey}"
+        class="metric-items-popover invisible opacity-0 pointer-events-none group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto absolute left-0 bottom-full mb-2 w-56 p-3 rounded-xl bg-white border border-ds-border shadow-xl z-30 transition-all duration-150 text-left">
+        <div class="text-xs font-bold uppercase tracking-wider text-ds-textMuted mb-2">
+          ${popoverTitle} (${list.length})
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          ${list.map((item) => `
+            <span class="px-2 py-0.5 rounded-md bg-ds-surface border border-ds-border text-xs font-semibold text-ds-textMain whitespace-nowrap">
+              ${item}
+            </span>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function toggleMetricVehiclesPopover(event, popKey) {
   if (event) event.stopPropagation();
+  const target = document.getElementById(`metricPopover-${popKey}`);
+  if (!target) return;
+  const isOpen = target.getAttribute('data-open') === 'true';
+
+  document.querySelectorAll('.metric-items-popover').forEach((el) => {
+    el.setAttribute('data-open', 'false');
+    el.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+  });
+
+  if (!isOpen) {
+    target.setAttribute('data-open', 'true');
+    target.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+  }
+}
+
+if (typeof window !== 'undefined' && !window.__metricPopoverListenerBound) {
+  window.__metricPopoverListenerBound = true;
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-metric-popover]')) {
+      document.querySelectorAll('.metric-items-popover[data-open="true"]').forEach((el) => {
+        el.setAttribute('data-open', 'false');
+        el.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+      });
+    }
+  });
 }
 
 function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel, primaryValue, subCards, mobile }) {
@@ -2240,7 +2297,7 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
   const padClass = mobile ? 'p-4' : 'p-5';
 
   return `
-    <div class="bg-white rounded-2xl border border-ds-border shadow-sm flex flex-col justify-between self-start w-full overflow-hidden">
+    <div class="bg-white rounded-2xl border border-ds-border shadow-sm flex flex-col justify-between self-start w-full">
       <div class="${padClass}">
         <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
           ${channelTitle}
@@ -2254,7 +2311,7 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
       </div>
 
       <!-- Seção expansível de Detalhamento (mesma cor do card bg-white) -->
-      <div class="bg-white border-t border-ds-border px-4 sm:px-5 py-3 text-xs">
+      <div class="bg-white border-t border-ds-border rounded-b-2xl px-4 sm:px-5 py-3 text-xs">
         <div
           onclick="toggleSummaryCardMetrics('${cardKey}')"
           class="flex items-center justify-between gap-2 cursor-pointer select-none"
@@ -2419,7 +2476,7 @@ function renderModularMetrics(m) {
           </div>
           <div class="mt-3">
             <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${portaisVehiclesList.length} veículos</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${portaisVehiclesList.join(', ')}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-single')}</div>
           </div>
         </div>
       `,
@@ -2462,7 +2519,7 @@ function renderModularMetrics(m) {
           </div>
           <div class="mt-3">
             <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${effectiveRevistasTitles.join(', ')}</div>
+            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-single')}</div>
           </div>
         </div>
       `,
@@ -2575,7 +2632,7 @@ function renderModularMetrics(m) {
         subCards: [
           {
             label: 'Veículos',
-            rawHtml: `<strong class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug block mt-0.5">${portaisVehiclesList.join(', ')}</strong>`
+            rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi')
           },
           { label: 'CPM médio', value: portaisCpmLabel }
         ]
@@ -2596,7 +2653,7 @@ function renderModularMetrics(m) {
         subCards: [
           {
             label: 'Títulos',
-            rawHtml: `<strong class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug block mt-0.5">${effectiveRevistasTitles.join(', ')}</strong>`
+            rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi')
           },
           { label: 'CPM médio', value: revistasCpmLabel }
         ]
