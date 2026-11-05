@@ -3421,14 +3421,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       </span>
                     </div>
 
-                    <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                    <div class="flex items-center gap-1 shrink-0 ml-auto">
                       <button
                         type="button"
                         onclick="toggleCardMetrics('${g.code}')"
                         class="w-8 h-8 rounded-[8px] border ${
                           isMetricsOpen
                             ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                            : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                            : 'border-ds-borderStrong bg-white text-ds-textMain'
                         } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                         aria-label="Ver métricas detalhadas"
                       >
@@ -3437,7 +3437,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       <button
                         type="button"
                         onclick="toggleCondoGroup('${g.condoId}')"
-                        class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white text-ds-textSecondary font-sans font-medium text-xs inline-flex items-center justify-center gap-1 transition whitespace-nowrap shrink-0"
+                        class="h-8 px-2 rounded-[8px] hover:bg-ds-surface ${
+                          isOpen ? 'text-ds-textMain font-semibold' : 'text-ds-textSecondary hover:text-ds-textMain font-medium'
+                        } font-sans text-xs inline-flex items-center justify-center gap-0.5 transition whitespace-nowrap shrink-0 cursor-pointer"
                       >
                         <span>${isOpen ? 'Ocultar' : `${g.towersCount} torres`}</span>
                         <i class="uil ${isOpen ? 'uil-angle-up' : 'uil-angle-down'} text-xs"></i>
@@ -3445,7 +3447,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       <button
                         type="button"
                         onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
-                        class="h-8 px-2 text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center justify-center transition whitespace-nowrap shrink-0 cursor-pointer"
+                        class="h-8 px-2 rounded-[8px] hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center justify-center transition whitespace-nowrap shrink-0 cursor-pointer"
                         aria-label="Ver localização no mapa"
                       >
                         <span>Mapa</span>
@@ -3532,9 +3534,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       onclick="toggleCardMetrics('${g.code}')"
                       class="h-8 px-2.5 rounded-[8px] border ${
                         isMetricsOpen
-                          ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
-                          : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
-                      } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
+                          ? 'border-ds-textMain bg-ds-surface text-ds-textMain font-semibold'
+                          : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-semibold'
+                      } font-sans text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                       aria-label="Ver métricas detalhadas"
                     >
                       <i class="uil uil-chart-bar text-xs"></i>
@@ -3543,7 +3545,11 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     <button
                       type="button"
                       onclick="toggleCondoGroup('${g.condoId}')"
-                      class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap"
+                      class="h-8 px-2.5 rounded-[8px] ${
+                        isOpen
+                          ? 'bg-[#EAE0D5] text-ds-textMain font-semibold'
+                          : 'bg-ds-surface hover:bg-[#EAE0D5] text-ds-textSecondary hover:text-ds-textMain font-medium'
+                      } font-sans text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                     >
                       <span>${isOpen ? 'Ocultar torres' : `Ver ${g.towersCount} torres`}</span>
                       <i class="uil ${isOpen ? 'uil-angle-up' : 'uil-angle-down'} text-xs"></i>
@@ -3740,9 +3746,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     onclick="toggleCardMetrics('${g.code}')"
                     class="h-8 px-2.5 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
-                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
-                    } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain font-semibold'
+                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-semibold'
+                    } font-sans text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
                     <i class="uil uil-chart-bar text-xs"></i>
