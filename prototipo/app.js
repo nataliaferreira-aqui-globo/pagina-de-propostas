@@ -7102,7 +7102,7 @@ function renderFaqSection() {
 
   const m = getCurrentModel();
   const displayProposalId = getDisplayProposalId(m);
-  const mobile = isMobileSimulator();
+  const mobile = isMobileView();
 
   container.innerHTML = `
     <div class="pt-3 pb-2 border-t border-ds-border/80 ${mobile ? 'flex flex-col items-center justify-center gap-1.5 text-center' : 'flex flex-col sm:flex-row items-center justify-between gap-2'} text-xs text-ds-textSecondary">
