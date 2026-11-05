@@ -1969,14 +1969,14 @@ function renderHeroSection(m) {
         type="button"
         onclick="renewCampaignProposal('${displayProposalId}')"
         data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap cursor-pointer"
+        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer"
       >
         Renovar campanha
       </button>
       <button
         type="button"
         onclick="goToPaymentAnchor()"
-        class="px-5 py-2.5 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap cursor-pointer"
+        class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer"
       >
         Ver pagamento
       </button>
@@ -1987,14 +1987,14 @@ function renderHeroSection(m) {
         type="button"
         onclick="goToAdDetailingStep('${displayProposalId}')"
         data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap cursor-pointer"
+        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer"
       >
         Enviar criativos
       </button>
       <button
         type="button"
         onclick="goToPaymentAnchor()"
-        class="px-5 py-2.5 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap cursor-pointer"
+        class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer"
       >
         Detalhes do pagamento
       </button>
@@ -2004,14 +2004,14 @@ function renderHeroSection(m) {
       <button
         type="button"
         onclick="goToPaymentAnchor()"
-        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap cursor-pointer"
+        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer"
       >
         Efetuar pagamento
       </button>
       <button
         type="button"
         onclick="showToast('Modo de edição do plano acionado')"
-        class="px-5 py-2.5 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap cursor-pointer"
+        class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer"
       >
         Alterar proposta
       </button>
@@ -2024,16 +2024,16 @@ function renderHeroSection(m) {
         type="button"
         onclick="renewCampaignProposal('${displayProposalId}')"
         data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-sm transition shadow-xs"
+        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-sm transition shadow-aqui-cta"
       >
-        renovar campanha
+        Renovar campanha
       </button>
       <button
         type="button"
         onclick="goToPaymentAnchor()"
-        class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-sm transition"
+        class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-sm transition shadow-2xs"
       >
-        ver pagamento
+        Ver pagamento
       </button>
     </div>
   ` : state.proposalStatus === 'processing' ? `
@@ -2042,16 +2042,16 @@ function renderHeroSection(m) {
         type="button"
         onclick="goToAdDetailingStep('${displayProposalId}')"
         data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-sm transition shadow-xs"
+        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-sm transition shadow-aqui-cta"
       >
-        enviar criativos
+        Enviar criativos
       </button>
       <button
         type="button"
         onclick="goToPaymentAnchor()"
-        class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-sm transition"
+        class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-sm transition shadow-2xs"
       >
-        detalhes do pagamento
+        Detalhes do pagamento
       </button>
     </div>
   ` : `
@@ -2059,16 +2059,16 @@ function renderHeroSection(m) {
       <button
         type="button"
         onclick="goToPaymentAnchor()"
-        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-sm transition shadow-xs"
+        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-sm transition shadow-aqui-cta"
       >
-        efetuar pagamento
+        Efetuar pagamento
       </button>
       <button
         type="button"
         onclick="showToast('Modo de edição do plano acionado')"
-        class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-sm transition"
+        class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-sm transition shadow-2xs"
       >
-        alterar proposta
+        Alterar proposta
       </button>
     </div>
   `;
@@ -2243,7 +2243,7 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey) {
       <button
         type="button"
         onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
-        class="px-1.5 py-0.5 rounded-md text-[11px] leading-none font-bold bg-[#E2E5E9] text-[#38414E] hover:bg-primary-light hover:text-primary transition-colors cursor-pointer"
+        class="px-1.5 py-0.5 rounded-md text-[11px] leading-none font-bold bg-ds-surface border border-ds-borderStrong text-ds-textMain hover:bg-primary-light hover:text-primary hover:border-primary/40 transition-colors cursor-pointer"
         aria-label="Ver todos (${list.length})">
         +${remaining.length}
       </button>
@@ -2915,13 +2915,13 @@ function renderFilterBar(m) {
               onclick="toggleMobileFiltersDrawer()"
               class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border ${
                 state.mobileFiltersOpen || activeSecondaryCount > 0
-                  ? 'border-ds-textMain bg-ds-surface text-ds-textMain font-normal'
-                  : 'border-transparent bg-transparent hover:bg-ds-surface text-ds-textMain font-normal'
+                  ? 'border-ds-textMain bg-ds-surface text-ds-textMain font-semibold'
+                  : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-semibold'
               } text-xs transition"
               aria-expanded="${state.mobileFiltersOpen ? 'true' : 'false'}"
             >
               <i class="uil uil-sliders-v-alt text-base leading-none"></i>
-              <span>filtrar</span>
+              <span>Filtrar</span>
               ${activeSecondaryCount > 0 ? `
                 <span class="ml-0.5 w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold inline-flex items-center justify-center leading-none">
                   ${activeSecondaryCount}
@@ -2930,13 +2930,13 @@ function renderFilterBar(m) {
             </button>
           </div>
 
-          <!-- Gaveta Colapsável de Filtros Secundários (abre sob demanda ao tocar em "filtrar") -->
+          <!-- Gaveta Colapsável de Filtros Secundários (abre sob demanda ao tocar em "Filtrar") -->
           ${state.mobileFiltersOpen ? `
             <div class="pt-2.5 border-t border-ds-border space-y-2 animate-fadeIn">
               <div class="flex items-center justify-between text-[11px] text-ds-textSecondary px-0.5">
                 <span class="font-normal text-[11px]">Refinar visualização</span>
                 ${hasActiveFilters ? `
-                  <button type="button" onclick="clearAllMediaFilters()" class="font-normal text-rose-700 hover:underline">
+                  <button type="button" onclick="clearAllMediaFilters()" class="font-bold text-aqui-red hover:underline">
                     Limpar filtros
                   </button>
                 ` : ''}
@@ -2998,7 +2998,7 @@ function renderFilterBar(m) {
                   </button>
                 ` : ''}
               </div>
-              <button type="button" onclick="clearAllMediaFilters()" class="text-[11px] font-normal text-rose-700 hover:underline">
+              <button type="button" onclick="clearAllMediaFilters()" class="text-[11px] font-bold text-aqui-red hover:underline">
                 Limpar
               </button>
             </div>
@@ -3006,7 +3006,7 @@ function renderFilterBar(m) {
         </div>
       ` : `
         <div class="space-y-2.5">
-          <!-- Linha Principal Desktop: Busca ampla + Canal (Select) + Botão "🎚️ filtrar" (mesma economia de espaço do Mobile) -->
+          <!-- Linha Principal Desktop: Busca ampla + Canal (Select) + Botão "🎚️ Filtrar" (mesma economia de espaço do Mobile) -->
           <div class="flex items-center gap-2.5">
             <div class="flex-1 min-w-0 relative">
               <input
@@ -3041,14 +3041,14 @@ function renderFilterBar(m) {
               onclick="toggleMobileFiltersDrawer()"
               class="shrink-0 h-10 inline-flex items-center gap-1.5 px-4 rounded-xl border ${
                 state.mobileFiltersOpen || activeSecondaryCount > 0
-                  ? 'border-ds-textMain bg-ds-surface text-ds-textMain font-normal'
-                  : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-normal'
+                  ? 'border-ds-textMain bg-ds-surface text-ds-textMain font-semibold'
+                  : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-semibold'
               } text-xs sm:text-sm transition cursor-pointer"
               aria-expanded="${state.mobileFiltersOpen ? 'true' : 'false'}"
               title="Abrir filtros secundários"
             >
               <i class="uil uil-sliders-v-alt text-base leading-none"></i>
-              <span>filtrar</span>
+              <span>Filtrar</span>
               ${activeSecondaryCount > 0 ? `
                 <span class="ml-0.5 w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold inline-flex items-center justify-center leading-none">
                   ${activeSecondaryCount}
@@ -3057,13 +3057,13 @@ function renderFilterBar(m) {
             </button>
           </div>
 
-          <!-- Gaveta Colapsável de Filtros Secundários no Desktop (abre sob demanda ao clicar em "filtrar") -->
+          <!-- Gaveta Colapsável de Filtros Secundários no Desktop (abre sob demanda ao clicar em "Filtrar") -->
           ${state.mobileFiltersOpen ? `
             <div class="p-3 rounded-xl bg-ds-surface/70 border border-ds-border space-y-2 animate-fadeIn">
               <div class="flex items-center justify-between text-xs text-ds-textSecondary px-0.5">
                 <span class="font-normal text-xs">Refinar visualização</span>
                 ${hasActiveFilters ? `
-                  <button type="button" onclick="clearAllMediaFilters()" class="font-normal text-rose-700 hover:underline text-xs">
+                  <button type="button" onclick="clearAllMediaFilters()" class="font-bold text-aqui-red hover:underline text-xs">
                     Limpar filtros
                   </button>
                 ` : ''}
@@ -3334,7 +3334,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     </div>
 
                     <div class="text-right shrink-0 flex items-baseline gap-1">
-                      <span class="font-display font-extrabold text-sm text-[#1E293B] leading-none whitespace-nowrap">${rightImpactValue}</span>
+                      <span class="font-display font-extrabold text-sm text-ds-textMain leading-none whitespace-nowrap">${rightImpactValue}</span>
                       <span class="text-xs font-normal text-ds-textSecondary leading-none">impacto</span>
                     </div>
                   </div>
@@ -3377,7 +3377,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                         onclick="toggleCardMetrics('${g.code}')"
                         class="w-8 h-8 rounded-[8px] border ${
                           isMetricsOpen
-                            ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
+                            ? 'border-ds-textMain bg-ds-surface text-ds-textMain shadow-xs'
                             : 'border-ds-borderStrong bg-white text-ds-textMain'
                         } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                         aria-label="Ver métricas detalhadas"
@@ -3450,7 +3450,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
                       ${rightImpactLabel}
                     </div>
-                    <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
+                    <div class="font-display font-extrabold text-base sm:text-[19px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
                       ${rightImpactValue}
                     </div>
                   </div>
@@ -3602,8 +3602,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       onclick="toggleCardMetrics('${g.code}')"
                       class="w-8 h-8 rounded-[8px] border ${
                         isMetricsOpen
-                          ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                          : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                          ? 'border-ds-textMain bg-ds-surface text-ds-textMain shadow-xs'
+                          : 'border-ds-borderStrong bg-white text-ds-textMain'
                       } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                       aria-label="Ver métricas detalhadas"
                     >
@@ -3875,7 +3875,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   </div>
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
-                    <span class="font-display font-extrabold text-sm text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(r.impressions)}</span>
+                    <span class="font-display font-extrabold text-sm text-ds-textMain leading-none whitespace-nowrap">${fmtInt(r.impressions)}</span>
                     <span class="text-xs font-normal text-ds-textSecondary leading-none">impressões</span>
                   </div>
                 </div>
@@ -3898,8 +3898,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     onclick="toggleCardMetrics('${itemKey}')"
                     class="w-8 h-8 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain shadow-xs'
+                        : 'border-ds-borderStrong bg-white text-ds-textMain'
                     } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
@@ -3927,16 +3927,16 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${r.editorialTitle} — ${revSubtitle}">
                     ${revSubtitle}
                   </p>
-                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
+                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-ds-textMain text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${r.editorialTitle}</div>
-                    <div class="text-slate-200">${revSubtitle}</div>
+                    <div class="text-ds-bg">${revSubtitle}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
                   <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
                     IMPRESSÕES ESTIMADAS
                   </div>
-                  <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
+                  <div class="font-display font-extrabold text-base sm:text-[19px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
                     ${fmtInt(r.impressions)}
                   </div>
                 </div>
@@ -3960,9 +3960,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     onclick="toggleCardMetrics('${itemKey}')"
                     class="h-8 px-2.5 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
-                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
-                    } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain font-semibold'
+                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-semibold'
+                    } font-sans text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
                     <i class="uil uil-chart-bar text-xs"></i>
@@ -4062,7 +4062,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   </div>
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
-                    <span class="font-display font-extrabold text-sm text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(p.impressions)}</span>
+                    <span class="font-display font-extrabold text-sm text-ds-textMain leading-none whitespace-nowrap">${fmtInt(p.impressions)}</span>
                     <span class="text-xs font-normal text-ds-textSecondary leading-none">impressões</span>
                   </div>
                 </div>
@@ -4085,8 +4085,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     onclick="toggleCardMetrics('${itemKey}')"
                     class="w-8 h-8 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain shadow-xs'
+                        : 'border-ds-borderStrong bg-white text-ds-textMain'
                     } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
@@ -4114,16 +4114,16 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${p.cleanTitle} — ${digSubtitle}">
                     ${digSubtitle}
                   </p>
-                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
+                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-ds-textMain text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${p.cleanTitle}</div>
-                    <div class="text-slate-200">${digSubtitle}</div>
+                    <div class="text-ds-bg">${digSubtitle}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
                   <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
                     IMPRESSÕES ESTIMADAS
                   </div>
-                  <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
+                  <div class="font-display font-extrabold text-base sm:text-[19px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
                     ${fmtInt(p.impressions)}
                   </div>
                 </div>
@@ -4147,9 +4147,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     onclick="toggleCardMetrics('${itemKey}')"
                     class="h-8 px-2.5 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
-                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
-                    } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain font-semibold'
+                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-semibold'
+                    } font-sans text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
                     <i class="uil uil-chart-bar text-xs"></i>
@@ -4254,7 +4254,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   </div>
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
-                    <span class="font-display font-extrabold text-sm text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(rd.totalInsertions)}</span>
+                    <span class="font-display font-extrabold text-sm text-ds-textMain leading-none whitespace-nowrap">${fmtInt(rd.totalInsertions)}</span>
                     <span class="text-xs font-normal text-ds-textSecondary leading-none">inserções</span>
                   </div>
                 </div>
@@ -4280,8 +4280,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     onclick="toggleCardMetrics('${itemKey}')"
                     class="w-8 h-8 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain shadow-xs'
+                        : 'border-ds-borderStrong bg-white text-ds-textMain'
                     } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
@@ -4309,16 +4309,16 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${rd.cleanTitle} — ${radSubtitle}">
                     ${radSubtitle}
                   </p>
-                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
+                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-ds-textMain text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${rd.cleanTitle}</div>
-                    <div class="text-slate-200">${radSubtitle}</div>
+                    <div class="text-ds-bg">${radSubtitle}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
                   <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
                     INSERÇÕES
                   </div>
-                  <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
+                  <div class="font-display font-extrabold text-base sm:text-[19px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
                     ${fmtInt(rd.totalInsertions)}
                   </div>
                 </div>
@@ -4345,9 +4345,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     onclick="toggleCardMetrics('${itemKey}')"
                     class="h-8 px-2.5 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
-                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
-                    } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain font-semibold'
+                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-semibold'
+                    } font-sans text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
                     <i class="uil uil-chart-bar text-xs"></i>
@@ -5826,10 +5826,12 @@ function renderPaymentTab(m) {
           class="${mobile ? 'w-full' : 'w-full sm:w-auto'} px-4 py-2.5 rounded-xl ${
             state.radioOrderRequested
               ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-              : 'bg-ds-textMain hover:bg-primary text-white shadow-xs'
-          } font-display font-bold text-xs transition inline-flex items-center justify-center gap-2 shrink-0"
+              : isRadioOnly
+                ? 'bg-aqui-grad hover:opacity-95 text-white shadow-aqui-cta'
+                : 'border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain shadow-2xs'
+          } font-display font-bold text-xs transition inline-flex items-center justify-center gap-2 shrink-0 cursor-pointer"
         >
-          <i class="uil ${state.radioOrderRequested ? 'uil-check-circle' : 'uil-envelope-send'} text-sm"></i>
+          <i class="uil ${state.radioOrderRequested ? 'uil-check-circle' : 'uil-envelope-send'} text-sm ${!state.radioOrderRequested && !isRadioOnly ? 'text-primary' : ''}"></i>
           <span>${state.radioOrderRequested ? 'Faturamento solicitado' : 'Solicitar faturamento de Rádio'}</span>
         </button>
       </div>
@@ -5906,10 +5908,10 @@ function renderPaymentTab(m) {
                   type="button"
                   onclick="renewCampaignProposal('${displayProposalId}')"
                   data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-                  class="${mobile ? 'w-full' : 'w-full sm:w-auto'} px-5 py-2.5 rounded-xl bg-aqui-grad text-white font-display font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-1.5 shadow-xs hover:opacity-95 transition shrink-0"
+                  class="${mobile ? 'w-full' : 'w-full sm:w-auto'} px-5 py-2.5 rounded-xl bg-aqui-grad text-white font-display font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-1.5 shadow-aqui-cta hover:opacity-95 transition shrink-0"
                 >
                   <i class="uil uil-redo text-base"></i>
-                  <span>renovar campanha</span>
+                  <span>Renovar campanha</span>
                 </button>
               </div>
             ` : `
@@ -5918,14 +5920,14 @@ function renderPaymentTab(m) {
                   type="button"
                   onclick="goToAdDetailingStep('${displayProposalId}')"
                   data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-                  class="${mobile ? 'w-full justify-center py-2.5' : 'w-full sm:w-auto justify-center py-2'} px-4 rounded-xl bg-aqui-grad text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shadow-2xs hover:opacity-95 transition"
+                  class="${mobile ? 'w-full justify-center py-2.5' : 'w-full sm:w-auto justify-center py-2'} px-4 rounded-xl bg-aqui-grad text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shadow-aqui-cta hover:opacity-95 transition"
                 >
-                  <span>enviar criativos da campanha</span>
+                  <span>Enviar criativos da campanha</span>
                   <i class="uil uil-image-upload text-sm"></i>
                 </button>
                 <button type="button" onclick="switchMainTab('plano')" class="${mobile ? 'w-full justify-center py-1' : ''} inline-flex items-center gap-1 text-xs font-display font-semibold text-ds-textSecondary hover:text-primary transition">
                   <i class="uil uil-arrow-left text-sm"></i>
-                  <span>voltar para a proposta</span>
+                  <span>Voltar para a proposta</span>
                 </button>
               </div>
             `}
@@ -6107,100 +6109,100 @@ function renderPaymentTab(m) {
           </div>
         </div>
 
-        <!-- Campos CNPJ: cnpj*, celular*, razão social*, setor/segmento* -->
+        <!-- Campos CNPJ: CNPJ*, Celular*, Razão social*, Setor/segmento* -->
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
           <div class="sm:col-span-6">
-            <label class="block text-ds-textSecondary font-medium mb-1">cnpj<span class="text-primary">*</span></label>
+            <label class="block text-ds-textSecondary font-medium mb-1">CNPJ <span class="text-primary">*</span></label>
             <input id="billingInputDoc" type="text" value="${escapeHtml(state.billingDoc && state.billingDoc.includes('/') ? state.billingDoc : '12.345.678/0001-99')}" placeholder="00.000.000/0001-00" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-6">
-            <label class="block text-ds-textSecondary font-medium mb-1">celular<span class="text-primary">*</span></label>
+            <label class="block text-ds-textSecondary font-medium mb-1">Celular <span class="text-primary">*</span></label>
             <input id="billingInputPhone" type="text" value="${escapeHtml(state.billingPhone || '(11) 99876-5432')}" placeholder="(11) 99999-9999" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-6">
-            <label class="block text-ds-textSecondary font-medium mb-1">razão social<span class="text-primary">*</span></label>
+            <label class="block text-ds-textSecondary font-medium mb-1">Razão social <span class="text-primary">*</span></label>
             <input id="billingInputName" type="text" value="${escapeHtml(state.billingCompany && state.billingCompany.includes('LTDA') ? state.billingCompany : 'Padaria & Confeitaria Bela Paulista LTDA')}" placeholder="Razão social da empresa" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-6">
-            <label class="block text-ds-textSecondary font-medium mb-1">setor/segmento<span class="text-primary">*</span></label>
+            <label class="block text-ds-textSecondary font-medium mb-1">Setor / segmento <span class="text-primary">*</span></label>
             <select id="billingInputSegment" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain">
               ${segmentsList.map((seg) => `<option value="${seg}" ${state.billingSegment === seg ? 'selected' : ''}>${seg}</option>`).join('')}
             </select>
           </div>
         </div>
       ` : `
-        <!-- Campos Pessoa Física: cpf*, nome*, celular* -->
+        <!-- Campos Pessoa Física: CPF*, Nome*, Celular* -->
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
           <div class="sm:col-span-6">
-            <label class="block text-ds-textSecondary font-medium mb-1">cpf<span class="text-primary">*</span></label>
+            <label class="block text-ds-textSecondary font-medium mb-1">CPF <span class="text-primary">*</span></label>
             <input id="billingInputDoc" type="text" value="${escapeHtml(state.billingDoc && !state.billingDoc.includes('/') ? state.billingDoc : '123.456.789-00')}" placeholder="000.000.000-00" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-6">
-            <label class="block text-ds-textSecondary font-medium mb-1">celular<span class="text-primary">*</span></label>
+            <label class="block text-ds-textSecondary font-medium mb-1">Celular <span class="text-primary">*</span></label>
             <input id="billingInputPhone" type="text" value="${escapeHtml(state.billingPhone || '(11) 99876-5432')}" placeholder="(11) 99999-9999" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-12">
-            <label class="block text-ds-textSecondary font-medium mb-1">nome<span class="text-primary">*</span></label>
+            <label class="block text-ds-textSecondary font-medium mb-1">Nome completo <span class="text-primary">*</span></label>
             <input id="billingInputName" type="text" value="${escapeHtml(state.billingCompany && !state.billingCompany.includes('LTDA') ? state.billingCompany : 'Natalia Ferreira')}" placeholder="Nome completo do titular" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
         </div>
       `}
 
-      <!-- Seção Endereço (Comum para CNPJ e CPF: cep*, endereço*, número*, bairro*, complemento, cidade*, estado*) -->
+      <!-- Seção Endereço (Comum para CNPJ e CPF: CEP*, Endereço*, Número*, Bairro*, Complemento, Cidade*, Estado*) -->
       <div class="space-y-3 pt-1">
         <h5 class="font-display font-bold text-xs sm:text-sm text-ds-textMain">Endereço</h5>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
           <div class="sm:col-span-4">
-            <label class="block text-ds-textSecondary font-medium mb-1">cep<span class="text-primary">*</span></label>
-            <input id="billingInputCep" type="text" value="${escapeHtml(state.billingCep || '04538-132')}" placeholder="00000-000" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+            <label class="block text-ds-textSecondary font-medium mb-1">CEP <span class="text-primary">*</span></label>
+            <input id="billingInputCep" type="text" value="${escapeHtml(state.billingCep || '04538-132')}" placeholder="00000-000" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-ds-surface/60 focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-8">
-            <label class="block text-ds-textSecondary font-medium mb-1">endereço<span class="text-primary">*</span></label>
-            <input id="billingInputStreet" type="text" value="${escapeHtml(state.billingStreet || 'Av. Brigadeiro Faria Lima')}" placeholder="Logradouro / Rua / Avenida" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+            <label class="block text-ds-textSecondary font-medium mb-1">Endereço <span class="text-primary">*</span></label>
+            <input id="billingInputStreet" type="text" value="${escapeHtml(state.billingStreet || 'Av. Brigadeiro Faria Lima')}" placeholder="Logradouro / Rua / Avenida" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-ds-surface/60 focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-4">
-            <label class="block text-ds-textSecondary font-medium mb-1">número<span class="text-primary">*</span></label>
-            <input id="billingInputNumber" type="text" value="${escapeHtml(state.billingNumber || '3477')}" placeholder="Nº" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+            <label class="block text-ds-textSecondary font-medium mb-1">Número <span class="text-primary">*</span></label>
+            <input id="billingInputNumber" type="text" value="${escapeHtml(state.billingNumber || '3477')}" placeholder="Nº" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-ds-surface/60 focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-4">
-            <label class="block text-ds-textSecondary font-medium mb-1">bairro<span class="text-primary">*</span></label>
-            <input id="billingInputDistrict" type="text" value="${escapeHtml(state.billingDistrict || 'Itaim Bibi')}" placeholder="Bairro" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+            <label class="block text-ds-textSecondary font-medium mb-1">Bairro <span class="text-primary">*</span></label>
+            <input id="billingInputDistrict" type="text" value="${escapeHtml(state.billingDistrict || 'Itaim Bibi')}" placeholder="Bairro" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-ds-surface/60 focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-4">
-            <label class="block text-ds-textSecondary font-medium mb-1">complemento</label>
-            <input id="billingInputComplement" type="text" value="${escapeHtml(state.billingComplement || '14º andar')}" placeholder="Sala, andar, bloco" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+            <label class="block text-ds-textSecondary font-medium mb-1">Complemento</label>
+            <input id="billingInputComplement" type="text" value="${escapeHtml(state.billingComplement || '14º andar')}" placeholder="Sala, andar, bloco" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-ds-surface/60 focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-6">
-            <label class="block text-ds-textSecondary font-medium mb-1">cidade<span class="text-primary">*</span></label>
-            <input id="billingInputCity" type="text" value="${escapeHtml(state.billingCity || 'São Paulo')}" placeholder="Cidade" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+            <label class="block text-ds-textSecondary font-medium mb-1">Cidade <span class="text-primary">*</span></label>
+            <input id="billingInputCity" type="text" value="${escapeHtml(state.billingCity || 'São Paulo')}" placeholder="Cidade" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-ds-surface/60 focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
           </div>
           <div class="sm:col-span-6">
-            <label class="block text-ds-textSecondary font-medium mb-1">estado<span class="text-primary">*</span></label>
-            <select id="billingInputState" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain">
+            <label class="block text-ds-textSecondary font-medium mb-1">Estado <span class="text-primary">*</span></label>
+            <select id="billingInputState" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-ds-surface/60 focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain">
               ${ufList.map((uf) => `<option value="${uf}" ${(state.billingState || 'SP') === uf ? 'selected' : ''}>${uf}</option>`).join('')}
             </select>
           </div>
         </div>
       </div>
 
-      <!-- Botões de Ação: cancelar | salvar -->
+      <!-- Botões de Ação: Cancelar | Salvar -->
       <div class="flex items-center justify-end gap-3 pt-2">
         ${hasBillingData ? `
           <button
             type="button"
             onclick="cancelBillingStepForm()"
-            class="px-4 py-2.5 rounded-xl text-ds-textMain hover:bg-ds-surface font-display font-bold text-xs transition cursor-pointer"
+            class="px-4 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs transition cursor-pointer"
           >
-            cancelar
+            Cancelar
           </button>
         ` : ''}
         <button
           type="button"
           onclick="saveBillingStepForm()"
-          class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+          class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-aqui-cta transition cursor-pointer"
         >
           <i class="uil uil-check-circle text-base"></i>
-          <span>salvar</span>
+          <span>Salvar</span>
         </button>
       </div>
     </div>
@@ -6320,11 +6322,11 @@ function renderPaymentTab(m) {
                 </span>
                 ${state.cardMode === 'saved' ? `
                   <button type="button" onclick="setCardMode('new')" class="text-[11px] font-bold text-primary hover:underline">
-                    + cadastrar novo cartão
+                    + Cadastrar novo cartão
                   </button>
                 ` : `
                   <button type="button" onclick="setCardMode('saved')" class="text-[11px] font-bold text-primary hover:underline">
-                    ← usar cartão salvo
+                    ← Usar cartão salvo
                   </button>
                 `}
               </div>
@@ -6373,11 +6375,11 @@ function renderPaymentTab(m) {
                       onclick="submitPaymentOrder()"
                       class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm shadow-aqui-cta flex items-center justify-center gap-2 transition cursor-pointer"
                     >
-                      <span>efetuar pagamento</span>
+                      <span>Efetuar pagamento</span>
                       <i class="uil uil-arrow-right text-base"></i>
                     </button>
                     <button type="button" onclick="setCardMode('new')" class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs transition">
-                      cadastrar novo cartão
+                      Cadastrar novo cartão
                     </button>
                   </div>
                 ` : `
@@ -6429,11 +6431,11 @@ function renderPaymentTab(m) {
                         onclick="submitPaymentOrder()"
                         class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm shadow-aqui-cta flex items-center justify-center gap-2 transition cursor-pointer"
                       >
-                        <span>efetuar pagamento</span>
+                        <span>Efetuar pagamento</span>
                         <i class="uil uil-arrow-right text-base"></i>
                       </button>
                       <button type="button" onclick="setCardMode('saved')" class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs transition">
-                        voltar para cartão salvo (•••• 7492)
+                        Voltar para cartão salvo (•••• 7492)
                       </button>
                     </div>
                   </div>
@@ -6522,13 +6524,13 @@ function renderPaymentTab(m) {
                       <label class="block text-xs font-bold text-ds-textMain">Pix copia e cola</label>
                       <input type="text" readonly value="${pixCodeString}" class="w-full px-3 py-2 rounded-lg border border-ds-borderStrong bg-white font-mono text-[11px] text-ds-textSecondary select-all" />
                       <div class="flex flex-wrap items-center gap-2">
-                        <button type="button" onclick="navigator.clipboard?.writeText('${pixCodeString}'); showToast('Código PIX copiado!')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg bg-ds-textMain hover:bg-black text-white font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 transition">
+                        <button type="button" onclick="navigator.clipboard?.writeText('${pixCodeString}'); showToast('Código PIX copiado!')" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 shadow-aqui-cta transition">
                           <i class="uil uil-copy"></i>
-                          <span>copiar código Pix</span>
+                          <span>Copiar código Pix</span>
                         </button>
-                        <button type="button" onclick="confirmPixPaymentPaid()" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-display font-bold text-xs inline-flex items-center justify-center gap-1 transition">
+                        <button type="button" onclick="confirmPixPaymentPaid()" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-display font-bold text-xs inline-flex items-center justify-center gap-1 transition">
                           <i class="uil uil-check-circle"></i>
-                          <span>já paguei o Pix</span>
+                          <span>Já paguei o Pix</span>
                         </button>
                       </div>
                     </div>
@@ -6537,7 +6539,7 @@ function renderPaymentTab(m) {
               ` : `
                 <div class="rounded-[14px] border border-ds-borderStrong bg-white p-3.5 space-y-3 text-xs text-ds-textSecondary leading-relaxed">
                   <p>
-                    Ao clicar em <strong class="text-ds-textMain">efetuar pagamento</strong>, geraremos ${mobile ? 'o código Pix Copia e Cola' : 'o QR Code e o código Pix Copia e Cola'} com validade de 15 minutos.
+                    Ao clicar em <strong class="text-ds-textMain">Efetuar pagamento</strong>, geraremos ${mobile ? 'o código Pix Copia e Cola' : 'o QR Code e o código Pix Copia e Cola'} com validade de 15 minutos.
                   </p>
                   <button
                     id="activateCampaignBtn"
@@ -6545,7 +6547,7 @@ function renderPaymentTab(m) {
                     onclick="submitPaymentOrder()"
                     class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm shadow-aqui-cta flex items-center justify-center gap-2 transition cursor-pointer"
                   >
-                    <span>efetuar pagamento</span>
+                    <span>Efetuar pagamento</span>
                     <i class="uil uil-arrow-right text-base"></i>
                   </button>
                 </div>
@@ -6616,13 +6618,13 @@ function renderPaymentTab(m) {
                     ${boletoLineString}
                   </div>
                   <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" onclick="navigator.clipboard?.writeText('${boletoLineString}'); showToast('Linha digitável copiada!')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg bg-ds-textMain hover:bg-black text-white font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 transition">
+                    <button type="button" onclick="navigator.clipboard?.writeText('${boletoLineString}'); showToast('Linha digitável copiada!')" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 shadow-aqui-cta transition">
                       <i class="uil uil-copy"></i>
-                      <span>copiar código do boleto</span>
+                      <span>Copiar código do boleto</span>
                     </button>
-                    <button type="button" onclick="confirmPixPaymentPaid()" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-display font-bold text-xs inline-flex items-center justify-center gap-1 transition">
+                    <button type="button" onclick="confirmPixPaymentPaid()" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-display font-bold text-xs inline-flex items-center justify-center gap-1 transition">
                       <i class="uil uil-check-circle"></i>
-                      <span>já paguei o boleto</span>
+                      <span>Já paguei o boleto</span>
                     </button>
                   </div>
                 </div>
@@ -6637,7 +6639,7 @@ function renderPaymentTab(m) {
                     onclick="submitPaymentOrder()"
                     class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm shadow-aqui-cta flex items-center justify-center gap-2 transition cursor-pointer"
                   >
-                    <span>efetuar pagamento</span>
+                    <span>Efetuar pagamento</span>
                     <i class="uil uil-arrow-right text-base"></i>
                   </button>
                 </div>
@@ -6698,7 +6700,7 @@ function renderPaymentTab(m) {
             ` : `
               <button type="button" onclick="openBillingStepForm()" class="text-primary font-bold hover:underline inline-flex items-center gap-1 cursor-pointer">
                 <i class="uil uil-pen"></i>
-                <span>${hasBillingData ? 'alterar' : 'cadastrar'}</span>
+                <span>${hasBillingData ? 'Alterar' : 'Cadastrar'}</span>
               </button>
             `}
           </div>
@@ -6725,12 +6727,12 @@ function renderPaymentTab(m) {
                   ${escapeHtml(state.couponCode || 'AQUIADS10')} (-${fmtBRL(f.couponDiscount)})
                 </span>
                 <button type="button" onclick="toggleCouponSimulation(false)" class="text-aqui-red font-bold hover:underline cursor-pointer">
-                  remover
+                  Remover
                 </button>
               </div>
             ` : `
               <button type="button" onclick="toggleCouponDrawer()" class="text-primary font-bold hover:underline inline-flex items-center gap-1 cursor-pointer">
-                <span>${state.couponDrawerOpen ? 'fechar' : 'adicionar cupom'}</span>
+                <span>${state.couponDrawerOpen ? 'Fechar' : 'Adicionar cupom'}</span>
               </button>
             `}
           </div>
@@ -6747,7 +6749,7 @@ function renderPaymentTab(m) {
               <button
                 type="button"
                 onclick="applyCheckoutCoupon()"
-                class="px-4 py-2 rounded-xl bg-ds-textMain hover:bg-primary text-white font-display font-bold text-xs transition cursor-pointer shrink-0"
+                class="px-4 py-2 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs transition cursor-pointer shrink-0 shadow-2xs"
               >
                 Aplicar
               </button>
@@ -6796,7 +6798,7 @@ function renderPaymentTab(m) {
           <div class="pt-0.5 text-center">
             <button type="button" onclick="switchMainTab('plano')" class="inline-flex items-center justify-center gap-1 text-xs font-display font-semibold text-ds-textSecondary hover:text-primary transition">
               <i class="uil uil-arrow-left text-sm"></i>
-              <span>voltar para a revisão da campanha</span>
+              <span>Voltar para a revisão da campanha</span>
             </button>
           </div>
         </div>
@@ -8496,7 +8498,7 @@ function renderPdfDocument(m) {
             </div>
             <div class="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
               <a
-                href="${escapeHtml(onlineProposalUrl)}"
+                href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
                 onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
                 class="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 font-display font-bold text-xs transition shadow-sm inline-flex items-center justify-center gap-1.5"
               >
@@ -8504,7 +8506,7 @@ function renderPdfDocument(m) {
                 <i class="uil uil-arrow-right text-sm"></i>
               </a>
               <a
-                href="${escapeHtml(onlineProposalUrl)}"
+                href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=specialist`)}"
                 onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); openAndreiaChatWithFlow('specialist'); }"
                 class="px-4 py-2.5 rounded-xl border border-white/40 hover:bg-white/10 text-white font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 transition"
               >
@@ -9672,6 +9674,8 @@ function applyStyledWorksheet(ws, cfg) {
 
     if (rType === 'orange_title') {
       rowHeights[r] = { hpt: 30 };
+    } else if (rType === 'hero_banner_img') {
+      rowHeights[r] = { hpt: 36 };
     } else if (rType === 'hero_banner_pad') {
       rowHeights[r] = { hpt: 12 };
     } else if (rType === 'hero_banner_brand') {
@@ -9765,6 +9769,20 @@ function applyStyledWorksheet(ws, cfg) {
           font: { name: 'Century Gothic', sz: 12, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderOrangeSeamless
+        };
+      } else if (rType === 'hero_banner_img') {
+        // Células de ancoragem sob a imagem oficial do banner do PDF (fundo branco limpo sem grade aparente)
+        const borderWhiteSeamless = {
+          top: { style: 'thin', color: { rgb: 'FFFFFF' } },
+          bottom: { style: 'thin', color: { rgb: 'FFFFFF' } },
+          left: { style: 'thin', color: { rgb: 'FFFFFF' } },
+          right: { style: 'thin', color: { rgb: 'FFFFFF' } }
+        };
+        cell.s = {
+          fill: { patternType: 'solid', fgColor: { rgb: 'FFFFFF' } },
+          font: { name: 'Century Gothic', sz: 9, bold: true, color: { rgb: 'FFFFFF' } },
+          alignment: { vertical: 'center', horizontal: 'center' },
+          border: borderWhiteSeamless
         };
       } else if (rType === 'hero_banner_pad') {
         cell.s = {
@@ -9924,6 +9942,413 @@ function applyStyledWorksheet(ws, cfg) {
   ws['!rows'] = rowHeights;
 }
 
+const AQUI_ADS_WHITE_SVG_PATH = 'M 597.46 143.41 C 591.15 138.92 587.05 132.61 585.16 124.47 C 584.98 123.58 585.15 122.86 585.65 122.3 C 586.15 121.74 586.87 121.46 587.81 121.46 L 598.08 121.46 C 599.61 121.46 600.74 122.23 601.44 123.76 C 603.15 127.95 605.6 130.95 608.79 132.74 C 611.97 134.54 616.55 135.44 622.51 135.44 C 627.58 135.44 631.5 134.63 634.28 133.01 C 637.05 131.39 638.44 129.01 638.44 125.88 C 638.44 123.53 637.64 121.61 636.05 120.13 C 634.45 118.66 632.12 117.48 629.05 116.59 C 625.99 115.71 621.98 114.91 617.02 114.2 C 606.46 112.73 598.66 110.1 593.61 106.32 C 588.57 102.55 586.04 97.09 586.04 89.95 C 586.04 85.23 587.39 80.99 590.07 77.21 C 592.76 73.44 596.5 70.48 601.31 68.36 C 606.12 66.24 611.59 65.18 617.73 65.18 C 627.17 65.18 634.97 67.42 641.13 71.9 C 647.3 76.38 651.24 82.52 652.95 90.31 C 653.12 91.25 652.98 91.99 652.51 92.52 C 652.03 93.05 651.3 93.32 650.29 93.32 L 640.38 93.32 C 639.62 93.32 638.98 93.14 638.48 92.79 C 637.98 92.43 637.55 91.84 637.2 91.02 C 635.37 86.95 632.92 84.07 629.85 82.39 C 626.78 80.71 622.51 79.86 617.02 79.86 C 612 79.86 608.21 80.68 605.65 82.3 C 603.08 83.92 601.8 86.3 601.8 89.42 C 601.8 92.32 603.26 94.44 606.18 95.79 C 609.1 97.15 613.24 98.27 618.61 99.16 C 626.58 100.52 633.02 102.02 637.95 103.67 C 642.87 105.32 646.84 107.88 649.85 111.33 C 652.86 114.78 654.36 119.45 654.36 125.36 C 654.36 130.13 653.04 134.41 650.38 138.18 C 647.73 141.96 643.95 144.9 639.06 146.99 C 634.16 149.09 628.52 150.13 622.15 150.13 C 612 150.13 603.77 147.89 597.46 143.41 M 513.04 121.95 C 515.22 126.16 518.21 129.44 522.02 131.77 C 525.82 134.1 530.06 135.27 534.72 135.27 C 539.56 135.27 543.91 134.22 547.77 132.13 C 551.63 130.03 554.67 126.9 556.89 122.74 C 559.1 118.58 560.21 113.55 560.21 107.66 C 560.21 101.7 559.1 96.65 556.89 92.52 C 554.67 88.39 551.65 85.28 547.82 83.18 C 543.98 81.09 539.62 80.04 534.72 80.04 C 530.47 80.04 526.44 81.11 522.64 83.23 C 518.83 85.35 515.74 88.5 513.35 92.65 C 510.96 96.81 509.76 101.81 509.76 107.66 C 509.76 112.96 510.85 117.73 513.04 121.95 M 513.61 144.78 C 507.51 141.21 502.68 136.21 499.14 129.78 C 495.6 123.35 493.83 115.97 493.83 107.66 C 493.83 99.51 495.63 92.21 499.23 85.75 C 502.83 79.29 507.7 74.25 513.83 70.62 C 519.97 66.99 526.69 65.18 534.01 65.18 C 539.73 65.18 544.81 66.18 549.23 68.18 C 553.66 70.19 557.2 72.96 559.85 76.5 L 559.85 35.62 C 559.85 34.73 560.1 34.04 560.6 33.54 C 561.1 33.04 561.8 32.79 562.68 32.79 L 572.95 32.79 C 573.83 32.79 574.53 33.04 575.03 33.54 C 575.53 34.04 575.78 34.73 575.78 35.62 L 575.78 145.88 C 575.78 146.77 575.53 147.46 575.03 147.96 C 574.53 148.46 573.83 148.71 572.95 148.71 L 562.86 148.71 C 561.98 148.71 561.28 148.46 560.78 147.96 C 560.28 147.46 560.03 146.77 560.03 145.88 L 560.03 138.63 C 557.49 142.17 553.95 144.97 549.41 147.04 C 544.86 149.1 539.67 150.13 533.83 150.13 C 526.46 150.13 519.72 148.35 513.61 144.78 M 420.83 121.95 C 423.01 126.16 426 129.44 429.81 131.77 C 433.61 134.1 437.85 135.27 442.51 135.27 C 447.34 135.27 451.7 134.22 455.56 132.13 C 459.42 130.03 462.46 126.9 464.68 122.74 C 466.89 118.58 467.99 113.55 467.99 107.66 C 467.99 101.7 466.89 96.65 464.68 92.52 C 462.46 88.39 459.44 85.28 455.6 83.18 C 451.77 81.09 447.4 80.04 442.51 80.04 C 438.26 80.04 434.23 81.11 430.43 83.23 C 426.62 85.35 423.52 88.5 421.13 92.65 C 418.74 96.81 417.55 101.81 417.55 107.66 C 417.55 112.96 418.64 117.73 420.83 121.95 M 421.71 144.78 C 415.51 141.21 410.62 136.21 407.02 129.78 C 403.42 123.35 401.62 115.97 401.62 107.66 C 401.62 99.51 403.44 92.21 407.06 85.75 C 410.69 79.29 415.63 74.25 421.89 70.62 C 428.14 66.99 435.07 65.18 442.68 65.18 C 448.29 65.18 453.3 66.18 457.73 68.18 C 462.15 70.19 465.69 72.96 468.35 76.5 L 468.35 69.42 C 468.35 68.54 468.6 67.84 469.1 67.34 C 469.6 66.84 470.3 66.59 471.18 66.59 L 481.09 66.59 C 481.98 66.59 482.67 66.84 483.17 67.34 C 483.67 67.84 483.92 68.54 483.92 69.42 L 483.92 145.88 C 483.92 146.77 483.67 147.46 483.17 147.96 C 482.67 148.46 481.98 148.71 481.09 148.71 L 471.18 148.71 C 470.3 148.71 469.6 148.46 469.1 147.96 C 468.6 147.46 468.35 146.77 468.35 145.88 L 468.35 138.1 C 465.75 141.87 462.21 144.82 457.73 146.95 C 453.24 149.07 448.17 150.13 442.51 150.13 C 434.84 150.13 427.9 148.35 421.71 144.78 M 334.72 147.83 C 334.13 147.24 333.83 146.47 333.83 145.53 L 333.83 69.07 C 333.83 68.07 334.13 67.29 334.72 66.72 C 335.31 66.16 336.07 65.88 337.02 65.88 L 355.43 65.88 C 356.43 65.88 357.21 66.16 357.77 66.72 C 358.33 67.29 358.61 68.07 358.61 69.07 L 358.61 145.53 C 358.61 146.47 358.33 147.24 357.77 147.83 C 357.21 148.42 356.43 148.71 355.43 148.71 L 337.02 148.71 C 336.07 148.71 335.31 148.42 334.72 147.83 M 335.38 54.2 C 332.58 51.49 331.18 48 331.18 43.76 C 331.18 40.98 331.81 38.52 333.08 36.37 C 334.35 34.21 336.13 32.52 338.43 31.28 C 340.73 30.04 343.33 29.42 346.22 29.42 C 349.11 29.42 351.71 30.04 354.01 31.28 C 356.31 32.52 358.09 34.21 359.36 36.37 C 360.63 38.52 361.27 40.98 361.27 43.76 C 361.27 48 359.86 51.49 357.06 54.2 C 354.26 56.91 350.65 58.27 346.22 58.27 C 341.8 58.27 338.18 56.91 335.38 54.2 M 250.34 141.15 C 245.23 135.16 242.68 126.59 242.68 115.44 L 242.68 69.07 C 242.68 68.07 242.98 67.29 243.57 66.72 C 244.15 66.16 244.92 65.88 245.87 65.88 L 264.45 65.88 C 265.46 65.88 266.24 66.16 266.8 66.72 C 267.36 67.29 267.64 68.07 267.64 69.07 L 267.64 110.48 C 267.64 115.56 268.67 119.45 270.74 122.17 C 272.8 124.88 275.84 126.24 279.85 126.24 C 284.22 126.24 287.61 124.84 290.03 122.04 C 292.45 119.23 293.66 115.32 293.66 110.31 L 293.66 69.07 C 293.66 68.07 293.95 67.29 294.54 66.72 C 295.13 66.16 295.9 65.88 296.84 65.88 L 315.43 65.88 C 316.43 65.88 317.21 66.16 317.77 66.72 C 318.33 67.29 318.61 68.07 318.61 69.07 L 318.61 145.53 C 318.61 146.47 318.33 147.24 317.77 147.83 C 317.21 148.42 316.43 148.71 315.43 148.71 L 298.26 148.71 C 297.31 148.71 296.55 148.42 295.96 147.83 C 295.37 147.24 295.07 146.47 295.07 145.53 L 295.07 139.34 C 292.59 142.7 289.39 145.34 285.47 147.25 C 281.55 149.17 277.13 150.13 272.24 150.13 C 262.74 150.13 255.44 147.14 250.34 141.15 M 169.89 117.17 C 171.52 120.09 173.68 122.36 176.4 123.98 C 179.11 125.61 182.09 126.41 185.34 126.41 C 188.76 126.41 191.84 125.63 194.58 124.07 C 197.33 122.51 199.48 120.29 201.05 117.43 C 202.61 114.57 203.39 111.2 203.39 107.3 C 203.39 103.46 202.61 100.1 201.05 97.21 C 199.48 94.32 197.33 92.09 194.58 90.53 C 191.84 88.96 188.76 88.18 185.34 88.18 C 182.15 88.18 179.2 88.96 176.49 90.53 C 173.77 92.09 171.59 94.32 169.94 97.21 C 168.29 100.1 167.46 103.46 167.46 107.3 C 167.46 110.96 168.27 114.25 169.89 117.17 M 203.74 181.86 C 203.15 181.3 202.86 180.52 202.86 179.51 L 202.86 141.11 C 200.56 143.88 197.55 146.08 193.83 147.7 C 190.11 149.32 185.75 150.13 180.73 150.13 C 173.65 150.13 167.21 148.27 161.4 144.56 C 155.59 140.84 151.01 135.72 147.68 129.2 C 144.35 122.68 142.68 115.38 142.68 107.3 C 142.68 99.39 144.39 92.17 147.81 85.62 C 151.23 79.07 155.88 73.91 161.75 70.13 C 167.62 66.36 174.07 64.47 181.09 64.47 C 186.22 64.47 190.76 65.43 194.72 67.34 C 198.67 69.26 201.8 71.84 204.1 75.09 L 204.1 69.07 C 204.1 68.07 204.39 67.29 204.98 66.72 C 205.57 66.16 206.34 65.88 207.28 65.88 L 224.63 65.88 C 225.63 65.88 226.41 66.16 226.97 66.72 C 227.53 67.29 227.82 68.07 227.82 69.07 L 227.82 179.51 C 227.82 180.52 227.53 181.3 226.97 181.86 C 226.41 182.42 225.63 182.7 224.63 182.7 L 206.04 182.7 C 205.1 182.7 204.33 182.42 203.74 181.86 M 119.43 13.89 C 118.36 4.75 114.76 0.24 105.41 0.24 L 40.12 0.24 C 40.12 0.24 34.58 0 26.57 0.43 C 18.26 1.41 15.74 5.39 14.75 13.89 L 13.2 26.45 L 0.17 144.43 C 0 145.98 1.22 147.33 2.78 147.33 L 24.21 147.33 C 25.55 147.33 26.67 146.33 26.82 145 L 31.42 103.32 L 31.42 103.32 C 31.52 102.4 34.81 72.63 34.9 71.77 L 39.61 29.13 L 39.62 29.13 C 39.62 28.88 39.65 28.64 39.69 28.4 L 39.7 28.29 C 40.09 26.41 41.76 25 43.77 25 L 90.11 25 C 92.11 25 93.78 26.41 94.16 28.29 L 94.18 28.4 C 94.22 28.64 94.25 28.88 94.25 29.13 L 94.26 29.13 L 98.97 71.77 C 99.06 72.63 98.16 73.33 97.28 73.33 L 50.31 67.03 C 48.76 66.86 47.4 68.07 47.4 69.63 L 45.21 92.33 C 45.21 93.66 46.21 94.79 47.55 94.93 L 100.76 101.67 C 100.77 101.67 100.78 101.68 100.78 101.68 C 101.69 101.79 102.36 102.4 102.45 103.32 L 102.45 103.32 L 107.05 145 C 107.2 146.33 108.32 147.33 109.66 147.33 L 131.4 147.33 C 132.96 147.33 134.18 145.98 134.01 144.43 L 120.98 26.45 Z M 701.02 56.17 C 710.1 56.17 717.11 48.84 717.11 40 C 717.11 31.24 710.1 23.91 701.02 23.91 C 691.94 23.91 684.93 31.24 684.93 40 C 684.93 48.84 691.94 56.17 701.02 56.17 M 728.18 58.79 C 719.5 59.75 710.1 59.99 701.02 59.99 C 691.94 59.99 682.54 59.75 673.78 58.79 C 671.31 58.55 670.04 57.92 669.72 55.29 C 669.24 50.27 669.24 45.18 669.24 40 C 669.24 34.9 669.24 29.8 669.72 24.79 C 670.04 22.16 671.31 21.52 673.78 21.28 C 682.54 20.32 691.94 20.09 701.02 20.09 C 710.1 20.09 719.5 20.32 728.18 21.28 C 730.73 21.52 732 22.16 732.32 24.79 C 732.72 29.8 732.72 34.9 732.72 40 C 732.72 45.18 732.72 50.27 732.32 55.29 C 732 57.92 730.73 58.55 728.18 58.79 M 701.02 0.25 C 679.12 0.25 661.28 18.09 661.28 40 C 661.28 61.98 679.12 79.82 701.02 79.82 C 722.92 79.82 740.84 61.98 740.84 40 C 740.84 18.09 722.92 0.25 701.02 0.25';
+
+function drawRoundedRectPath(ctx, x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+function dataUrlToUint8Array(dataUrl) {
+  const base64 = String(dataUrl || '').split(',')[1] || '';
+  const bin = atob(base64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) {
+    out[i] = bin.charCodeAt(i);
+  }
+  return out;
+}
+
+/**
+ * Renderiza o banner oficial do PDF ("Sua marca no lugar certo." + logo Aqui ads ® branco + botões de ação)
+ * em alta resolução (1856x288) e o divide em 3 fatias PNG contínuas alinhadas às colunas A:B, C e D da 1ª aba do Excel,
+ * permitindo que cada botão na imagem tenha seu próprio link clicável nativo (<a:hlinkClick>) no arquivo .xlsx.
+ */
+function renderExcelHeroBannerSlices() {
+  if (typeof document === 'undefined') return null;
+  const totalW = 1856;
+  const totalH = 288;
+  const canvas = document.createElement('canvas');
+  canvas.width = totalW;
+  canvas.height = totalH;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  // Fundo externo branco para destacar os cantos arredondados do banner sem grade
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, totalW, totalH);
+
+  // Card principal arredondado com o gradiente institucional idêntico ao PDF (#E83C39 -> #F15A22 -> #F7980F)
+  const padY = 4;
+  const cardH = totalH - padY * 2;
+  drawRoundedRectPath(ctx, 0, padY, totalW, cardH, 32);
+  const grad = ctx.createLinearGradient(0, 0, totalW, 0);
+  grad.addColorStop(0, '#E83C39');
+  grad.addColorStop(0.55, '#F15A22');
+  grad.addColorStop(1, '#F7980F');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Logotipo Oficial Aqui ads ® 100% branco vetorial
+  ctx.save();
+  ctx.translate(56, 38);
+  ctx.scale(0.285, 0.285);
+  ctx.fillStyle = '#FFFFFF';
+  if (typeof Path2D !== 'undefined') {
+    const logoPath = new Path2D(AQUI_ADS_WHITE_SVG_PATH);
+    ctx.fill(logoPath);
+  }
+  ctx.restore();
+
+  // Título "Sua marca no lugar certo."
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 44px "Plus Jakarta Sans", "Century Gothic", "Segoe UI", Arial, sans-serif';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText('Sua marca no lugar certo.', 56, 158);
+
+  // Subtítulo institucional
+  ctx.fillStyle = '#FFF8F3';
+  ctx.font = '400 22px "Plus Jakarta Sans", "Century Gothic", "Segoe UI", Arial, sans-serif';
+  ctx.fillText('Revise o plano completo online, efetue o pagamento e acompanhe tudo no seu painel.', 56, 206);
+
+  // Botão 1 (Fatia 2 — Coluna C, x = 1024..1440): Primário Branco "Efetuar pagamento →"
+  const btn1X = 1044;
+  const btn1Y = 100;
+  const btn1W = 376;
+  const btn1H = 88;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+  ctx.shadowBlur = 14;
+  ctx.shadowOffsetY = 4;
+  drawRoundedRectPath(ctx, btn1X, btn1Y, btn1W, btn1H, 22);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fill();
+  ctx.restore();
+
+  ctx.fillStyle = '#0F172A';
+  ctx.font = '700 23px "Plus Jakarta Sans", "Century Gothic", "Segoe UI", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Efetuar pagamento  ➔', btn1X + btn1W / 2, btn1Y + btn1H / 2 + 1);
+
+  // Botão 2 (Fatia 3 — Coluna D, x = 1440..1856): Secundário Outlined "Falar com especialista"
+  const btn2X = 1456;
+  const btn2Y = 100;
+  const btn2W = 356;
+  const btn2H = 88;
+  drawRoundedRectPath(ctx, btn2X, btn2Y, btn2W, btn2H, 22);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.fill();
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.stroke();
+
+  // Ícone de balão de conversa + label "Falar com especialista"
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 23px "Plus Jakarta Sans", "Century Gothic", "Segoe UI", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('💬  Falar com especialista', btn2X + btn2W / 2, btn2Y + btn2H / 2 + 1);
+
+  // Fatia o canvas nas 3 regiões exatas das colunas A:B (1024px), C (416px) e D (416px)
+  const sliceSpecs = [
+    { x: 0, w: 1024 },
+    { x: 1024, w: 416 },
+    { x: 1440, w: 416 }
+  ];
+
+  return sliceSpecs.map((sp) => {
+    const sc = document.createElement('canvas');
+    sc.width = sp.w;
+    sc.height = totalH;
+    const sctx = sc.getContext('2d');
+    sctx.drawImage(canvas, sp.x, 0, sp.w, totalH, 0, 0, sp.w, totalH);
+    return dataUrlToUint8Array(sc.toDataURL('image/png'));
+  });
+}
+
+let _crc32Table = null;
+function computeCrc32(bytes) {
+  if (!_crc32Table) {
+    _crc32Table = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) {
+        c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      }
+      _crc32Table[n] = c >>> 0;
+    }
+  }
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) {
+    crc = (_crc32Table[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8)) >>> 0;
+  }
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+/**
+ * Injeta as 3 fatias PNG contínuas do banner oficial do PDF e os respectivos hiperlinks (<a:hlinkClick>)
+ * diretamente na estrutura OOXML (.xlsx) da primeira aba ("ACESSAR O PLANO NO ADS").
+ */
+function injectBannerImagesIntoXlsxZip(xlsxBuffer, pngSlices, urls) {
+  const bytes = xlsxBuffer instanceof Uint8Array ? xlsxBuffer : new Uint8Array(xlsxBuffer);
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+
+  // Localiza End of Central Directory (EOCD: 0x06054b50)
+  let eocdPos = -1;
+  for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65557); i--) {
+    if (view.getUint32(i, true) === 0x06054b50) {
+      eocdPos = i;
+      break;
+    }
+  }
+  if (eocdPos < 0) return bytes;
+
+  const totalEntries = view.getUint16(eocdPos + 10, true);
+  const cdOffset = view.getUint32(eocdPos + 16, true);
+  const dec = new TextDecoder('utf-8');
+  const enc = new TextEncoder();
+
+  const entries = [];
+  const entryMap = new Map();
+  let ptr = cdOffset;
+  for (let i = 0; i < totalEntries; i++) {
+    if (view.getUint32(ptr, true) !== 0x02014b50) break;
+    const compMethod = view.getUint16(ptr + 10, true);
+    const modTime = view.getUint16(ptr + 12, true);
+    const modDate = view.getUint16(ptr + 14, true);
+    const crc32 = view.getUint32(ptr + 16, true);
+    const compSize = view.getUint32(ptr + 20, true);
+    const uncompSize = view.getUint32(ptr + 24, true);
+    const nameLen = view.getUint16(ptr + 28, true);
+    const extraLen = view.getUint16(ptr + 30, true);
+    const commentLen = view.getUint16(ptr + 32, true);
+    const localOffset = view.getUint32(ptr + 42, true);
+
+    const name = dec.decode(bytes.subarray(ptr + 46, ptr + 46 + nameLen));
+    const localNameLen = view.getUint16(localOffset + 26, true);
+    const localExtraLen = view.getUint16(localOffset + 28, true);
+    const dataStart = localOffset + 30 + localNameLen + localExtraLen;
+    const data = bytes.subarray(dataStart, dataStart + compSize);
+
+    const entry = { name, compMethod, modTime, modDate, crc32, compSize, uncompSize, data };
+    entries.push(entry);
+    entryMap.set(name, entry);
+    ptr += 46 + nameLen + extraLen + commentLen;
+  }
+
+  const upsertStoredEntry = (name, contentBytes) => {
+    const data = contentBytes instanceof Uint8Array ? contentBytes : enc.encode(String(contentBytes));
+    const crc = computeCrc32(data);
+    const existing = entryMap.get(name);
+    if (existing) {
+      existing.compMethod = 0;
+      existing.crc32 = crc;
+      existing.compSize = data.length;
+      existing.uncompSize = data.length;
+      existing.data = data;
+    } else {
+      const entry = {
+        name,
+        compMethod: 0,
+        modTime: 0,
+        modDate: 0x5621,
+        crc32: crc,
+        compSize: data.length,
+        uncompSize: data.length,
+        data
+      };
+      entries.push(entry);
+      entryMap.set(name, entry);
+    }
+  };
+
+  const xmlAttrEsc = (val) => String(val ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  // 1. Atualiza [Content_Types].xml para registrar image/png e drawing1.xml
+  const ctEntry = entryMap.get('[Content_Types].xml');
+  if (ctEntry && ctEntry.compMethod === 0) {
+    let ctXml = dec.decode(ctEntry.data);
+    if (!/Extension="png"/i.test(ctXml)) {
+      ctXml = ctXml.replace('</Types>', '<Default Extension="png" ContentType="image/png"/></Types>');
+    }
+    if (!/\/xl\/drawings\/drawing1\.xml/i.test(ctXml)) {
+      ctXml = ctXml.replace(
+        '</Types>',
+        '<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/></Types>'
+      );
+    }
+    upsertStoredEntry('[Content_Types].xml', ctXml);
+  }
+
+  // 2. Atualiza xl/worksheets/sheet1.xml para referenciar <drawing r:id="rIdDrawing1"/>
+  const sheet1Entry = entryMap.get('xl/worksheets/sheet1.xml');
+  if (sheet1Entry && sheet1Entry.compMethod === 0) {
+    let s1Xml = dec.decode(sheet1Entry.data);
+    if (!/xmlns:r=/i.test(s1Xml)) {
+      s1Xml = s1Xml.replace(
+        '<worksheet ',
+        '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
+      );
+    }
+    if (!/<drawing\b/i.test(s1Xml)) {
+      if (s1Xml.includes('<legacyDrawing')) {
+        s1Xml = s1Xml.replace('<legacyDrawing', '<drawing r:id="rIdDrawing1"/><legacyDrawing');
+      } else {
+        s1Xml = s1Xml.replace('</worksheet>', '<drawing r:id="rIdDrawing1"/></worksheet>');
+      }
+    }
+    upsertStoredEntry('xl/worksheets/sheet1.xml', s1Xml);
+  }
+
+  // 3. Atualiza ou cria xl/worksheets/_rels/sheet1.xml.rels para vincular rIdDrawing1 -> ../drawings/drawing1.xml
+  const sheet1RelsPath = 'xl/worksheets/_rels/sheet1.xml.rels';
+  const sheet1RelsEntry = entryMap.get(sheet1RelsPath);
+  const drawingRelTag = '<Relationship Id="rIdDrawing1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing1.xml"/>';
+  if (sheet1RelsEntry && sheet1RelsEntry.compMethod === 0) {
+    let relsXml = dec.decode(sheet1RelsEntry.data);
+    if (!/Id="rIdDrawing1"/i.test(relsXml)) {
+      relsXml = relsXml.replace('</Relationships>', `${drawingRelTag}</Relationships>`);
+    }
+    upsertStoredEntry(sheet1RelsPath, relsXml);
+  } else {
+    upsertStoredEntry(
+      sheet1RelsPath,
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${drawingRelTag}</Relationships>`
+    );
+  }
+
+  // 4. Cria xl/drawings/drawing1.xml com as 3 fatias ancoradas em A1:B3, C1:C3 e D1:D3 + <a:hlinkClick>
+  const anchorSpecs = [
+    { id: 2, name: 'BannerAquiAdsLeft', descr: 'Aqui ads - Sua marca no lugar certo', fromCol: 0, toCol: 2, imgRid: 'rIdImg1', linkRid: 'rIdLink1', tooltip: 'Acessar proposta online no Aqui Ads' },
+    { id: 3, name: 'BannerAquiAdsPay', descr: 'Efetuar pagamento', fromCol: 2, toCol: 3, imgRid: 'rIdImg2', linkRid: 'rIdLink2', tooltip: 'Efetuar pagamento da proposta' },
+    { id: 4, name: 'BannerAquiAdsSpec', descr: 'Falar com especialista', fromCol: 3, toCol: 4, imgRid: 'rIdImg3', linkRid: 'rIdLink3', tooltip: 'Falar com especialista' }
+  ];
+
+  const anchorsXml = anchorSpecs.map((a) => `
+    <xdr:twoCellAnchor editAs="oneCell">
+      <xdr:from><xdr:col>${a.fromCol}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from>
+      <xdr:to><xdr:col>${a.toCol}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>3</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to>
+      <xdr:pic>
+        <xdr:nvPicPr>
+          <xdr:cNvPr id="${a.id}" name="${a.name}" descr="${a.descr}">
+            <a:hlinkClick xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:id="${a.linkRid}" tooltip="${a.tooltip}"/>
+          </xdr:cNvPr>
+          <xdr:cNvPicPr><a:picLocks noChangeAspect="0"/></xdr:cNvPicPr>
+        </xdr:nvPicPr>
+        <xdr:blipFill>
+          <a:blip r:embed="${a.imgRid}"/>
+          <a:stretch><a:fillRect/></a:stretch>
+        </xdr:blipFill>
+        <xdr:spPr>
+          <a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></a:xfrm>
+          <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+        </xdr:spPr>
+      </xdr:pic>
+      <xdr:clientData/>
+    </xdr:twoCellAnchor>`).join('');
+
+  const drawing1Xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">${anchorsXml}</xdr:wsDr>`;
+  upsertStoredEntry('xl/drawings/drawing1.xml', drawing1Xml);
+
+  // 5. Cria xl/drawings/_rels/drawing1.xml.rels com as imagens e as URLs externas de redirecionamento
+  const drawing1RelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+    `<Relationship Id="rIdImg1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>` +
+    `<Relationship Id="rIdImg2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image2.png"/>` +
+    `<Relationship Id="rIdImg3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image3.png"/>` +
+    `<Relationship Id="rIdLink1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${xmlAttrEsc(urls.onlineProposalUrl)}" TargetMode="External"/>` +
+    `<Relationship Id="rIdLink2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${xmlAttrEsc(urls.paymentRedirectUrl)}" TargetMode="External"/>` +
+    `<Relationship Id="rIdLink3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${xmlAttrEsc(urls.specialistRedirectUrl)}" TargetMode="External"/>` +
+    `</Relationships>`;
+  upsertStoredEntry('xl/drawings/_rels/drawing1.xml.rels', drawing1RelsXml);
+
+  // 6. Adiciona as 3 fatias PNG em xl/media/image1..3.png
+  upsertStoredEntry('xl/media/image1.png', pngSlices[0]);
+  upsertStoredEntry('xl/media/image2.png', pngSlices[1]);
+  upsertStoredEntry('xl/media/image3.png', pngSlices[2]);
+
+  // 7. Reempacota o arquivo ZIP (.xlsx)
+  const nameBytesList = entries.map((e) => enc.encode(e.name));
+  let localTotalSize = 0;
+  let cdTotalSize = 0;
+  for (let i = 0; i < entries.length; i++) {
+    localTotalSize += 30 + nameBytesList[i].length + entries[i].data.length;
+    cdTotalSize += 46 + nameBytesList[i].length;
+  }
+
+  const out = new Uint8Array(localTotalSize + cdTotalSize + 22);
+  const outView = new DataView(out.buffer);
+  const localOffsets = new Uint32Array(entries.length);
+
+  let wPos = 0;
+  for (let i = 0; i < entries.length; i++) {
+    const e = entries[i];
+    const nb = nameBytesList[i];
+    localOffsets[i] = wPos;
+
+    outView.setUint32(wPos, 0x04034b50, true);
+    outView.setUint16(wPos + 4, 20, true);
+    outView.setUint16(wPos + 6, 0, true);
+    outView.setUint16(wPos + 8, e.compMethod, true);
+    outView.setUint16(wPos + 10, e.modTime, true);
+    outView.setUint16(wPos + 12, e.modDate, true);
+    outView.setUint32(wPos + 14, e.crc32, true);
+    outView.setUint32(wPos + 18, e.compSize, true);
+    outView.setUint32(wPos + 22, e.uncompSize, true);
+    outView.setUint16(wPos + 26, nb.length, true);
+    outView.setUint16(wPos + 28, 0, true);
+    out.set(nb, wPos + 30);
+    out.set(e.data, wPos + 30 + nb.length);
+    wPos += 30 + nb.length + e.data.length;
+  }
+
+  const newCdStart = wPos;
+  for (let i = 0; i < entries.length; i++) {
+    const e = entries[i];
+    const nb = nameBytesList[i];
+    outView.setUint32(wPos, 0x02014b50, true);
+    outView.setUint16(wPos + 4, 20, true);
+    outView.setUint16(wPos + 6, 20, true);
+    outView.setUint16(wPos + 8, 0, true);
+    outView.setUint16(wPos + 10, e.compMethod, true);
+    outView.setUint16(wPos + 12, e.modTime, true);
+    outView.setUint16(wPos + 14, e.modDate, true);
+    outView.setUint32(wPos + 16, e.crc32, true);
+    outView.setUint32(wPos + 20, e.compSize, true);
+    outView.setUint32(wPos + 24, e.uncompSize, true);
+    outView.setUint16(wPos + 28, nb.length, true);
+    outView.setUint16(wPos + 30, 0, true);
+    outView.setUint16(wPos + 32, 0, true);
+    outView.setUint16(wPos + 34, 0, true);
+    outView.setUint16(wPos + 36, 0, true);
+    outView.setUint32(wPos + 38, 0, true);
+    outView.setUint32(wPos + 42, localOffsets[i], true);
+    out.set(nb, wPos + 46);
+    wPos += 46 + nb.length;
+  }
+
+  outView.setUint32(wPos, 0x06054b50, true);
+  outView.setUint16(wPos + 4, 0, true);
+  outView.setUint16(wPos + 6, 0, true);
+  outView.setUint16(wPos + 8, entries.length, true);
+  outView.setUint16(wPos + 10, entries.length, true);
+  outView.setUint32(wPos + 12, cdTotalSize, true);
+  outView.setUint32(wPos + 16, newCdStart, true);
+  outView.setUint16(wPos + 20, 0, true);
+
+  return out;
+}
+
 function exportFullCsv() {
   const m = getCurrentModel();
   const f = m.financials;
@@ -9985,9 +10410,9 @@ function exportFullCsv() {
   const sheetsData = [];
 
   // ==========================================================================
-  // 1. CAPA INSTITUCIONAL DE ABERTURA: "ACESSAR O PLANO NO ADS" (Banner Visual Aqui Ads + Botões de Redirecionamento)
+  // 1. CAPA INSTITUCIONAL DE ABERTURA: "ACESSAR O PLANO NO ADS" (Imagem Oficial do Banner do PDF com Links Clicáveis)
   // ==========================================================================
-  const coverColsCount = 7;
+  const coverColsCount = 4;
   const coverRows = [];
   const coverMeta = {};
   const coverMerges = [];
@@ -10005,66 +10430,51 @@ function exportFullCsv() {
     return idx;
   };
 
-  // Banner Visual Aqui Ads (5 linhas x 7 colunas A:G sem bordas internas — idêntico à referência visual do PDF com botões isolados à direita)
-  pushCoverRow(['', '', '', '', '', '', ''], { type: 'hero_banner_pad', maxCol: coverColsCount });
-
-  const cBrandIdx = pushCoverRow(['', 'Aqui ads ®', '', '', '', '', ''], { type: 'hero_banner_brand', maxCol: coverColsCount });
-  coverMerges.push({ s: { r: cBrandIdx, c: 1 }, e: { r: cBrandIdx, c: 2 } });
-
-  const cHeroIdx = pushCoverRow([
+  // Porção superior (Linhas 1 a 3, colunas A:D): substituída integralmente pela imagem do banner do PDF com links clicáveis:
+  // - Fatia 1 (A1:B3): Logo Aqui ads ® + "Sua marca no lugar certo." -> redireciona para a Proposta Online
+  // - Fatia 2 (C1:C3): Botão "Efetuar pagamento →" -> redireciona para Pagamento (?action=payment)
+  // - Fatia 3 (D1:D3): Botão "💬 Falar com especialista" -> redireciona para Especialista (?action=specialist)
+  pushCoverRow([
+    'Sua marca no lugar certo. — Acessar proposta online',
     '',
-    'Sua marca no lugar certo.',
-    '',
-    'Efetuar pagamento  ➔',
-    '',
-    '💬 Falar com especialista',
-    ''
+    'Efetuar pagamento',
+    'Falar com especialista'
   ], {
-    type: 'hero_banner_main',
+    type: 'hero_banner_img',
     maxCol: coverColsCount,
     useFormulaLink: true,
     hyperlinks: {
-      3: paymentRedirectUrl,
-      5: specialistRedirectUrl
+      0: onlineProposalUrl,
+      2: paymentRedirectUrl,
+      3: specialistRedirectUrl
     }
   });
-  coverMerges.push({ s: { r: cHeroIdx, c: 1 }, e: { r: cHeroIdx, c: 2 } });
-
-  const cSubIdx = pushCoverRow([
-    '',
-    'Revise o plano completo online, efetue o pagamento e acompanhe tudo no seu painel.',
-    '',
-    '',
-    '',
-    '',
-    ''
-  ], { type: 'hero_banner_sub', maxCol: coverColsCount });
-  coverMerges.push({ s: { r: cSubIdx, c: 1 }, e: { r: cSubIdx, c: 2 } });
-
-  pushCoverRow(['', '', '', '', '', '', ''], { type: 'hero_banner_pad', maxCol: coverColsCount });
+  pushCoverRow(['', '', '', ''], { type: 'hero_banner_img', maxCol: coverColsCount });
+  pushCoverRow(['', '', '', ''], { type: 'hero_banner_img', maxCol: coverColsCount });
+  coverMerges.push({ s: { r: 0, c: 0 }, e: { r: 2, c: 1 } });
+  coverMerges.push({ s: { r: 0, c: 2 }, e: { r: 2, c: 2 } });
+  coverMerges.push({ s: { r: 0, c: 3 }, e: { r: 2, c: 3 } });
 
   pushCoverRow([], { type: 'spacer' });
 
-  // Bloco Resumo Executivo padronizado na mesma largura do Banner (colunas A:G)
-  const cSecIdx = pushCoverRow(['RESUMO EXECUTIVO DA PROPOSTA COMERCIAL', '', '', '', '', '', ''], { type: 'orange_section', maxCol: coverColsCount });
+  // Bloco Resumo Executivo padronizado na mesma largura do Banner (colunas A:D)
+  const cSecIdx = pushCoverRow(['RESUMO EXECUTIVO DA PROPOSTA COMERCIAL', '', '', ''], { type: 'orange_section', maxCol: coverColsCount });
   coverMerges.push({ s: { r: cSecIdx, c: 0 }, e: { r: cSecIdx, c: coverColsCount - 1 } });
 
-  const cHdrIdx = pushCoverRow(['Campo', '', 'Detalhamento da Proposta', '', '', '', ''], { type: 'table_header', maxCol: coverColsCount });
-  coverMerges.push({ s: { r: cHdrIdx, c: 0 }, e: { r: cHdrIdx, c: 1 } });
-  coverMerges.push({ s: { r: cHdrIdx, c: 2 }, e: { r: cHdrIdx, c: coverColsCount - 1 } });
+  const cHdrIdx = pushCoverRow(['Campo', 'Detalhamento da Proposta', '', ''], { type: 'table_header', maxCol: coverColsCount });
+  coverMerges.push({ s: { r: cHdrIdx, c: 1 }, e: { r: cHdrIdx, c: coverColsCount - 1 } });
 
   const pushCoverKv = (label, val, opts = {}) => {
-    const rIdx = pushCoverRow([label, '', val, '', '', '', ''], {
+    const rIdx = pushCoverRow([label, val, '', ''], {
       type: 'kv_row',
       maxCol: coverColsCount,
-      keyCols: [0, 1],
+      keyCols: [0],
       boldValue: Boolean(opts.boldValue),
       italicValue: Boolean(opts.italicValue),
       useFormulaLink: Boolean(opts.hyperlink),
-      hyperlinks: opts.hyperlink ? { 2: opts.hyperlink } : undefined
+      hyperlinks: opts.hyperlink ? { 1: opts.hyperlink } : undefined
     });
-    coverMerges.push({ s: { r: rIdx, c: 0 }, e: { r: rIdx, c: 1 } });
-    coverMerges.push({ s: { r: rIdx, c: 2 }, e: { r: rIdx, c: coverColsCount - 1 } });
+    coverMerges.push({ s: { r: rIdx, c: 1 }, e: { r: rIdx, c: coverColsCount - 1 } });
   };
 
   pushCoverKv('Código da proposta', proposalDisplayId, { boldValue: true });
@@ -10075,15 +10485,14 @@ function exportFullCsv() {
   pushCoverKv(billingDocTypeLabel, billingCnpj);
   pushCoverKv('Período de veiculação', `${m.startDate} a ${m.endDate} (${m.durationDays} dias corridos)`);
   pushCoverKv('Canais contemplados', activeChannelsList, { italicValue: true });
-  pushCoverKv('Link direto da proposta online', 'Acessar proposta interativa no navegador ➔', { hyperlink: onlineProposalUrl });
+  pushCoverKv('Link direto da proposta online', onlineProposalUrl, { hyperlink: onlineProposalUrl });
 
-  const cTotIdx = pushCoverRow(['Investimento total líquido', '', Number(f.trueProposalTotal.toFixed(2)), '', '', '', ''], {
+  const cTotIdx = pushCoverRow(['Investimento total líquido', '', '', Number(f.trueProposalTotal.toFixed(2))], {
     type: 'subtotal',
     maxCol: coverColsCount,
-    currencyCols: [2]
+    currencyCols: [3]
   });
-  coverMerges.push({ s: { r: cTotIdx, c: 0 }, e: { r: cTotIdx, c: 1 } });
-  coverMerges.push({ s: { r: cTotIdx, c: 2 }, e: { r: cTotIdx, c: coverColsCount - 1 } });
+  coverMerges.push({ s: { r: cTotIdx, c: 0 }, e: { r: cTotIdx, c: 2 } });
 
   sheetsData.push({
     name: 'ACESSAR O PLANO NO ADS',
@@ -10092,13 +10501,10 @@ function exportFullCsv() {
     merges: coverMerges,
     rowMeta: coverMeta,
     customCols: [
-      { wch: 3 },
       { wch: 30 },
-      { wch: 28 },
-      { wch: 24 },
-      { wch: 3 },
+      { wch: 34 },
       { wch: 26 },
-      { wch: 3 }
+      { wch: 26 }
     ]
   });
 
@@ -10682,7 +11088,7 @@ function exportFullCsv() {
         'Emissora',
         'Praça (Cidade/UF)',
         'Programa',
-        'Frequência e faixa horária',
+        'Faixa horária',
         'Período de Veiculação',
         'Formato',
         'Spots/sem.',
@@ -10705,7 +11111,7 @@ function exportFullCsv() {
         rd.stationName,
         `${rd.city}/${rd.state}`,
         rd.cleanTitle || rd.programLabel,
-        `${rd.frequencyDaysLabel} · ${rd.timeWindow}`,
+        rd.timeWindow,
         `${m.startDate} a ${m.endDate}`,
         `Spot ${rd.spotDuration}"`,
         rd.weeklyInsertions,
@@ -10797,7 +11203,7 @@ function exportFullCsv() {
     italicCols: [5]
   });
 
-  // Exportação nativa em .xlsx estilizada via SheetJS (xlsx-js-style)
+  // Exportação nativa em .xlsx estilizada via SheetJS (xlsx-js-style) + injeção da imagem oficial do banner do PDF com links clicáveis na 1ª aba
   if (typeof window !== 'undefined' && window.XLSX && window.XLSX.utils) {
     const wb = window.XLSX.utils.book_new();
     sheetsData.forEach((sheet) => {
@@ -10806,7 +11212,32 @@ function exportFullCsv() {
       ws['!cols'] = sheet.customCols || autoFitSheetColumns(sheet.rows, 16);
       window.XLSX.utils.book_append_sheet(wb, ws, String(sheet.name || '').toUpperCase().slice(0, 31));
     });
-    window.XLSX.writeFile(wb, `proposta_aquiads_${m.id}.xlsx`);
+
+    try {
+      const bannerSlices = renderExcelHeroBannerSlices();
+      const rawXlsxBuffer = window.XLSX.write(wb, { bookType: 'xlsx', type: 'array', compression: false });
+      const finalXlsxBytes = bannerSlices
+        ? injectBannerImagesIntoXlsxZip(rawXlsxBuffer, bannerSlices, {
+            onlineProposalUrl,
+            paymentRedirectUrl,
+            specialistRedirectUrl
+          })
+        : new Uint8Array(rawXlsxBuffer);
+      const blob = new Blob([finalXlsxBytes], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `proposta_aquiads_${m.id}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(link.href);
+        link.remove();
+      }, 250);
+    } catch (_err) {
+      window.XLSX.writeFile(wb, `proposta_aquiads_${m.id}.xlsx`);
+    }
     showToast('Planilha Excel (.xlsx) exportada no padrão executivo');
     return;
   }

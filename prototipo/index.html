@@ -66,7 +66,10 @@
           boxShadow: {
             'aqui-card': '0 10px 30px -15px rgba(18, 18, 18, 0.06)',
             'aqui-cta': '0 8px 22px -10px rgba(241, 90, 34, 0.55)',
-            'aqui-pill': '0 6px 16px -6px rgba(241, 90, 34, 0.45)'
+            'aqui-pill': '0 6px 16px -6px rgba(241, 90, 34, 0.45)',
+            'card': '0 4px 16px -4px rgba(18, 18, 18, 0.06), 0 2px 6px -1px rgba(18, 18, 18, 0.03)',
+            'xs': '0 1px 3px 0 rgba(18, 18, 18, 0.05)',
+            '2xs': '0 1px 2px 0 rgba(18, 18, 18, 0.04)'
           }
         }
       }
@@ -544,13 +547,13 @@
 
         <!-- Ações do Header (Compartilhar + Exportar) -->
         <div class="flex items-center gap-2">
-          <button onclick="copyShareLink()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-ds-borderStrong bg-white hover:bg-ds-bg text-ds-textMain font-bold text-xs transition" title="Compartilhar link">
+          <button onclick="copyShareLink()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-semibold text-xs shadow-2xs transition" title="Compartilhar link">
             <i class="uil uil-share-alt text-primary text-sm"></i>
             <span class="hidden sm:inline sim-hide-mobile">Compartilhar link</span>
           </button>
 
           <div class="relative" id="exportDropdownContainer">
-            <button onclick="toggleExportMenu()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-ds-borderStrong bg-white hover:bg-ds-bg text-ds-textMain font-bold text-xs transition">
+            <button onclick="toggleExportMenu()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-semibold text-xs shadow-2xs transition">
               <i class="uil uil-import text-primary text-sm"></i>
               <span>Exportar</span>
               <i class="uil uil-angle-down text-sm text-ds-textSecondary"></i>
@@ -653,12 +656,12 @@
   <div id="pdfViewportWrapper" class="hidden flex-1 w-full bg-[#E8E3DC] py-6 px-3 sm:px-6"></div>
 
   <!-- TOAST DE FEEDBACK -->
-  <div id="toastNotification" class="no-print hidden fixed bottom-5 right-5 z-50 bg-aqui-ink text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center gap-2.5 text-xs font-medium">
+  <div id="toastNotification" class="no-print hidden fixed bottom-5 right-5 z-50 bg-aqui-ink text-white px-4 py-3 rounded-xl shadow-lg border border-ds-textSecondary flex items-center gap-2.5 text-xs font-medium">
     <i class="uil uil-check-circle text-emerald-400 text-lg"></i>
     <span id="toastMessage">Ação realizada</span>
   </div>
 
-  <script src="data-scenarios.js?v=20261105_164"></script>
-  <script src="app.js?v=20261105_164"></script>
+  <script src="data-scenarios.js?v=20261105_170"></script>
+  <script src="app.js?v=20261105_170"></script>
 </body>
 </html>
