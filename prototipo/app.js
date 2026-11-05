@@ -24,6 +24,7 @@ const state = {
   heroCouponOpen: false,   // controle do input de cupom direto no card de Valor Total do Hero
   couponCode: 'AQUIADS10',
   simulateCoupon: false,
+  isAdminView: false,      // false = Visão Cliente (oculta IDs técnicos) | true = Visão Admin (exibe IDs técnicos)
   simulateUnlogged: false, // por padrão carrega na Jornada Logada Padrão (CPF) ao atualizar
   authCompleted: true,     // true na jornada logada padrão (ou após concluir Login/Cadastro)
   authModalOpen: false,    // controla exibição do modal de Login / Cadastro (Imagens 1 e 2)
@@ -46,6 +47,27 @@ const state = {
   andreiaInputAddress: 'Av. Brigadeiro Faria Lima, 3477 - Itaim Bibi, São Paulo/SP',
   expandedCondos: { '1624': false },
   expandedCardMetrics: {},
+  summaryMetricsExpanded: {
+    ooh: false,
+    portais: false,
+    revistas: false,
+    radio: false
+  },
+  paymentCheckoutStep: 1,  // 1 = Dados de faturamento | 2 = Pagamento
+  billingFormOpen: false,  // true quando o formulário inline de faturamento está aberto na Etapa 1
+  billingPersonType: 'CPF', // 'CNPJ' | 'CPF' (Sempre prioriza CNPJ quando atualizado pelo titular)
+  billingPjRole: 'empresa', // 'autonomo' | 'empresa' | 'agencia'
+  billingPhone: '(11) 99876-5432',
+  billingSegment: 'Varejo e Comércio',
+  billingStreet: 'Av. Brigadeiro Faria Lima',
+  billingNumber: '3477',
+  billingDistrict: 'Itaim Bibi',
+  billingComplement: '14º andar',
+  billingCity: 'São Paulo',
+  billingState: 'SP',
+  creatorSyncedCnpj: false,
+  creatorName: 'Natalia Ferreira',
+  creatorEmail: 'natalia.ferreira@aqui.globo',
   paymentMethod: 'card',   // null | 'card' | 'pix' | 'boleto'
   cardMode: 'saved',       // 'saved' | 'new'
   selectedInstallments: 6,
@@ -155,7 +177,6 @@ const PORTAL_BADGE_CLASSES = {
   'ge': 'bg-[#00873D] text-white',
   'gshow': 'bg-[#F58220] text-white',
   'receitas': 'bg-[#BF57BF] text-white',
-  'cartola': 'bg-[#E3672B] text-white',
   'globoplay': 'bg-[#CC092F] text-white',
   'globo.com': 'bg-[#0B66F6] text-white',
   'extra': 'bg-[#1F262E] text-white',
@@ -885,6 +906,7 @@ function buildNormalizedModel(rawPayload) {
             const net = Number(t.total_price || tp.price) || 0;
             const tIns = Number(tp.period_insertions) || 0;
             const tImp = Number(t?.metrics?.impacts ?? tIns) || 0;
+            const tReach = Number(t?.metrics?.reach ?? Math.max(80, Math.round(tImp / 3.40))) || 0;
             return {
               index: idx + 1,
               code: tp.id || tp.code,
@@ -893,7 +915,9 @@ function buildNormalizedModel(rawPayload) {
               periodInsertions: tIns,
               dailyInsertions: Math.round(tIns / durationDays),
               impacts: tImp,
+              reach: tReach,
               originalPrice: orig,
+              residentDiscount: Math.max(0, orig - net),
               netPrice: net
             };
           })
@@ -1201,7 +1225,7 @@ function buildNormalizedModel(rawPayload) {
 
   return {
     id: rawPayload.id || 743446,
-    campaignName: campaign.name || 'Campanha Multicanal',
+    campaignName: String(campaign.name || '').trim(),
     startDate: dateRange.start,
     endDate: dateRange.end,
     durationDays,
@@ -1278,9 +1302,9 @@ function buildNormalizedModel(rawPayload) {
         channelTypeLabel: isStreaming ? 'Globoplay' : 'Portais Globo',
         subtitleContext: isStreaming
           ? 'Streaming sob demanda · Smart TVs, Web e Mobile'
-          : 'Rede de portais · G1, GE, Gshow, Receitas, Cartola e Globo.com',
+          : 'Rede de portais · G1, GE, Gshow, Receitas e Globo.com',
         techSpecFooter: isVideo ? 'Full HD 16:9 (1920×1080 px)' : '6 formatos web e mobile',
-        vehicles: isStreaming ? ['globoplay'] : ['g1', 'ge', 'gshow', 'receitas', 'cartola', 'globo.com'],
+        vehicles: isStreaming ? ['globoplay'] : ['g1', 'ge', 'gshow', 'receitas', 'globo.com'],
         cpm: getDigitalItemCpm(it),
         impressions: getDigitalItemImpressions(it),
         totalPrice: getDigitalItemInvestment(it),
@@ -1398,7 +1422,7 @@ function initApp() {
     window.PROPOSAL_SCENARIOS.so_digital = buildSingleChannelScenario(
       'so_digital',
       '5. Só Digital — Portais e Globoplay (5 formatos)',
-      'Campanha exclusiva em Portais Globo (G1, GE, Gshow, Receitas, Cartola) e Globoplay.',
+      'Campanha exclusiva em Portais Globo (G1, GE, Gshow, Receitas) e Globoplay.',
       'portais',
       'DIG',
       743451
@@ -1664,8 +1688,31 @@ function isPaymentMethodsBlocked() {
   return Boolean(state.simulateUnlogged && (!state.billingUnlockedInline || state.billingCnpjRestricted));
 }
 
+function syncAdminViewControls() {
+  if (typeof document === 'undefined') return;
+  const btnClient = document.getElementById('btnRoleClient');
+  const btnAdmin = document.getElementById('btnRoleAdmin');
+  if (btnClient && btnAdmin) {
+    const isAdmin = Boolean(state.isAdminView);
+    btnClient.className = !isAdmin
+      ? 'px-2.5 py-1 rounded-md font-bold bg-primary text-white transition flex items-center gap-1 cursor-pointer'
+      : 'px-2.5 py-1 rounded-md font-semibold text-ds-textSecondary hover:text-ds-textMain transition flex items-center gap-1 cursor-pointer';
+    btnAdmin.className = isAdmin
+      ? 'px-2.5 py-1 rounded-md font-bold bg-primary text-white transition flex items-center gap-1 cursor-pointer'
+      : 'px-2.5 py-1 rounded-md font-semibold text-ds-textSecondary hover:text-ds-textMain transition flex items-center gap-1 cursor-pointer';
+  }
+}
+
+function setAdminViewMode(isAdmin) {
+  state.isAdminView = Boolean(isAdmin);
+  syncAdminViewControls();
+  renderAll();
+  showToast(state.isAdminView ? 'Visão Admin ativada (IDs técnicos visíveis)' : 'Visão Cliente ativada (IDs técnicos ocultos)');
+}
+
 function syncJourneySimulationControls() {
   if (typeof document === 'undefined') return;
+  syncAdminViewControls();
   const unloggedChk = document.getElementById('toggleUnlogged');
   if (unloggedChk) {
     unloggedChk.checked = Boolean(state.simulateUnlogged);
@@ -1686,30 +1733,35 @@ function syncJourneySimulationControls() {
 function applyJourneySimulationMode(mode, shouldRender = true) {
   const isUnlogged = mode === 'unlogged';
   state.simulateUnlogged = isUnlogged;
+  state.paymentCheckoutStep = 1;
   if (isUnlogged) {
     state.authCompleted = false;
     state.authModalOpen = false;
     state.billingUnlockedInline = false;
+    state.billingFormOpen = false;
     state.billingCnpjRestricted = false;
     state.andreiaChatOpen = false;
     state.andreiaStep = 'select_type';
     state.andreiaProfileType = null;
-    state.paymentMethod = null;
-    if (state.activeTab === 'pagamento') {
-      state.activeTab = 'plano';
+    state.creatorSyncedCnpj = false;
+    if (!state.paymentMethod) {
+      state.paymentMethod = 'card';
     }
   } else {
     state.authCompleted = true;
     state.authModalOpen = false;
     state.billingUnlockedInline = true;
+    state.billingFormOpen = false;
     state.billingCnpjRestricted = false;
     state.andreiaChatOpen = false;
     state.andreiaStep = 'unlocked';
     state.andreiaProfileType = 'CPF';
+    state.billingPersonType = 'CPF';
     state.andreiaInputDoc = '123.456.789-00';
     state.andreiaInputName = 'Natalia Ferreira';
     state.billingCompany = 'Natalia Ferreira';
     state.billingDoc = '123.456.789-00';
+    state.creatorSyncedCnpj = false;
     if (!state.paymentMethod) {
       state.paymentMethod = 'card';
     }
@@ -1727,22 +1779,6 @@ function setJourneySimulationMode(mode) {
 function renderAll() {
   const model = getCurrentModel();
   syncJourneySimulationControls();
-  if (state.simulateUnlogged && state.billingUnlockedInline) {
-    const onlyOoh = isCampaignOnlyOoh(model);
-    if (onlyOoh || state.andreiaProfileType === 'CPF') {
-      if (state.billingCnpjRestricted) {
-        state.billingCnpjRestricted = false;
-        if (!state.paymentMethod) state.paymentMethod = 'card';
-        if (state.andreiaStep === 'restricted') state.andreiaStep = 'unlocked';
-      }
-    } else if (state.andreiaProfileType === 'CNPJ' && state.andreiaSimulateRestricted) {
-      if (!state.billingCnpjRestricted) {
-        state.billingCnpjRestricted = true;
-        state.paymentMethod = null;
-        if (state.andreiaStep === 'unlocked') state.andreiaStep = 'restricted';
-      }
-    }
-  }
   ensureValidActiveChannel(model);
   syncMainTabLabels();
   renderJourneyStepper(model);
@@ -1770,65 +1806,17 @@ function renderAll() {
 
 /**
  * ============================================================================
- * 0. STEPPER DE JORNADA DO TOPO (FIGMA 3387-12075: 1. Resumo — 2. Pagamento — 3. Ativar campanha)
+ * 0. STEPPER REMOVIDO DO TOPO (AGORA INTEGRADO DENTRO DA ABA DE PAGAMENTO)
  * ============================================================================
  */
 function renderJourneyStepper() {
-  const isPaidOrDone = state.proposalStatus === 'processing' || state.proposalStatus === 'completed' || state.orderSubmitted;
-  const step = isPaidOrDone ? 3 : state.activeTab === 'pagamento' ? 2 : 1;
-
-  const step3Label = state.proposalStatus === 'completed'
-    ? 'Concluída'
-    : isPaidOrDone
-    ? 'Ativa'
-    : 'Ativar';
-  const step3FullLabel = state.proposalStatus === 'completed'
-    ? 'Campanha concluída'
-    : isPaidOrDone
-    ? 'Campanha ativa'
-    : 'Ativar campanha';
-
-  const steps = [
-    { num: 1, label: 'Resumo', action: "goToJourneyStep(1)" },
-    { num: 2, label: 'Pagamento', action: "goToJourneyStep(2)" },
-    { num: 3, label: step3Label, fullLabel: step3FullLabel, action: "goToJourneyStep(3)" }
-  ];
-
-  const buildStepperHtml = (compact = false) => `
-    <div class="inline-flex items-center ${compact ? 'w-full justify-between bg-white px-3.5 py-2 rounded-xl border border-ds-border shadow-sm' : 'gap-2.5'} text-xs">
-      ${steps.map((s, idx) => {
-        const isDone = step > s.num || (isPaidOrDone && s.num === 3);
-        const isCurrent = step === s.num && !isDone;
-        const circleClass = isDone
-          ? 'bg-emerald-600 text-white'
-          : isCurrent
-          ? 'bg-primary text-white shadow-sm'
-          : 'bg-ds-bg text-ds-textMuted border border-ds-borderStrong';
-        const labelClass = isCurrent
-          ? 'font-display font-bold text-ds-textMain'
-          : isDone
-          ? 'font-semibold text-emerald-700'
-          : 'font-medium text-ds-textMuted';
-
-        return `
-          <button onclick="${s.action}" class="inline-flex items-center gap-1.5 group transition whitespace-nowrap">
-            <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center font-display font-bold text-[11px] transition ${circleClass}">
-              ${isDone ? '<i class="uil uil-check text-xs"></i>' : s.num}
-            </span>
-            <span class="${labelClass} group-hover:text-primary transition">${compact && s.fullLabel ? s.label : (s.fullLabel || s.label)}</span>
-          </button>
-          ${idx < steps.length - 1 ? `
-            <span class="${compact ? 'flex-1 mx-2' : 'w-8'} h-[1.5px] ${step > s.num ? 'bg-emerald-500' : 'bg-ds-borderStrong'}"></span>
-          ` : ''}
-        `;
-      }).join('')}
-    </div>
-  `;
-
   const desktopEl = document.getElementById('journeyStepperContainer');
   const mobileEl = document.getElementById('journeyStepperMobileContainer');
-  if (desktopEl) desktopEl.innerHTML = buildStepperHtml(false);
-  if (mobileEl) mobileEl.innerHTML = buildStepperHtml(true);
+  if (desktopEl) desktopEl.innerHTML = '';
+  if (mobileEl) {
+    mobileEl.innerHTML = '';
+    mobileEl.classList.add('hidden');
+  }
 }
 
 function setProposalStatus(newStatus) {
@@ -1886,19 +1874,11 @@ function goToJourneyStep(stepNum) {
     switchMainTab('plano');
     scrollActiveViewportToTop(true);
   } else if (stepNum === 2) {
-    if (isUserUnlogged()) {
-      openAuthModal('login');
-      return;
-    }
     if (state.proposalStatus !== 'awaiting') {
       setProposalStatus('awaiting');
     }
     goToPaymentAnchor();
   } else if (stepNum === 3) {
-    if (isUserUnlogged()) {
-      openAuthModal('login');
-      return;
-    }
     if (state.proposalStatus === 'awaiting') {
       setProposalStatus('processing');
     }
@@ -1913,12 +1893,13 @@ function goToJourneyStep(stepNum) {
 
 /**
  * ============================================================================
- * 1. HERO DA PROPOSTA & RESUMO FINANCEIRO (MANUAL DE MARCA + FIGMA 3387-12075)
- * - No Mobile, quantidades de itens ficam empilhadas abaixo do título do canal.
- * - Suporta os 3 status da proposta:
- *   1) Aguardando pagamento
- *   2) Em processamento (seção de pagamento reduzida visualmente)
- *   3) Proposta concluída (seção reduzida + item "Renovar campanha")
+ * 1. HERO DA PROPOSTA & RESUMO FINANCEIRO
+ * - Desktop: Coluna esquerda com Plano de mídia + Status + Valor + Botões ("Efetuar pagamento"
+ *   e abaixo/ao lado "Alterar proposta"); Separador vertical central; Coluna direita com
+ *   Período, Duração, Pontos e "Criado por Natalia Ferreira (natalia.ferreira@aqui.globo)".
+ * - Mobile: Card organizado com Status + Nome (se houver), Investimento total em destaque,
+ *   CTAs full-width ("efetuar pagamento" e "alterar proposta"), divisória e grid de
+ *   Período (Início/Fim), Duração, Pontos + "Criado por ...".
  * ============================================================================
  */
 function formatHeroShortPeriod(startDateStr, endDateStr) {
@@ -1949,6 +1930,7 @@ function renderHeroSection(m) {
   const hasDiscounts = f.totalDiscounts > 0;
   const mobile = isMobileView();
   const displayProposalId = state.clonedScenariosCount > 0 ? `${m.id}-R${state.clonedScenariosCount}` : m.id;
+  const creatorLabel = `Criado por ${state.creatorName || 'Natalia Ferreira'} (${state.creatorEmail || 'natalia.ferreira@aqui.globo'})`;
 
   const statusMeta = state.proposalStatus === 'completed'
     ? {
@@ -1973,118 +1955,259 @@ function renderHeroSection(m) {
   const thirdMetricLabel = c.oohPointsCount > 0 ? 'PONTOS' : 'PRODUTOS';
   const thirdMetricValue = c.oohPointsCount > 0 ? fmtInt(c.oohPointsCount) : fmtInt(c.totalItems);
 
-  const actionButtonsHtml = state.proposalStatus === 'completed' ? `
-    <button
-      type="button"
-      onclick="goToPaymentAnchor()"
-      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap"
-    >
-      Ver pagamento
-    </button>
-    <button
-      type="button"
-      onclick="renewCampaignProposal('${displayProposalId}')"
-      data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap"
-    >
-      Renovar campanha
-    </button>
+  const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
+  const topEyebrowLabel = hasCampaignName
+    ? `Plano de mídia · ${escapeHtml(m.campaignName)}`
+    : 'Plano de mídia';
+
+  // Botões do Hero: Principal ("Efetuar pagamento") primeiro e "Alterar proposta" logo abaixo/ao lado no lado esquerdo
+  const desktopActionButtonsHtml = state.proposalStatus === 'completed' ? `
+    <div class="flex flex-wrap items-center gap-2.5 pt-1">
+      <button
+        type="button"
+        onclick="renewCampaignProposal('${displayProposalId}')"
+        data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
+        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap cursor-pointer"
+      >
+        Renovar campanha
+      </button>
+      <button
+        type="button"
+        onclick="goToPaymentAnchor()"
+        class="px-5 py-2.5 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap cursor-pointer"
+      >
+        Ver pagamento
+      </button>
+    </div>
   ` : state.proposalStatus === 'processing' ? `
-    <button
-      type="button"
-      onclick="goToPaymentAnchor()"
-      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap"
-    >
-      Detalhes do pagamento
-    </button>
-    <button
-      type="button"
-      onclick="goToAdDetailingStep('${displayProposalId}')"
-      data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap"
-    >
-      Enviar criativos
-    </button>
+    <div class="flex flex-wrap items-center gap-2.5 pt-1">
+      <button
+        type="button"
+        onclick="goToAdDetailingStep('${displayProposalId}')"
+        data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
+        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap cursor-pointer"
+      >
+        Enviar criativos
+      </button>
+      <button
+        type="button"
+        onclick="goToPaymentAnchor()"
+        class="px-5 py-2.5 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap cursor-pointer"
+      >
+        Detalhes do pagamento
+      </button>
+    </div>
   ` : `
-    <button
-      type="button"
-      onclick="showToast('Modo de edição do plano acionado')"
-      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap"
-    >
-      Alterar proposta
-    </button>
-    <button
-      type="button"
-      onclick="goToPaymentAnchor()"
-      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap"
-    >
-      Efetuar pagamento
-    </button>
+    <div class="flex flex-wrap items-center gap-2.5 pt-1">
+      <button
+        type="button"
+        onclick="goToPaymentAnchor()"
+        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap cursor-pointer"
+      >
+        Efetuar pagamento
+      </button>
+      <button
+        type="button"
+        onclick="showToast('Modo de edição do plano acionado')"
+        class="px-5 py-2.5 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap cursor-pointer"
+      >
+        Alterar proposta
+      </button>
+    </div>
   `;
 
-  const html = `
-    <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card ${mobile ? 'p-4 space-y-4' : 'px-7 sm:px-9 py-6 sm:py-7 space-y-5'}">
-      <!-- Topo Discreto + Valor Principal da Proposta (Referência Imagem 2, sem destaque para o nº da proposta) -->
-      <div>
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs text-ds-textSecondary font-medium truncate">
-            Plano de mídia · ${escapeHtml(m.campaignName)}
-          </span>
-          <button
-            type="button"
-            onclick="cycleProposalStatus()"
-            title="Clique para alternar o status da proposta"
-            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${statusMeta.badgeClass} text-[10px] sm:text-[11px] font-bold border whitespace-nowrap shrink-0 cursor-pointer hover:opacity-90 transition"
-          >
-            <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
-            <span>${statusMeta.label}</span>
-          </button>
-        </div>
+  const mobileActionButtonsHtml = state.proposalStatus === 'completed' ? `
+    <div class="flex flex-col gap-2.5 pt-1">
+      <button
+        type="button"
+        onclick="renewCampaignProposal('${displayProposalId}')"
+        data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
+        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-sm transition shadow-xs"
+      >
+        renovar campanha
+      </button>
+      <button
+        type="button"
+        onclick="goToPaymentAnchor()"
+        class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-sm transition"
+      >
+        ver pagamento
+      </button>
+    </div>
+  ` : state.proposalStatus === 'processing' ? `
+    <div class="flex flex-col gap-2.5 pt-1">
+      <button
+        type="button"
+        onclick="goToAdDetailingStep('${displayProposalId}')"
+        data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
+        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-sm transition shadow-xs"
+      >
+        enviar criativos
+      </button>
+      <button
+        type="button"
+        onclick="goToPaymentAnchor()"
+        class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-sm transition"
+      >
+        detalhes do pagamento
+      </button>
+    </div>
+  ` : `
+    <div class="flex flex-col gap-2.5 pt-1">
+      <button
+        type="button"
+        onclick="goToPaymentAnchor()"
+        class="w-full py-3 px-4 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-sm transition shadow-xs"
+      >
+        efetuar pagamento
+      </button>
+      <button
+        type="button"
+        onclick="showToast('Modo de edição do plano acionado')"
+        class="w-full py-2.5 px-4 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-sm transition"
+      >
+        alterar proposta
+      </button>
+    </div>
+  `;
 
-        <div class="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <div class="font-display font-extrabold ${mobile ? 'text-2xl' : 'text-3xl sm:text-[38px]'} text-ds-textMain tracking-tight leading-none">
-            ${fmtBRL(f.trueProposalTotal)}
+  if (mobile) {
+    const mobileHtml = `
+      <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card p-5 space-y-4">
+        <!-- Topo Mobile Organizado: Status + Nome da campanha (se houver) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">Plano de mídia</span>
+            <button
+              type="button"
+              onclick="cycleProposalStatus()"
+              class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0"
+            >
+              <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
+              <span>${statusMeta.label}</span>
+            </button>
           </div>
-          ${hasDiscounts ? `
-            <span class="text-xs text-ds-textMuted line-through">${fmtBRL(f.totalGrossProposal)}</span>
-            <span class="text-xs font-semibold text-[#199958]">Desc. condo. -${fmtBRL(f.totalDiscounts)}</span>
+          ${hasCampaignName ? `
+            <div class="text-xs text-ds-textSecondary">
+              Nome <strong class="font-semibold text-ds-textMain">${escapeHtml(m.campaignName)}</strong>
+            </div>
           ` : ''}
         </div>
-      </div>
 
-      <!-- Linha Inferior: Período | Duração | Pontos à esquerda + Ações à direita -->
-      <div class="flex ${mobile ? 'flex-col items-stretch gap-4' : 'flex-col sm:flex-row sm:items-end justify-between gap-4'} pt-1">
-        <div class="flex items-center">
-          <div class="${mobile ? 'pr-4' : 'pr-5 sm:pr-7'} border-r border-ds-border">
-            <div class="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-ds-textSecondary">
-              PERÍODO
-            </div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)} a ${escapeHtml(m.endDate)}">
-              ${shortPeriodLabel}
+        <!-- Bloco de Investimento e Ações Principais -->
+        <div class="pt-3 border-t border-ds-border space-y-3">
+          <div>
+            <div class="text-xs text-ds-textSecondary">Investimento total</div>
+            <div class="mt-0.5 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+              <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none">
+                ${fmtBRL(f.trueProposalTotal)}
+              </div>
+              ${hasDiscounts ? `
+                <span class="text-xs text-ds-textMuted line-through">${fmtBRL(f.totalGrossProposal)}</span>
+                <span class="text-xs font-semibold text-[#199958]">-${fmtBRL(f.totalDiscounts)}</span>
+              ` : ''}
             </div>
           </div>
 
-          <div class="${mobile ? 'px-4' : 'px-5 sm:px-7'} border-r border-ds-border">
-            <div class="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-ds-textSecondary">
-              DURAÇÃO
-            </div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
-              ${durationLabel}
-            </div>
-          </div>
-
-          <div class="${mobile ? 'pl-4' : 'pl-5 sm:pl-7'}">
-            <div class="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-ds-textSecondary">
-              ${thirdMetricLabel}
-            </div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
-              ${thirdMetricValue}
-            </div>
-          </div>
+          ${mobileActionButtonsHtml}
         </div>
 
-        <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          ${actionButtonsHtml}
+        <!-- Metadados Organizados (Início/Fim, Duração, Pontos) + Criado por -->
+        <div class="pt-3.5 border-t border-ds-border space-y-3">
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <div class="bg-ds-surface/70 rounded-xl p-2.5 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Período</div>
+              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${shortPeriodLabel}</div>
+            </div>
+            <div class="bg-ds-surface/70 rounded-xl p-2.5 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Duração</div>
+              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${durationLabel}</div>
+            </div>
+            <div class="bg-ds-surface/70 rounded-xl p-2.5 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">${c.oohPointsCount > 0 ? 'Pontos' : 'Ativos'}</div>
+              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${thirdMetricValue}</div>
+            </div>
+          </div>
+
+          <div class="text-xs text-ds-textSecondary leading-snug">
+            ${escapeHtml(creatorLabel)}
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('proposalHeroSection').innerHTML = mobileHtml;
+    return;
+  }
+
+  const html = `
+    <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-7 sm:px-9 py-6 sm:py-7">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+        <!-- Lado Esquerdo: Identificação + Valor Principal + Botões de Ação logo abaixo -->
+        <div class="lg:col-span-7 space-y-4">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs sm:text-sm text-ds-textSecondary font-medium truncate">
+                ${topEyebrowLabel}
+              </span>
+              <button
+                type="button"
+                onclick="cycleProposalStatus()"
+                title="Clique para alternar o status da proposta"
+                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0 cursor-pointer hover:opacity-90 transition"
+              >
+                <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
+                <span>${statusMeta.label}</span>
+              </button>
+            </div>
+
+            <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <div class="font-display font-extrabold text-3xl sm:text-[38px] text-ds-textMain tracking-tight leading-none">
+                ${fmtBRL(f.trueProposalTotal)}
+              </div>
+              ${hasDiscounts ? `
+                <span class="text-xs text-ds-textMuted line-through">${fmtBRL(f.totalGrossProposal)}</span>
+                <span class="text-xs font-semibold text-[#199958]">Desc. condo. -${fmtBRL(f.totalDiscounts)}</span>
+              ` : ''}
+            </div>
+          </div>
+
+          ${desktopActionButtonsHtml}
+        </div>
+
+        <!-- Separador Central + Lado Direito: Período, Duração, Pontos e Criado por -->
+        <div class="lg:col-span-5 lg:border-l lg:border-ds-border lg:pl-8 space-y-4">
+          <div class="flex items-center">
+            <div class="pr-5 sm:pr-6 border-r border-ds-border">
+              <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
+                PERÍODO
+              </div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)} a ${escapeHtml(m.endDate)}">
+                ${shortPeriodLabel}
+              </div>
+            </div>
+
+            <div class="px-5 sm:px-6 border-r border-ds-border">
+              <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
+                DURAÇÃO
+              </div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+                ${durationLabel}
+              </div>
+            </div>
+
+            <div class="pl-5 sm:pl-6">
+              <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
+                ${thirdMetricLabel}
+              </div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+                ${thirdMetricValue}
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-ds-border text-xs text-ds-textSecondary">
+            ${escapeHtml(creatorLabel)}
+          </div>
         </div>
       </div>
     </div>
@@ -2095,12 +2218,21 @@ function renderHeroSection(m) {
 
 /**
  * ============================================================================
- * 2. ESTIMATIVA DE ENTREGA POR CANAL (ALINHAMENTO VERTICAL ESTRITO ENTRE CARDS)
- * - Valor principal e linha divisória horizontal permanecem exatamente na mesma
- *   altura em todos os cards, com 2 linhas enxutas no rodapé e popover no hover/toque
- *   para listas de veículos/títulos (+N).
+ * 2. ESTIMATIVA DE ENTREGA POR CANAL (COM DETALHAMENTO DE MÉTRICAS EXPANSÍVEL)
+ * - Título do canal simples e secundário em caixa alta (ex: OOH, PORTAIS E GLOBOPLAY)
+ * - Métrica principal em destaque para leitura rápida
+ * - Linha separadora com "DETALHAMENTO DE MÉTRICAS" e botão "Expandir" / "Ocultar"
+ * - Mini-cards internos brancos com destaque em laranja no número ao passar o mouse (hover)
  * ============================================================================
  */
+function toggleSummaryCardMetrics(cardKey) {
+  if (!state.summaryMetricsExpanded) {
+    state.summaryMetricsExpanded = {};
+  }
+  state.summaryMetricsExpanded[cardKey] = !state.summaryMetricsExpanded[cardKey];
+  renderModularMetrics(getCurrentModel());
+}
+
 function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey) {
   const list = Array.isArray(items) ? items : [];
   if (list.length === 0) return '<strong class="text-ds-textMain font-semibold">—</strong>';
@@ -2108,12 +2240,12 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey) {
   const remaining = list.slice(visibleCount);
 
   if (remaining.length === 0) {
-    return `<strong class="text-ds-textMain font-semibold whitespace-nowrap">${visible.join(', ')}</strong>`;
+    return `<strong class="text-ds-textMain group-hover/subcard:text-primary transition-colors font-semibold whitespace-nowrap">${visible.join(', ')}</strong>`;
   }
 
   return `
     <div class="relative inline-flex items-center gap-1.5 group/veh" data-metric-popover="${popKey}">
-      <strong class="text-ds-textMain font-semibold whitespace-nowrap">${visible.join(', ')}</strong>
+      <strong class="text-ds-textMain group-hover/subcard:text-primary transition-colors font-semibold whitespace-nowrap">${visible.join(', ')}</strong>
       <button
         type="button"
         onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
@@ -2124,12 +2256,12 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey) {
       <div
         id="metricPopover-${popKey}"
         class="metric-items-popover invisible opacity-0 pointer-events-none group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto absolute right-0 bottom-full mb-2 w-56 p-3 rounded-xl bg-white border border-ds-border shadow-xl z-30 transition-all duration-150 text-left">
-        <div class="text-[10px] font-bold uppercase tracking-wider text-ds-textMuted mb-2">
+        <div class="text-xs font-bold uppercase tracking-wider text-ds-textMuted mb-2">
           ${popoverTitle} (${list.length})
         </div>
         <div class="flex flex-wrap gap-1.5">
           ${list.map((item) => `
-            <span class="px-2 py-0.5 rounded-md bg-ds-surface border border-ds-border text-[11px] font-semibold text-ds-textMain whitespace-nowrap">
+            <span class="px-2 py-0.5 rounded-md bg-ds-surface border border-ds-border text-xs font-semibold text-ds-textMain whitespace-nowrap">
               ${item}
             </span>
           `).join('')}
@@ -2137,7 +2269,6 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey) {
       </div>
     </div>
   `;
-  syncMobileHoverElimination();
 }
 
 function toggleMetricVehiclesPopover(event, popKey) {
@@ -2169,8 +2300,63 @@ if (typeof window !== 'undefined' && !window.__metricPopoverListenerBound) {
   });
 }
 
+function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel, primaryValue, subCards, mobile }) {
+  const isExpanded = Boolean(state.summaryMetricsExpanded && state.summaryMetricsExpanded[cardKey]);
+  const padClass = mobile ? 'p-4' : 'p-5';
+
+  return `
+    <div class="bg-white rounded-2xl border border-ds-border shadow-sm flex flex-col justify-between self-start w-full overflow-hidden">
+      <div class="${padClass}">
+        <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
+          ${channelTitle}
+        </div>
+        <div class="mt-2.5">
+          <div class="text-xs text-ds-textSecondary leading-normal">${primaryLabel}</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
+            ${primaryValue}
+          </div>
+        </div>
+      </div>
+
+      <!-- Linha separadora com "DETALHAMENTO DE MÉTRICAS" e botão de expandir/ocultar (mesma mecânica do card de pontos) -->
+      <div class="px-4 sm:px-5 py-2.5 border-t border-ds-border bg-ds-surface/50 flex items-center justify-between gap-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+          <i class="uil uil-chart-bar text-sm text-ds-textMain"></i>
+          <span>DETALHAMENTO DE MÉTRICAS</span>
+        </span>
+        <button
+          type="button"
+          onclick="toggleSummaryCardMetrics('${cardKey}')"
+          class="text-xs font-bold text-ds-textSecondary hover:text-primary transition inline-flex items-center gap-0.5 cursor-pointer"
+        >
+          <span>${isExpanded ? 'Ocultar' : 'Expandir'}</span>
+          <i class="uil ${isExpanded ? 'uil-angle-up' : 'uil-angle-down'} text-sm"></i>
+        </button>
+      </div>
+
+      ${isExpanded ? `
+        <div class="bg-ds-bg border-t border-ds-border p-3 grid grid-cols-2 gap-2.5 text-xs">
+          ${subCards.map((sc) => `
+            <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-3 py-2.5 border border-ds-border group/subcard hover:border-primary/45 hover:bg-[#FFFBF7] transition cursor-default">
+              <div class="text-ds-textSecondary text-xs">${sc.label}</div>
+              ${sc.rawHtml ? `
+                <div class="mt-0.5">${sc.rawHtml}</div>
+              ` : `
+                <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain group-hover/subcard:text-primary transition-colors block mt-0.5 whitespace-nowrap">
+                  ${sc.value}
+                </strong>
+              `}
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
 function renderModularMetrics(m) {
   const c = m.counts;
+  const f = m.financials;
   const mobile = isMobileView();
   const activeChannelsCount =
     (c.oohPointsCount > 0 ? 1 : 0) +
@@ -2182,7 +2368,7 @@ function renderModularMetrics(m) {
   const cardPad = mobile ? 'p-4' : 'p-5';
   let singleChannelTitle = 'Estimativa de entrega do plano';
 
-  const portaisVehiclesList = ['g1', 'ge', 'gshow', 'globoplay', 'receitas', 'cartola', 'globo.com'];
+  const portaisVehiclesList = ['g1', 'ge', 'gshow', 'globoplay', 'receitas', 'globo.com'];
   const revistasTitlesList = Array.from(
     new Set((m.revistasItems || []).map((item) => item.editorialTitle).filter(Boolean))
   );
@@ -2190,378 +2376,97 @@ function renderModularMetrics(m) {
     ? revistasTitlesList
     : ['O Globo', 'Extra', 'Galileu', 'Globo Rural'];
 
-  // =========================================================================
-  // CASO 1A: CAMPANHA ÚNICA — SOMENTE OOH (6 métricas principais de OOH)
-  // =========================================================================
-  if (activeChannelsCount === 1 && c.oohPointsCount > 0) {
-    singleChannelTitle = 'Estimativa de entrega — OOH';
-    const staticCount = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
-    const digitalCount = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - staticCount);
+  const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
+  const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
 
-    cards = [
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Pontos</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohPointsCount)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Locais selecionados</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Telas</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohScreensCount)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Ativas na campanha</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Exibições</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${digitalCount > 0 ? fmtInt(c.oohTotalInsertions) : 'Fixa'}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Total no período</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Alcance</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohReach || c.oohImpacts)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Pessoas únicas</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Impacto</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohImpacts)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Volume no período</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Frequência</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtFreq(c.oohFrequency || 1.88)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Média por pessoa</div>
-          </div>
-        </div>
-      `
-    ];
+  if (c.oohPointsCount > 0) {
+    const oohDailyExhibitionsVal = oohDigitalPts > 0
+      ? fmtInt(c.oohDailyInsertions)
+      : 'Fixa';
+    const oohPeriodExhibitionsVal = oohDigitalPts > 0
+      ? fmtInt(c.oohTotalInsertions)
+      : 'Fixa';
 
-  // =========================================================================
-  // CASO 1B: CAMPANHA ÚNICA — SÓ DIGITAL (PORTAIS E GLOBOPLAY)
-  // =========================================================================
-  } else if (activeChannelsCount === 1 && c.portaisCount > 0) {
-    singleChannelTitle = 'Estimativa de entrega — Portais e Globoplay';
-    const avgCpm = c.portaisImpressions > 0 ? (m.financials.portaisNet / (c.portaisImpressions / 1000)) : 31.6;
+    cards.push(buildExpandableSummaryChannelCard({
+      cardKey: 'ooh',
+      channelTitle: 'OOH',
+      primaryLabel: 'Impacto estimado',
+      primaryValue: fmtInt(c.oohImpacts),
+      mobile,
+      subCards: [
+        { label: 'Alcance único', value: fmtInt(c.oohReach || c.oohImpacts) },
+        { label: 'Pontos e telas', value: `${fmtInt(c.oohPointsCount)} pts · ${fmtInt(c.oohScreensCount)} telas` },
+        { label: 'Exibição diária', value: oohDailyExhibitionsVal },
+        { label: 'Exibições', value: oohPeriodExhibitionsVal },
+        { label: 'Frequência', value: fmtFreq(c.oohFrequency || 1.88), fullWidth: true }
+      ]
+    }));
+  }
 
-    cards = [
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Impressões</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.portaisImpressions)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Vídeo e Display</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Portais</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${portaisVehiclesList.length} veículos</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${renderCompactItemsPopover(portaisVehiclesList, 3, 'Veículos contemplados', 'portais-single')}</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">CPM</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtBRL(avgCpm)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Custo por mil impressões</div>
-          </div>
-        </div>
-      `
-    ];
+  if (c.portaisCount > 0) {
+    const portaisCpms = Array.from(new Set((m.portaisItems || []).map((it) => it.cpm).filter((v) => v > 0)));
+    const portaisAvgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : (portaisCpms[0] || 0);
+    const portaisCpmLabel = portaisCpms.length === 1 ? fmtBRL(portaisCpms[0]) : fmtBRL(portaisAvgCpm);
 
-  // =========================================================================
-  // CASO 1C: CAMPANHA ÚNICA — SÓ REVISTAS DIGITAIS
-  // =========================================================================
-  } else if (activeChannelsCount === 1 && c.revistasCount > 0) {
-    singleChannelTitle = 'Estimativa de entrega — Revistas e Jornais';
-    const avgCpm = c.revistasImpressions > 0 ? (m.financials.revistasNet / (c.revistasImpressions / 1000)) : 9.6;
+    cards.push(buildExpandableSummaryChannelCard({
+      cardKey: 'portais',
+      channelTitle: 'PORTAIS E GLOBOPLAY',
+      primaryLabel: 'Impressões contratadas',
+      primaryValue: fmtInt(c.portaisImpressions),
+      mobile,
+      subCards: [
+        {
+          label: 'Veículos',
+          rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi')
+        },
+        { label: 'CPM médio', value: portaisCpmLabel }
+      ]
+    }));
+  }
 
-    cards = [
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Impressões</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.revistasImpressions)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Revistas Digitais</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Portais</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-single')}</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">CPM</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtBRL(avgCpm)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Custo por mil impressões</div>
-          </div>
-        </div>
-      `
-    ];
+  if (c.revistasCount > 0) {
+    const revistasCpms = Array.from(new Set((m.revistasItems || []).map((it) => it.cpm).filter((v) => v > 0)));
+    const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : (revistasCpms[0] || 0);
+    const revistasCpmLabel = revistasCpms.length === 1 ? fmtBRL(revistasCpms[0]) : fmtBRL(revistasAvgCpm);
 
-  // =========================================================================
-  // CASO 1D: CAMPANHA ÚNICA — SÓ RÁDIO CBN
-  // =========================================================================
-  } else if (activeChannelsCount === 1 && c.radioCount > 0) {
-    singleChannelTitle = 'Estimativa de entrega — Rádio CBN';
+    cards.push(buildExpandableSummaryChannelCard({
+      cardKey: 'revistas',
+      channelTitle: 'REVISTAS E JORNAIS',
+      primaryLabel: 'Impressões contratadas',
+      primaryValue: fmtInt(c.revistasImpressions),
+      mobile,
+      subCards: [
+        {
+          label: 'Títulos',
+          rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi')
+        },
+        { label: 'CPM médio', value: revistasCpmLabel }
+      ]
+    }));
+  }
+
+  if (c.radioCount > 0) {
     const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
 
-    cards = [
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Inserções</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.radioTotalInsertions)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Total no período</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Rádio/programa</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.radioCount)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Grade selecionada</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Inserções/semana</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.radioWeeklyInsertions)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Ritmo semanal</div>
-          </div>
-        </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Duração</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${radioDurationsLabel}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Formato comercial</div>
-          </div>
-        </div>
-      `
-    ];
-  } else {
-    // CASO 2: Múltiplos canais -> Apenas as principais métricas como no PDF (sem excesso de linhas)
-    const f = m.financials;
-    const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
-    const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
-    const oohStaticScr = c.oohStaticScreensCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.screens, 0);
-    const oohDigScr = Math.max(0, (c.oohScreensCount || 0) - oohStaticScr);
-
-    if (c.oohPointsCount > 0) {
-      const oohExhibitionsVal = oohDigitalPts > 0
-        ? fmtInt(c.oohTotalInsertions)
-        : 'Fixa';
-
-      cards.push(`
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">OOH</h3>
-          </div>
-
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight whitespace-nowrap">
-              ${fmtInt(c.oohImpacts)}
-            </div>
-            <div class="text-xs text-ds-textSecondary mt-0.5 leading-normal">Impacto no período</div>
-          </div>
-
-          <div class="mt-3.5 pt-3 border-t border-ds-border space-y-1.5 text-xs">
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Pontos</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${fmtInt(c.oohPointsCount)}</strong>
-            </div>
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Telas</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${fmtInt(c.oohScreensCount)}</strong>
-            </div>
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Exibições</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${oohExhibitionsVal}</strong>
-            </div>
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Alcance</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${fmtInt(c.oohReach || c.oohImpacts)}</strong>
-            </div>
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Frequência</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${fmtFreq(c.oohFrequency || 1.88)}</strong>
-            </div>
-          </div>
-        </div>
-      `);
-    }
-
-    if (c.portaisCount > 0) {
-      const portaisCpms = Array.from(new Set((m.portaisItems || []).map((it) => it.cpm).filter((v) => v > 0)));
-      const portaisAvgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : (portaisCpms[0] || 0);
-      const portaisCpmLabel = portaisCpms.length === 1 ? fmtBRL(portaisCpms[0]) : fmtBRL(portaisAvgCpm);
-
-      cards.push(`
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Portais e Globoplay</h3>
-          </div>
-
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight whitespace-nowrap">
-              ${fmtInt(c.portaisImpressions)}
-            </div>
-            <div class="text-xs text-ds-textSecondary mt-0.5 leading-normal">Impressões contratadas</div>
-          </div>
-
-          <div class="mt-3.5 pt-3 border-t border-ds-border space-y-1.5 text-xs">
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Portais</span>
-              ${renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi')}
-            </div>
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">CPM</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${portaisCpmLabel}</strong>
-            </div>
-          </div>
-        </div>
-      `);
-    }
-
-    if (c.revistasCount > 0) {
-      const revistasCpms = Array.from(new Set((m.revistasItems || []).map((it) => it.cpm).filter((v) => v > 0)));
-      const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : (revistasCpms[0] || 0);
-      const revistasCpmLabel = revistasCpms.length === 1 ? fmtBRL(revistasCpms[0]) : fmtBRL(revistasAvgCpm);
-
-      cards.push(`
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Revistas e Jornais</h3>
-          </div>
-
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight whitespace-nowrap">
-              ${fmtInt(c.revistasImpressions)}
-            </div>
-            <div class="text-xs text-ds-textSecondary mt-0.5 leading-normal">Impressões contratadas</div>
-          </div>
-
-          <div class="mt-3.5 pt-3 border-t border-ds-border space-y-1.5 text-xs">
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Portais</span>
-              ${renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi')}
-            </div>
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">CPM</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${revistasCpmLabel}</strong>
-            </div>
-          </div>
-        </div>
-      `);
-    }
-
-    if (c.radioCount > 0) {
-      const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
-
-      cards.push(`
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Rádio CBN</h3>
-          </div>
-
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight whitespace-nowrap">
-              ${fmtInt(c.radioTotalInsertions)}
-            </div>
-            <div class="text-xs text-ds-textSecondary mt-0.5 leading-normal">Inserções no período</div>
-          </div>
-
-          <div class="mt-3.5 pt-3 border-t border-ds-border space-y-1.5 text-xs">
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Rádio/programa</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${fmtInt(c.radioCount)}</strong>
-            </div>
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Inserções/semana</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${fmtInt(c.radioWeeklyInsertions)}</strong>
-            </div>
-            <div class="min-h-[20px] flex items-center justify-between gap-2 whitespace-nowrap">
-              <span class="text-ds-textMuted shrink-0">Duração</span>
-              <strong class="text-ds-textMain font-semibold whitespace-nowrap">${radioDurationsLabel}</strong>
-            </div>
-          </div>
-        </div>
-      `);
-    }
+    cards.push(buildExpandableSummaryChannelCard({
+      cardKey: 'radio',
+      channelTitle: 'RÁDIO CBN',
+      primaryLabel: 'Inserções no período',
+      primaryValue: fmtInt(c.radioTotalInsertions),
+      mobile,
+      subCards: [
+        { label: 'Rádio / programa', value: `${fmtInt(c.radioCount)} ${c.radioCount === 1 ? 'programa' : 'programas'}` },
+        { label: 'Inserções/semana', value: fmtInt(c.radioWeeklyInsertions) },
+        { label: 'Formato e duração', value: radioDurationsLabel, fullWidth: true }
+      ]
+    }));
   }
 
   const colsClass =
-    cards.length === 6 ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 sim-grid-1' :
     cards.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sim-grid-1' :
     cards.length === 3 ? 'grid-cols-1 sm:grid-cols-3 sim-grid-1' :
-    cards.length === 2 ? 'grid-cols-1 sm:grid-cols-2 sim-grid-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sim-grid-1';
+    cards.length === 2 ? 'grid-cols-1 sm:grid-cols-2 sim-grid-1' :
+    cards.length === 1 ? 'grid-cols-1 max-w-md sim-grid-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sim-grid-1';
 
   document.getElementById('modularMetricsSection').innerHTML = `
     <div class="space-y-3">
@@ -2573,7 +2478,7 @@ function renderModularMetrics(m) {
           Projeção para ${m.durationDays} dias de campanha
         </span>
       </div>
-      <div class="grid ${colsClass} gap-3.5 sm:gap-4 items-stretch">
+      <div class="grid ${colsClass} gap-3.5 sm:gap-4 items-start">
         ${cards.join('')}
       </div>
     </div>
@@ -3206,13 +3111,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
       // Métricas detalhadas sob demanda (Hover no Web / Clique expansível no Mobile estilo "Torres")
       const freqFormatted = Number(g.frequency || 1.61).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const screensLabel = fmtInt(g.screens);
+      const dailyExhibitionsValue = isStaticOoh ? 'Fixa' : fmtInt(g.dailyInsertions);
       const exhibitionsValue = isStaticOoh ? 'Fixa' : fmtInt(g.periodInsertions || g.impacts);
       const reachValue = fmtInt(g.reach);
       const isMetricsOpen = !!state.expandedCardMetrics[g.code];
 
       const metricsHoverPopoverHtml = `
-        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[230px] p-3 rounded-xl bg-[#1E293B] text-white text-[11px] leading-snug shadow-xl pointer-events-none text-left">
-          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
+        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[245px] p-3 rounded-xl bg-[#1E293B] text-white text-xs leading-snug shadow-xl pointer-events-none text-left">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
             Métricas estimadas
           </div>
           <div class="space-y-1">
@@ -3221,7 +3127,11 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <strong class="font-display font-bold text-white">${screensLabel}</strong>
             </div>
             <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Exibições:</span>
+              <span class="text-slate-300">Exibição diária:</span>
+              <strong class="font-display font-bold text-white">${dailyExhibitionsValue}</strong>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-300">Exibições no período:</span>
               <strong class="font-display font-bold text-white">${exhibitionsValue}</strong>
             </div>
             <div class="flex items-center justify-between gap-2">
@@ -3237,31 +3147,35 @@ function renderMediaPlanList(m, preserveScroll = false) {
       `;
 
       const metricsDrawerHtml = isMetricsOpen ? `
-        <div class="bg-ds-bg border-t border-ds-border px-3.5 py-2.5 text-xs">
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
+        <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
               <i class="uil uil-chart-bar text-xs text-ds-textMain"></i>
               Detalhamento de métricas
             </span>
-            <button type="button" onclick="toggleCardMetrics('${g.code}')" class="text-[11px] font-semibold text-ds-textSecondary hover:text-ds-textMain">
+            <button type="button" onclick="toggleCardMetrics('${g.code}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
             </button>
           </div>
-          <div class="grid ${mobile ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'} gap-2">
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Telas</div>
+          <div class="grid ${mobile ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-5'} gap-2">
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Telas</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${screensLabel}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Exibições</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Exibição diária</div>
+              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${dailyExhibitionsValue}</div>
+            </div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Exib. período</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${exhibitionsValue}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Alcance</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Alcance</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${reachValue}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Frequência</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Frequência</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${freqFormatted}</div>
             </div>
           </div>
@@ -3278,63 +3192,68 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
         return `
           <div id="condoCard-${g.condoId}" data-ooh-card="${g.code}" class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] transition shadow-xs">
-            <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
+            <div class="${mobile ? 'p-4' : 'p-4 sm:p-5'}">
               ${mobile ? `
                 <!-- ================= LAYOUT MOBILE (sm — 640px: Header com Impacto inline + Título e Endereço 100% full-width sem truncar) ================= -->
                 <div>
-                  <!-- Linha 1: Badge + ID + Torres à esquerda | Impacto Estimado à direita -->
-                  <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                  <!-- Linha 1: Badge + Exibição diária + Torres (+ ID apenas Admin) à esquerda | Impacto Estimado à direita -->
+                  <div class="flex items-center justify-between gap-2 mb-2">
                     <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                      <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatBadgeClass}">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
                         ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
                       </span>
-                      <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                        #${g.displayCode}
-                      </span>
-                      <span class="px-1.5 py-0.5 rounded-[5px] text-[10px] font-semibold bg-[#F3ECE4] text-[#56514B]">
+                      ${state.isAdminView ? `
+                        <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                          #${g.displayCode}
+                        </span>
+                      ` : ''}
+                      <span class="px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
                         ${g.towersCount} torres
+                      </span>
+                      <span class="px-2 py-0.5 rounded-[5px] text-xs font-medium bg-ds-surface text-ds-textSecondary border border-ds-border">
+                        ${dailyExhibitionsValue} exib./dia
                       </span>
                     </div>
 
                     <div class="text-right shrink-0 flex items-baseline gap-1">
-                      <span class="font-display font-extrabold text-[13px] text-[#1E293B] leading-none whitespace-nowrap">${rightImpactValue}</span>
-                      <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impacto</span>
+                      <span class="font-display font-extrabold text-sm text-[#1E293B] leading-none whitespace-nowrap">${rightImpactValue}</span>
+                      <span class="text-xs font-normal text-ds-textSecondary leading-none">impacto</span>
                     </div>
                   </div>
 
                   <!-- Linha 2: Título com 100% da largura do card -->
-                  <h4 class="font-display font-bold text-ds-textMain text-[14px] leading-snug line-clamp-2" title="${fullAddressTooltip}">
+                  <h4 class="font-display font-bold text-ds-textMain text-[15px] leading-snug line-clamp-2" title="${fullAddressTooltip}">
                     Coletânea ${g.name}
                   </h4>
 
                   <!-- Linha 3: Subtítulo/Endereço com 100% da largura do card -->
-                  <p class="text-[11px] text-ds-textSecondary mt-0.5 leading-snug line-clamp-2" title="${fullAddressTooltip}">
+                  <p class="text-xs text-ds-textSecondary mt-1 leading-relaxed line-clamp-2" title="${fullAddressTooltip}">
                     ${subtitleMobile}
                   </p>
                 </div>
 
                 <!-- Divisor Horizontal -->
-                <div class="my-2.5 border-t border-ds-border"></div>
+                <div class="my-3 border-t border-ds-border"></div>
 
                 <!-- Zona Inferior Mobile: Desconto em linha superior dedicada (zero colisão) + Preço à esquerda e Ações à direita -->
                 <div>
                   ${g.hasResidentDiscount ? `
-                    <div class="flex items-center gap-1.5 mb-1 text-[11px] leading-none">
+                    <div class="flex items-center gap-1.5 mb-1.5 text-xs leading-none">
                       <span class="text-ds-textMuted line-through">${fmtBRL(g.originalPrice)}</span>
                       <span class="font-semibold text-[#199958]">${discountText}</span>
                     </div>
                   ` : ''}
                   <div class="flex items-center justify-between gap-2">
                     <div class="flex items-baseline gap-1 whitespace-nowrap">
-                      <span class="font-display font-extrabold text-[15px] text-ds-textMain leading-none">
+                      <span class="font-display font-extrabold text-base text-ds-textMain leading-none">
                         ${fmtBRL(g.netPrice)}
                       </span>
-                      <span class="text-[11px] font-normal text-ds-textSecondary">
+                      <span class="text-xs font-normal text-ds-textSecondary">
                         / ${m.durationDays}d
                       </span>
                     </div>
 
-                    <div class="flex items-center gap-1 shrink-0 ml-auto">
+                    <div class="flex items-center gap-1.5 shrink-0 ml-auto">
                       <button
                         type="button"
                         onclick="toggleCardMetrics('${g.code}')"
@@ -3350,7 +3269,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       <button
                         type="button"
                         onclick="toggleCondoGroup('${g.condoId}')"
-                        class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white text-ds-textSecondary font-sans font-medium text-[11px] inline-flex items-center justify-center gap-1 transition whitespace-nowrap shrink-0"
+                        class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white text-ds-textSecondary font-sans font-medium text-xs inline-flex items-center justify-center gap-1 transition whitespace-nowrap shrink-0"
                       >
                         <span>${isOpen ? 'Ocultar' : `${g.towersCount} torres`}</span>
                         <i class="uil ${isOpen ? 'uil-angle-up' : 'uil-angle-down'} text-xs"></i>
@@ -3358,7 +3277,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       <button
                         type="button"
                         onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
-                        class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white text-ds-textSecondary font-sans font-medium text-[11px] inline-flex items-center justify-center gap-1 transition whitespace-nowrap shrink-0"
+                        class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white text-ds-textSecondary font-sans font-medium text-xs inline-flex items-center justify-center gap-1 transition whitespace-nowrap shrink-0"
                         aria-label="Ver localização no mapa"
                       >
                         <i class="uil uil-map-marker text-xs"></i>
@@ -3372,14 +3291,19 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 <div class="flex items-start justify-between gap-4">
                   <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                     <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatBadgeClass}">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
                         ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
                       </span>
-                      <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                        ID: #${g.displayCode}
-                      </span>
-                      <span class="px-2 py-0.5 rounded-[5px] text-[10px] font-semibold bg-[#F3ECE4] text-[#56514B]">
+                      ${state.isAdminView ? `
+                        <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                          ID: #${g.displayCode}
+                        </span>
+                      ` : ''}
+                      <span class="px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
                         ${g.towersCount} torres
+                      </span>
+                      <span class="px-2 py-0.5 rounded-[5px] text-xs font-medium bg-ds-surface text-ds-textSecondary border border-ds-border">
+                        ${dailyExhibitionsValue} exib./dia
                       </span>
                     </div>
 
@@ -3398,7 +3322,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     </p>
 
                     <!-- Tooltip Web ao passar o mouse para ver endereço completo sem invadir o card -->
-                    <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-[11px] leading-snug shadow-lg whitespace-normal pointer-events-none">
+                    <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                       <div class="font-bold text-white mb-0.5">Coletânea ${g.name}</div>
                       <div class="text-slate-200">${humanAddr}</div>
                       <div class="text-slate-300 mt-0.5">${categoryLabel} • ${audiencePart}</div>
@@ -3407,7 +3331,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
                   <!-- LADO DIREITO PADRONIZADO: IMPACTO ESTIMADO (número cheio, sem "no período") -->
                   <div class="text-right shrink-0 self-center">
-                    <div class="text-[10px] font-normal uppercase tracking-wider text-ds-textSecondary">
+                    <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
                       ${rightImpactLabel}
                     </div>
                     <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
@@ -3424,8 +3348,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <div class="min-w-0">
                     ${g.hasResidentDiscount ? `
                       <div class="flex items-center gap-1.5 mb-0.5">
-                        <span class="text-[11px] text-ds-textMuted line-through leading-none">${fmtBRL(g.originalPrice)}</span>
-                        <span class="text-[11px] font-semibold text-[#199958] leading-none whitespace-nowrap">${discountText}</span>
+                        <span class="text-xs text-ds-textMuted line-through leading-none">${fmtBRL(g.originalPrice)}</span>
+                        <span class="text-xs font-semibold text-[#199958] leading-none whitespace-nowrap">${discountText}</span>
                       </div>
                     ` : ''}
                     <div class="flex items-baseline gap-1 flex-wrap">
@@ -3457,7 +3381,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     <button
                       type="button"
                       onclick="toggleCondoGroup('${g.condoId}')"
-                      class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-[11px] inline-flex items-center gap-1 transition whitespace-nowrap"
+                      class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap"
                     >
                       <span>${isOpen ? 'Ocultar torres' : `Ver ${g.towersCount} torres`}</span>
                       <i class="uil ${isOpen ? 'uil-angle-up' : 'uil-angle-down'} text-xs"></i>
@@ -3465,7 +3389,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     <button
                       type="button"
                       onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
-                      class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-[11px] inline-flex items-center gap-1 transition whitespace-nowrap"
+                      class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap"
                       title="Ver localização no mapa"
                     >
                       <i class="uil uil-map-marker text-xs"></i>
@@ -3483,11 +3407,11 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 ${g.towers.map((t) => `
                   <div class="px-4 py-2.5 flex items-center justify-between gap-2 text-xs">
                     <div class="flex items-center gap-2 min-w-0">
-                      <span class="text-[11px] font-mono font-semibold text-ds-textSecondary shrink-0">ID: #${t.code}</span>
+                      ${state.isAdminView ? `<span class="text-xs font-mono font-semibold text-ds-textSecondary shrink-0">ID: #${t.code}</span>` : ''}
                       <span class="font-semibold text-ds-textMain truncate">${t.name}</span>
                     </div>
                     <div class="flex items-center gap-3 shrink-0">
-                      <span class="text-ds-textSecondary whitespace-nowrap">${fmtInt(t.periodInsertions)} exib.</span>
+                      <span class="text-ds-textSecondary whitespace-nowrap">${fmtInt(t.dailyInsertions)}/dia · ${fmtInt(t.periodInsertions)} no período</span>
                       <strong class="font-display font-bold text-ds-textMain whitespace-nowrap">${fmtBRL(t.netPrice)}</strong>
                     </div>
                   </div>
@@ -3500,55 +3424,60 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
       return `
         <div data-ooh-card="${g.code}" class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] shadow-xs transition">
-          <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
+          <div class="${mobile ? 'p-4' : 'p-4 sm:p-5'}">
             ${mobile ? `
               <!-- ================= LAYOUT MOBILE (sm — 640px: Header com Impacto inline + Título e Endereço 100% full-width sem truncar) ================= -->
               <div>
-                <!-- Linha 1: Badge + ID à esquerda | Impacto Estimado à direita -->
-                <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                <!-- Linha 1: Badge + Exibição diária (+ ID apenas Admin) à esquerda | Impacto Estimado à direita -->
+                <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatBadgeClass}">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
                       ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
                     </span>
-                    <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                      ID: #${g.displayCode}
+                    ${state.isAdminView ? `
+                      <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                        ID: #${g.displayCode}
+                      </span>
+                    ` : ''}
+                    <span class="px-2 py-0.5 rounded-[5px] text-xs font-medium bg-ds-surface text-ds-textSecondary border border-ds-border">
+                      ${dailyExhibitionsValue} exib./dia
                     </span>
                   </div>
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
-                    <span class="font-display font-extrabold text-[13px] text-[#1E293B] leading-none whitespace-nowrap">${rightImpactValue}</span>
-                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impacto</span>
+                    <span class="font-display font-extrabold text-sm text-[#1E293B] leading-none whitespace-nowrap">${rightImpactValue}</span>
+                    <span class="text-xs font-normal text-ds-textSecondary leading-none">impacto</span>
                   </div>
                 </div>
 
                 <!-- Linha 2: Título com 100% da largura do card -->
-                <h4 class="font-display font-bold text-ds-textMain text-[14px] leading-snug line-clamp-2" title="${fullAddressTooltip}">
+                <h4 class="font-display font-bold text-ds-textMain text-[15px] leading-snug line-clamp-2" title="${fullAddressTooltip}">
                   ${g.name}
                 </h4>
 
                 <!-- Linha 3: Subtítulo/Endereço com 100% da largura do card -->
-                <p class="text-[11px] text-ds-textSecondary mt-0.5 leading-snug line-clamp-2" title="${fullAddressTooltip}">
+                <p class="text-xs text-ds-textSecondary mt-1 leading-relaxed line-clamp-2" title="${fullAddressTooltip}">
                   ${subtitleMobile}
                 </p>
               </div>
 
               <!-- Divisor Horizontal -->
-              <div class="my-2.5 border-t border-ds-border"></div>
+              <div class="my-3 border-t border-ds-border"></div>
 
               <!-- Zona Inferior Mobile: Desconto em linha superior dedicada (zero colisão) + Preço à esquerda e Ações à direita -->
               <div>
                 ${g.hasResidentDiscount ? `
-                  <div class="flex items-center gap-1.5 mb-1 text-[11px] leading-none">
+                  <div class="flex items-center gap-1.5 mb-1.5 text-xs leading-none">
                     <span class="text-ds-textMuted line-through">${fmtBRL(g.originalPrice)}</span>
                     <span class="font-semibold text-[#199958]">${discountText}</span>
                   </div>
                 ` : ''}
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-baseline gap-1 whitespace-nowrap">
-                    <span class="font-display font-extrabold text-[15px] text-ds-textMain leading-none">
+                    <span class="font-display font-extrabold text-base text-ds-textMain leading-none">
                       ${fmtBRL(g.netPrice)}
                     </span>
-                    <span class="text-[11px] font-normal text-ds-textSecondary">
+                    <span class="text-xs font-normal text-ds-textSecondary">
                       / ${m.durationDays}d
                     </span>
                   </div>
@@ -3569,7 +3498,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     <button
                       type="button"
                       onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
-                      class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white text-ds-textSecondary font-sans font-medium text-[11px] inline-flex items-center justify-center gap-1 transition whitespace-nowrap shrink-0"
+                      class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white text-ds-textSecondary font-sans font-medium text-xs inline-flex items-center justify-center gap-1 transition whitespace-nowrap shrink-0"
                       aria-label="Ver localização no mapa"
                     >
                       <i class="uil uil-map-marker text-xs"></i>
@@ -3583,11 +3512,16 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatBadgeClass}">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
                       ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
                     </span>
-                    <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                      ID: #${g.displayCode}
+                    ${state.isAdminView ? `
+                      <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                        ID: #${g.displayCode}
+                      </span>
+                    ` : ''}
+                    <span class="px-2 py-0.5 rounded-[5px] text-xs font-medium bg-ds-surface text-ds-textSecondary border border-ds-border">
+                      ${dailyExhibitionsValue} exib./dia
                     </span>
                   </div>
 
@@ -3606,7 +3540,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   </p>
 
                   <!-- Tooltip Web ao passar o mouse para ver endereço completo sem invadir o card -->
-                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-[11px] leading-snug shadow-lg whitespace-normal pointer-events-none">
+                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${g.name}</div>
                     <div class="text-slate-200">${humanAddr}</div>
                     <div class="text-slate-300 mt-0.5">${categoryLabel} • ${audiencePart}</div>
@@ -3615,7 +3549,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
                 <!-- LADO DIREITO PADRONIZADO: IMPACTO ESTIMADO (número cheio, sem "no período") -->
                 <div class="text-right shrink-0 self-center">
-                  <div class="text-[10px] font-normal uppercase tracking-wider text-ds-textSecondary">
+                  <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
                     ${rightImpactLabel}
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
@@ -3632,8 +3566,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 <div class="min-w-0">
                   ${g.hasResidentDiscount ? `
                     <div class="flex items-center gap-1.5 mb-0.5">
-                      <span class="text-[11px] text-ds-textMuted line-through leading-none">${fmtBRL(g.originalPrice)}</span>
-                      <span class="text-[11px] font-semibold text-[#199958] leading-none whitespace-nowrap">${discountText}</span>
+                      <span class="text-xs text-ds-textMuted line-through leading-none">${fmtBRL(g.originalPrice)}</span>
+                      <span class="text-xs font-semibold text-[#199958] leading-none whitespace-nowrap">${discountText}</span>
                     </div>
                   ` : ''}
                   <div class="flex items-baseline gap-1 flex-wrap">
@@ -3665,7 +3599,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <button
                     type="button"
                     onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
-                    class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-[11px] inline-flex items-center gap-1 transition whitespace-nowrap"
+                    class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap"
                     title="Ver localização no mapa"
                   >
                     <i class="uil uil-map-marker text-xs"></i>
@@ -3687,10 +3621,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
     contentHtml = `
       <div id="oohChannelCardBox" class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <!-- Cabeçalho da Seção OOH -->
-        <div class="${mobile ? 'pb-2.5 mb-2.5 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex flex-wrap items-center justify-between gap-2'}">
+        <!-- Cabeçalho da Seção OOH (sem repetição de subtotal no topo) -->
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex flex-wrap items-center justify-between gap-2'}">
           <div class="flex items-center gap-2 min-w-0">
-            <h3 class="font-display font-bold text-ds-textMain ${mobile ? 'text-xs' : 'text-sm sm:text-base'} whitespace-nowrap">
+            <h3 class="font-display font-bold text-ds-textMain ${mobile ? 'text-sm' : 'text-sm sm:text-base'} whitespace-nowrap">
               OOH (${filteredPointsCount} pontos)
             </h3>
           </div>
@@ -3701,7 +3635,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <button
                 type="button"
                 onclick="setMobileOohView('list')"
-                class="px-2.5 py-1 rounded-lg font-display font-bold text-[11px] inline-flex items-center gap-1 transition ${
+                class="px-2.5 py-1 rounded-lg font-display font-bold text-xs inline-flex items-center gap-1 transition ${
                   !isMobileMapActive
                     ? 'bg-white text-ds-textMain shadow-xs'
                     : 'text-ds-textSecondary hover:text-ds-textMain'
@@ -3713,7 +3647,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <button
                 type="button"
                 onclick="setMobileOohView('map')"
-                class="px-2.5 py-1 rounded-lg font-display font-bold text-[11px] inline-flex items-center gap-1 transition ${
+                class="px-2.5 py-1 rounded-lg font-display font-bold text-xs inline-flex items-center gap-1 transition ${
                   isMobileMapActive
                     ? 'bg-primary text-white shadow-xs'
                     : 'text-ds-textSecondary hover:text-ds-textMain'
@@ -3723,17 +3657,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 <span>Mapa</span>
               </button>
             </div>
-          ` : `
-            <span class="text-xs font-normal text-ds-textSecondary whitespace-nowrap">
-              Subtotal: <strong class="font-bold text-ds-textMain">${subtotalDisplay}</strong>
-            </span>
-          `}
+          ` : ''}
         </div>
 
         ${isMobileMapActive ? `
           <!-- MAPA INTERATIVO 100% INLINE NO MOBILE -->
           <div class="space-y-2.5 bg-white">
-            <div class="flex items-center justify-between gap-2 text-[11px] text-ds-textSecondary px-0.5">
+            <div class="flex items-center justify-between gap-2 text-xs text-ds-textSecondary px-0.5">
               <span>Toque no pino para ver o card do ponto</span>
             </div>
 
@@ -3749,9 +3679,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
             </button>
           </div>
         ` : `
-          <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredOoh.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
+          <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredOoh.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
             ${oohCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum ponto OOH encontrado para os filtros selecionados.</div>`}
             ${oohMobilePaginationHtml}
+          </div>
+          <div class="${mobile ? 'mt-3 pt-3 border-t border-ds-border flex items-center justify-between text-xs' : 'px-4 py-3 bg-white border-t border-ds-border flex items-center justify-between text-xs'}">
+            <span class="font-medium text-ds-textSecondary">Total consolidado do grupo OOH (${filteredPointsCount} pontos)</span>
+            <strong class="font-display font-extrabold text-sm text-ds-textMain">${subtotalDisplay}</strong>
           </div>
         `}
       </div>
@@ -3781,8 +3715,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
 
       const revMetricsPopoverHtml = `
-        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[235px] p-3 rounded-xl bg-[#1E293B] text-white text-[11px] leading-snug shadow-xl pointer-events-none text-left">
-          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
+        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[235px] p-3 rounded-xl bg-[#1E293B] text-white text-xs leading-snug shadow-xl pointer-events-none text-left">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
             Detalhamento de métricas
           </div>
           <div class="space-y-1">
@@ -3799,23 +3733,23 @@ function renderMediaPlanList(m, preserveScroll = false) {
       `;
 
       const revMetricsDrawerHtml = isMetricsOpen ? `
-        <div class="bg-ds-bg border-t border-ds-border px-3.5 py-2.5 text-xs">
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
+        <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
               <i class="uil uil-chart-bar text-xs text-ds-textMain"></i>
               Detalhamento de métricas
             </span>
-            <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-[11px] font-semibold text-ds-textSecondary hover:text-ds-textMain">
+            <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
             </button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Portais</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Portais</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">1 portal (${r.editorialTitle})</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">CPM</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">CPM</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${fmtBRL(r.cpm)}</div>
             </div>
           </div>
@@ -3824,37 +3758,39 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
       return `
         <div class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] shadow-xs transition">
-          <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
+          <div class="${mobile ? 'p-4' : 'p-4 sm:p-5'}">
             ${mobile ? `
               <!-- ================= LAYOUT MOBILE (sm — 640px) ================= -->
               <div>
-                <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
                       DISPLAY
                     </span>
-                    <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                      ID: #REV-0${idx + 1}
-                    </span>
+                    ${state.isAdminView ? `
+                      <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                        ID: #REV-0${idx + 1}
+                      </span>
+                    ` : ''}
                   </div>
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
-                    <span class="font-display font-extrabold text-[13px] text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(r.impressions)}</span>
-                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impressões</span>
+                    <span class="font-display font-extrabold text-sm text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(r.impressions)}</span>
+                    <span class="text-xs font-normal text-ds-textSecondary leading-none">impressões</span>
                   </div>
                 </div>
-                <h4 class="font-display font-bold text-ds-textMain text-[14px] leading-snug line-clamp-2" title="${r.editorialTitle} — ${revSubtitle}">
+                <h4 class="font-display font-bold text-ds-textMain text-[15px] leading-snug line-clamp-2" title="${r.editorialTitle} — ${revSubtitle}">
                   ${r.editorialTitle}
                 </h4>
-                <p class="text-[11px] text-ds-textSecondary mt-0.5 leading-snug line-clamp-2" title="${r.editorialTitle} — ${revSubtitle}">
+                <p class="text-xs text-ds-textSecondary mt-1 leading-relaxed line-clamp-2" title="${r.editorialTitle} — ${revSubtitle}">
                   Revistas Digitais • Cobertura Nacional
                 </p>
               </div>
-              <div class="my-2.5 border-t border-ds-border"></div>
+              <div class="my-3 border-t border-ds-border"></div>
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-baseline gap-1 whitespace-nowrap">
-                  <span class="font-display font-extrabold text-[15px] text-ds-textMain leading-none">${fmtBRL(r.totalPrice)}</span>
-                  <span class="text-[11px] text-ds-textSecondary">/ ${m.durationDays}d</span>
+                  <span class="font-display font-extrabold text-base text-ds-textMain leading-none">${fmtBRL(r.totalPrice)}</span>
+                  <span class="text-xs text-ds-textSecondary">/ ${m.durationDays}d</span>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0 ml-auto">
                   <button
@@ -3876,12 +3812,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
                       DISPLAY
                     </span>
-                    <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                      ID: #REV-0${idx + 1}
-                    </span>
+                    ${state.isAdminView ? `
+                      <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                        ID: #REV-0${idx + 1}
+                      </span>
+                    ` : ''}
                   </div>
                   <h4 class="font-display font-bold text-ds-textMain text-base sm:text-[17px] leading-snug truncate cursor-help" title="${r.editorialTitle} — ${revSubtitle}">
                     ${r.editorialTitle}
@@ -3889,13 +3827,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${r.editorialTitle} — ${revSubtitle}">
                     ${revSubtitle}
                   </p>
-                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-[11px] leading-snug shadow-lg whitespace-normal pointer-events-none">
+                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${r.editorialTitle}</div>
                     <div class="text-slate-200">${revSubtitle}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
-                  <div class="text-[10px] font-normal uppercase tracking-wider text-ds-textSecondary">
+                  <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
                     IMPRESSÕES ESTIMADAS
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
@@ -3943,16 +3881,19 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
     contentHtml = `
       <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <div class="${mobile ? 'pb-2.5 mb-2.5 border-b border-ds-border flex items-center justify-between' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between'}">
-          <h3 class="font-display font-bold text-ds-textMain text-xs sm:text-base">
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between'}">
+          <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
             Revistas (${filteredRevistas.length})
           </h3>
-          <span class="text-xs font-normal text-ds-textSecondary whitespace-nowrap">${mobile ? `<strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.revistasNet)}</strong>` : `Subtotal: <strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.revistasNet)}</strong>`}</span>
         </div>
 
-        <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRevistas.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
+        <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRevistas.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${revistasCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum título encontrado para os filtros selecionados.</div>`}
           ${revistasMobilePaginationHtml}
+        </div>
+        <div class="${mobile ? 'mt-3 pt-3 border-t border-ds-border flex items-center justify-between text-xs' : 'px-4 py-3 bg-white border-t border-ds-border flex items-center justify-between text-xs'}">
+          <span class="font-medium text-ds-textSecondary">Total consolidado de Revistas (${filteredRevistas.length})</span>
+          <strong class="font-display font-extrabold text-sm text-ds-textMain">${fmtBRL(m.financials.revistasNet)}</strong>
         </div>
       </div>
     `;
@@ -3979,8 +3920,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const digChannelsLabel = `${p.vehicles.length} ${p.vehicles.length > 1 ? 'portais' : 'portal'}`;
 
       const digMetricsPopoverHtml = `
-        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[235px] p-3 rounded-xl bg-[#1E293B] text-white text-[11px] leading-snug shadow-xl pointer-events-none text-left">
-          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
+        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[235px] p-3 rounded-xl bg-[#1E293B] text-white text-xs leading-snug shadow-xl pointer-events-none text-left">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
             Detalhamento de métricas
           </div>
           <div class="space-y-1">
@@ -3997,23 +3938,23 @@ function renderMediaPlanList(m, preserveScroll = false) {
       `;
 
       const digMetricsDrawerHtml = isMetricsOpen ? `
-        <div class="bg-ds-bg border-t border-ds-border px-3.5 py-2.5 text-xs">
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
+        <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
               <i class="uil uil-chart-bar text-xs text-ds-textMain"></i>
               Detalhamento de métricas
             </span>
-            <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-[11px] font-semibold text-ds-textSecondary hover:text-ds-textMain">
+            <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
             </button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Portais</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Portais</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${digChannelsLabel}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">CPM</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">CPM</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${fmtBRL(p.cpm)}</div>
             </div>
           </div>
@@ -4022,37 +3963,39 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
       return `
         <div class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] shadow-xs transition">
-          <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
+          <div class="${mobile ? 'p-4' : 'p-4 sm:p-5'}">
             ${mobile ? `
               <!-- ================= LAYOUT MOBILE (sm — 640px) ================= -->
               <div>
-                <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
                       ${p.mediaTypeLabel.toUpperCase()}
                     </span>
-                    <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                      ID: #DIG-0${idx + 1}
-                    </span>
+                    ${state.isAdminView ? `
+                      <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                        ID: #DIG-0${idx + 1}
+                      </span>
+                    ` : ''}
                   </div>
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
-                    <span class="font-display font-extrabold text-[13px] text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(p.impressions)}</span>
-                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">impressões</span>
+                    <span class="font-display font-extrabold text-sm text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(p.impressions)}</span>
+                    <span class="text-xs font-normal text-ds-textSecondary leading-none">impressões</span>
                   </div>
                 </div>
-                <h4 class="font-display font-bold text-ds-textMain text-[14px] leading-snug line-clamp-2" title="${p.cleanTitle} — ${digSubtitle}">
+                <h4 class="font-display font-bold text-ds-textMain text-[15px] leading-snug line-clamp-2" title="${p.cleanTitle} — ${digSubtitle}">
                   ${p.cleanTitle}
                 </h4>
-                <p class="text-[11px] text-ds-textSecondary mt-0.5 leading-snug line-clamp-2" title="${p.cleanTitle} — ${digSubtitle}">
+                <p class="text-xs text-ds-textSecondary mt-1 leading-relaxed line-clamp-2" title="${p.cleanTitle} — ${digSubtitle}">
                   ${p.channelTypeLabel} • ${p.vehicles.join(', ')}
                 </p>
               </div>
-              <div class="my-2.5 border-t border-ds-border"></div>
+              <div class="my-3 border-t border-ds-border"></div>
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-baseline gap-1 whitespace-nowrap">
-                  <span class="font-display font-extrabold text-[15px] text-ds-textMain leading-none">${fmtBRL(p.totalPrice)}</span>
-                  <span class="text-[11px] text-ds-textSecondary">/ ${m.durationDays}d</span>
+                  <span class="font-display font-extrabold text-base text-ds-textMain leading-none">${fmtBRL(p.totalPrice)}</span>
+                  <span class="text-xs text-ds-textSecondary">/ ${m.durationDays}d</span>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0 ml-auto">
                   <button
@@ -4074,12 +4017,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
                       ${p.mediaTypeLabel.toUpperCase()}
                     </span>
-                    <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                      ID: #DIG-0${idx + 1}
-                    </span>
+                    ${state.isAdminView ? `
+                      <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                        ID: #DIG-0${idx + 1}
+                      </span>
+                    ` : ''}
                   </div>
                   <h4 class="font-display font-bold text-ds-textMain text-base sm:text-[17px] leading-snug truncate cursor-help" title="${p.cleanTitle} — ${digSubtitle}">
                     ${p.cleanTitle}
@@ -4087,13 +4032,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${p.cleanTitle} — ${digSubtitle}">
                     ${digSubtitle}
                   </p>
-                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-[11px] leading-snug shadow-lg whitespace-normal pointer-events-none">
+                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${p.cleanTitle}</div>
                     <div class="text-slate-200">${digSubtitle}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
-                  <div class="text-[10px] font-normal uppercase tracking-wider text-ds-textSecondary">
+                  <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
                     IMPRESSÕES ESTIMADAS
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
@@ -4141,16 +4086,19 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
     contentHtml = `
       <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <div class="${mobile ? 'pb-2.5 mb-2.5 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between gap-2'}">
-          <h3 class="font-display font-bold text-ds-textMain text-xs sm:text-base">
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between gap-2'}">
+          <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
             Portais e Globoplay (${filteredPortais.length})
           </h3>
-          <span class="text-xs font-normal text-ds-textSecondary whitespace-nowrap">${mobile ? `<strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.portaisNet)}</strong>` : `Subtotal: <strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.portaisNet)}</strong>`}</span>
         </div>
 
-        <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredPortais.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
+        <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredPortais.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${portaisCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum produto encontrado para os filtros selecionados.</div>`}
           ${portaisMobilePaginationHtml}
+        </div>
+        <div class="${mobile ? 'mt-3 pt-3 border-t border-ds-border flex items-center justify-between text-xs' : 'px-4 py-3 bg-white border-t border-ds-border flex items-center justify-between text-xs'}">
+          <span class="font-medium text-ds-textSecondary">Total consolidado de Portais e Globoplay (${filteredPortais.length})</span>
+          <strong class="font-display font-extrabold text-sm text-ds-textMain">${fmtBRL(m.financials.portaisNet)}</strong>
         </div>
       </div>
     `;
@@ -4178,8 +4126,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const spotsLabel = `${fmtInt(rd.totalInsertions)} (${fmtInt(rd.weeklyInsertions)}/sem)`;
 
       const radMetricsPopoverHtml = `
-        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[235px] p-3 rounded-xl bg-[#1E293B] text-white text-[11px] leading-snug shadow-xl pointer-events-none text-left">
-          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
+        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[235px] p-3 rounded-xl bg-[#1E293B] text-white text-xs leading-snug shadow-xl pointer-events-none text-left">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
             Detalhamento de métricas
           </div>
           <div class="space-y-1">
@@ -4200,27 +4148,27 @@ function renderMediaPlanList(m, preserveScroll = false) {
       `;
 
       const radMetricsDrawerHtml = isMetricsOpen ? `
-        <div class="bg-ds-bg border-t border-ds-border px-3.5 py-2.5 text-xs">
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
+        <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
               <i class="uil uil-chart-bar text-xs text-ds-textMain"></i>
               Detalhamento de métricas
             </span>
-            <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-[11px] font-semibold text-ds-textSecondary hover:text-ds-textMain">
+            <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
             </button>
           </div>
           <div class="grid grid-cols-3 gap-2">
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Frequência</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Frequência</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${rd.frequencyDaysLabel}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Faixa horária</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Faixa horária</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${rd.timeWindow}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border">
-              <div class="text-[10px] text-ds-textSecondary">Duração</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Duração</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${rd.spotDuration}s</div>
             </div>
           </div>
@@ -4229,40 +4177,42 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
       return `
         <div class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] shadow-xs transition">
-          <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
+          <div class="${mobile ? 'p-4' : 'p-4 sm:p-5'}">
             ${mobile ? `
               <!-- ================= LAYOUT MOBILE (sm — 640px) ================= -->
               <div>
-                <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
                       SPOT ${rd.spotDuration}S
                     </span>
-                    <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                      ID: #CBN-0${idx + 1}
-                    </span>
+                    ${state.isAdminView ? `
+                      <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                        ID: #CBN-0${idx + 1}
+                      </span>
+                    ` : ''}
                   </div>
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
-                    <span class="font-display font-extrabold text-[13px] text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(rd.totalInsertions)}</span>
-                    <span class="text-[10px] font-normal text-ds-textSecondary leading-none">inserções</span>
+                    <span class="font-display font-extrabold text-sm text-[#1E293B] leading-none whitespace-nowrap">${fmtInt(rd.totalInsertions)}</span>
+                    <span class="text-xs font-normal text-ds-textSecondary leading-none">inserções</span>
                   </div>
                 </div>
-                <h4 class="font-display font-bold text-ds-textMain text-[14px] leading-snug line-clamp-2" title="${rd.cleanTitle} — ${radSubtitle}">
+                <h4 class="font-display font-bold text-ds-textMain text-[15px] leading-snug line-clamp-2" title="${rd.cleanTitle} — ${radSubtitle}">
                   ${rd.cleanTitle}
                 </h4>
-                <p class="text-[11px] text-ds-textSecondary mt-0.5 leading-snug line-clamp-2" title="${rd.cleanTitle} — ${radSubtitle}">
+                <p class="text-xs text-ds-textSecondary mt-1 leading-relaxed line-clamp-2" title="${rd.cleanTitle} — ${radSubtitle}">
                   ${radSubtitle}
                 </p>
               </div>
-              <div class="my-2.5 border-t border-ds-border"></div>
+              <div class="my-3 border-t border-ds-border"></div>
               <div class="flex items-center justify-between gap-2">
                 <div class="min-w-0">
                   <div class="flex items-baseline gap-1 whitespace-nowrap">
-                    <span class="font-display font-extrabold text-[15px] text-ds-textMain leading-none">${fmtBRL(rd.totalPrice)}</span>
-                    <span class="text-[11px] text-ds-textSecondary">/ ${m.durationDays}d</span>
+                    <span class="font-display font-extrabold text-base text-ds-textMain leading-none">${fmtBRL(rd.totalPrice)}</span>
+                    <span class="text-xs text-ds-textSecondary">/ ${m.durationDays}d</span>
                   </div>
-                  <div class="text-[10px] font-semibold text-amber-800 leading-tight mt-0.5">Faturado à parte</div>
+                  <div class="text-xs font-semibold text-amber-800 leading-tight mt-0.5">Faturado à parte</div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0 ml-auto">
                   <button
@@ -4284,12 +4234,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
                       SPOT ${rd.spotDuration}S
                     </span>
-                    <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
-                      ID: #CBN-0${idx + 1}
-                    </span>
+                    ${state.isAdminView ? `
+                      <span class="text-xs font-mono font-semibold text-ds-textSecondary">
+                        ID: #CBN-0${idx + 1}
+                      </span>
+                    ` : ''}
                   </div>
                   <h4 class="font-display font-bold text-ds-textMain text-base sm:text-[17px] leading-snug truncate cursor-help" title="${rd.cleanTitle} — ${radSubtitle}">
                     ${rd.cleanTitle}
@@ -4297,13 +4249,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${rd.cleanTitle} — ${radSubtitle}">
                     ${radSubtitle}
                   </p>
-                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-[11px] leading-snug shadow-lg whitespace-normal pointer-events-none">
+                  <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-[#1E293B] text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${rd.cleanTitle}</div>
                     <div class="text-slate-200">${radSubtitle}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
-                  <div class="text-[10px] font-normal uppercase tracking-wider text-ds-textSecondary">
+                  <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
                     INSERÇÕES
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
@@ -4354,28 +4306,31 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
     contentHtml = `
       <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <div class="${mobile ? 'pb-2.5 mb-2.5 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between gap-2'}">
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between gap-2'}">
           <div class="flex items-center gap-1.5 min-w-0">
-            <h3 class="font-display font-bold text-ds-textMain text-xs sm:text-base whitespace-nowrap">
+            <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base whitespace-nowrap">
               Rádio (${filteredRadio.length})
             </h3>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-900 border border-amber-200 whitespace-nowrap">
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200 whitespace-nowrap">
               ${mobile ? 'À parte' : 'Faturado à parte'}
             </span>
           </div>
-          <span class="text-xs font-normal text-ds-textSecondary whitespace-nowrap">${mobile ? `<strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.radioNet)}</strong>` : `Subtotal: <strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.radioNet)}</strong>`}</span>
         </div>
 
-        <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRadio.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
+        <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRadio.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${radioCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhuma praça de rádio encontrada para os filtros selecionados.</div>`}
           ${radioMobilePaginationHtml}
+        </div>
+        <div class="${mobile ? 'mt-3 pt-3 border-t border-ds-border flex items-center justify-between text-xs' : 'px-4 py-3 bg-white border-t border-ds-border flex items-center justify-between text-xs'}">
+          <span class="font-medium text-ds-textSecondary">Total consolidado de Rádio (${filteredRadio.length})</span>
+          <strong class="font-display font-extrabold text-sm text-ds-textMain">${fmtBRL(m.financials.radioNet)}</strong>
         </div>
       </div>
     `;
   }
 
   contentHtml += `
-    <div class="mt-2.5 px-2 flex items-start sm:items-center gap-1.5 text-[11px] sm:text-xs text-ds-textSecondary leading-snug">
+    <div class="mt-3 px-2 flex items-start sm:items-center gap-1.5 text-xs text-ds-textSecondary leading-snug">
       <i class="uil uil-info-circle text-xs sm:text-sm text-ds-textMuted shrink-0 mt-0.5 sm:mt-0"></i>
       <span>Os planos de mídia podem sofrer alteração de valores e/ou disponibilidade de pontos sem aviso prévio.</span>
     </div>
@@ -5912,65 +5867,401 @@ function renderPaymentTab(m) {
   }
 
   // ==========================================================================
-  // ESTADO "AGUARDANDO PAGAMENTO" (CHECKOUT COMPLETO + PIX GERADO COM SCROLL)
+  // ESTADO "AGUARDANDO PAGAMENTO" (2 ETAPAS NO TOPO ESQUERDO: 1. DADOS DE FATURAMENTO -> 2. PAGAMENTO)
   // ==========================================================================
   const pixCodeString = `00020126580014BR.GOV.BCB.PIX0136aquiads-proposta-${m.id}-eletromidia5204000053039865408${f.onlinePayableNow.toFixed(2)}5802BR5918AQUI ADS GLOBO ELE6009SAO PAULO62070503***6304ABCD`;
   const boletoLineString = `34191.79001 01043.510047 91020.150008 8 989500000${Math.round(f.onlinePayableNow)}`;
-  const methodsBlocked = isPaymentMethodsBlocked();
+  const unlogged = isUserUnlogged();
+  const hasBillingData = Boolean(state.billingUnlockedInline && state.billingDoc);
+  const methodsBlocked = unlogged || !hasBillingData;
+  const activeStep = (!hasBillingData || unlogged || state.billingFormOpen) ? 1 : (state.paymentCheckoutStep || 1);
+  const isPjForm = (state.billingPersonType || 'CNPJ') === 'CNPJ';
+  const ufList = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+  const segmentsList = [
+    'Varejo e Comércio',
+    'Alimentação e Bebidas',
+    'Saúde e Bem-estar',
+    'Educação e Ensino',
+    'Serviços Financeiros',
+    'Imobiliário e Construção',
+    'Tecnologia e Telecom',
+    'Agência de Publicidade',
+    'Outros Segmentos'
+  ];
 
-  const billingDisclaimerBannerHtml = state.simulateUnlogged && !state.billingUnlockedInline ? `
-    <div id="billingDisclaimerBanner" class="rounded-[14px] border border-amber-200 bg-[#FFFBF2] ${mobile ? 'p-3.5 flex-col items-stretch' : 'px-4 py-3.5 flex-row items-center justify-between'} flex gap-3.5">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="w-9 h-9 rounded-xl bg-amber-100/80 border border-amber-200 text-amber-800 flex items-center justify-center text-base shrink-0">
-          <i class="uil uil-exclamation-triangle"></i>
-        </div>
-        <div class="min-w-0">
-          <div class="font-display font-bold text-sm text-ds-textMain leading-snug">
-            Cadastre o perfil de faturamento para prosseguir
+  // Stepper de 2 etapas no canto superior esquerdo (substituindo "Escolha a forma de pagamento" fixo)
+  const paymentStepperHeaderHtml = `
+    <div class="border-b border-ds-border pb-4 space-y-2.5">
+      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs sm:text-sm">
+        <button
+          type="button"
+          onclick="goToPaymentCheckoutStep(1)"
+          class="inline-flex items-center gap-2 group transition cursor-pointer"
+        >
+          <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-display font-bold text-xs transition ${
+            activeStep > 1 && hasBillingData
+              ? 'bg-emerald-600 text-white'
+              : activeStep === 1
+                ? 'bg-primary text-white shadow-xs'
+                : 'bg-ds-bg text-ds-textMuted border border-ds-borderStrong'
+          }">
+            ${activeStep > 1 && hasBillingData ? '<i class="uil uil-check text-sm"></i>' : '1'}
+          </span>
+          <span class="font-display ${activeStep === 1 ? 'font-bold text-ds-textMain' : hasBillingData ? 'font-bold text-emerald-700' : 'font-medium text-ds-textMuted'} group-hover:text-primary transition">
+            Dados de faturamento
+          </span>
+        </button>
+
+        <span class="w-6 sm:w-10 h-[2px] ${activeStep === 2 && hasBillingData ? 'bg-emerald-500' : 'bg-ds-borderStrong'}"></span>
+
+        <button
+          type="button"
+          onclick="goToPaymentCheckoutStep(2)"
+          class="inline-flex items-center gap-2 group transition cursor-pointer"
+        >
+          <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-display font-bold text-xs transition ${
+            activeStep === 2
+              ? 'bg-primary text-white shadow-xs'
+              : 'bg-ds-bg text-ds-textMuted border border-ds-borderStrong'
+          }">
+            2
+          </span>
+          <span class="font-display ${activeStep === 2 ? 'font-bold text-ds-textMain' : 'font-medium text-ds-textMuted'} group-hover:text-primary transition">
+            Pagamento
+          </span>
+        </button>
+      </div>
+
+      <p class="text-xs text-ds-textSecondary">
+        ${activeStep === 1
+          ? 'Confira os dados de faturamento ou cadastre diretamente abaixo para avançar para o pagamento.'
+          : `Selecione como deseja pagar os canais de ativação online (${onlineChannelsLabel}).`
+        }
+      </p>
+    </div>
+  `;
+
+  // Conteúdo da Etapa 1: Dados de faturamento (Cenário 1: Sócia loga e cadastra | Cenário 2: Titular atualiza priorizando CNPJ)
+  const step1BillingContentHtml = unlogged ? `
+    <div class="space-y-4">
+      <!-- Cenário 1: Sócia / Pagador precisa logar para preencher seus dados de faturamento e pagar -->
+      <div class="rounded-2xl border border-ds-borderStrong bg-ds-surface/70 p-4 sm:p-5 space-y-3.5">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white border border-ds-borderStrong text-primary flex items-center justify-center text-lg shrink-0">
+            <i class="uil uil-user-check"></i>
           </div>
-          <p class="text-xs text-ds-textSecondary mt-0.5 leading-snug">
-            Conclua os dados de faturamento com a Andreia para liberar os métodos de pagamento.
-          </p>
+          <div class="min-w-0 space-y-1">
+            <h4 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
+              Entre na sua conta para preencher o faturamento e pagar
+            </h4>
+            <p class="text-xs text-ds-textSecondary leading-relaxed">
+              Vai realizar o pagamento desta proposta compartilhada? Faça login na sua conta para cadastrar seus dados de faturamento aqui mesmo na página e concluir o pagamento.
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onclick="openAuthModal('login')"
+            class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+          >
+            <i class="uil uil-signin text-base"></i>
+            <span>Entrar para informar faturamento</span>
+          </button>
+          <button
+            type="button"
+            onclick="openAuthModal('cadastro')"
+            class="px-4 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <span>Criar conta</span>
+          </button>
         </div>
       </div>
-      <button
-        type="button"
-        onclick="openAndreiaBillingChat()"
-        class="${mobile ? 'w-full' : 'w-auto'} px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 shadow-2xs transition shrink-0"
-      >
-        <span>Cadastrar</span>
-        <i class="uil uil-arrow-right text-sm"></i>
-      </button>
-    </div>
-  ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
-    <div id="billingDisclaimerBanner" class="rounded-[14px] border border-ds-borderStrong bg-ds-surface/70 ${mobile ? 'p-3.5' : 'px-4 py-3.5'} flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-white border border-ds-borderStrong text-primary flex items-center justify-center text-base shrink-0">
-        <i class="uil uil-user-check"></i>
-      </div>
-      <div class="min-w-0 flex-1">
-        <div class="font-display font-bold text-sm text-ds-textMain leading-snug">
-          Proposta enviada para um especialista. Aguarde o retorno.
+
+      <!-- Cenário 2: Titular / Perfil gerador da proposta atualiza os dados de faturamento (Priorizando CNPJ) -->
+      <div class="rounded-2xl border border-dashed border-ds-borderStrong bg-white p-4 sm:p-5 space-y-3">
+        <div class="flex items-start justify-between gap-3">
+          <div class="space-y-1">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-xs font-bold text-amber-900">
+              <i class="uil uil-sync"></i> Sincronização automática com o titular
+            </span>
+            <h5 class="font-display font-bold text-xs sm:text-sm text-ds-textMain">
+              Aguardando o titular cadastrar os dados de faturamento?
+            </h5>
+            <p class="text-xs text-ds-textSecondary leading-relaxed">
+              Assim que o perfil gerador da proposta atualizar os dados de faturamento, esta proposta atualiza automaticamente — <strong>sempre priorizando o CNPJ</strong>.
+            </p>
+          </div>
         </div>
-        <p class="text-xs text-ds-textSecondary mt-0.5 leading-snug">
-          Nosso time entrará em contato em breve para dar seguimento à sua proposta.
-        </p>
+        <button
+          type="button"
+          onclick="simulateCreatorBillingUpdate()"
+          class="w-full sm:w-auto px-4 py-2 rounded-xl border border-primary/40 bg-primary-light/40 hover:bg-primary-light text-primary font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
+        >
+          <i class="uil uil-bolt-alt text-sm"></i>
+          <span>Simular atualização pelo titular (Priorizar CNPJ)</span>
+        </button>
       </div>
     </div>
-  ` : '';
+  ` : (state.billingFormOpen || !hasBillingData) ? `
+    <!-- Formulário Inline de Cadastro / Edição de Dados de Faturamento (Sem Chatbot Renata/Andreia, fiel à Imagem 3) -->
+    <div class="space-y-5">
+      <!-- Alternador Pessoa Jurídica (CNPJ Prioritário) vs Pessoa Física (CPF) -->
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-ds-surface/60 p-2 rounded-xl border border-ds-border">
+        <div class="grid grid-cols-2 gap-1.5 w-full sm:w-auto">
+          <button
+            type="button"
+            onclick="setBillingPersonType('CNPJ')"
+            class="px-3.5 py-2 rounded-lg font-display font-bold text-xs transition cursor-pointer ${
+              isPjForm
+                ? 'bg-white text-ds-textMain shadow-2xs border border-ds-borderStrong'
+                : 'text-ds-textSecondary hover:text-ds-textMain'
+            }"
+          >
+            Pessoa Jurídica (CNPJ)
+          </button>
+          <button
+            type="button"
+            onclick="setBillingPersonType('CPF')"
+            class="px-3.5 py-2 rounded-lg font-display font-bold text-xs transition cursor-pointer ${
+              !isPjForm
+                ? 'bg-white text-ds-textMain shadow-2xs border border-ds-borderStrong'
+                : 'text-ds-textSecondary hover:text-ds-textMain'
+            }"
+          >
+            Pessoa Física (CPF)
+          </button>
+        </div>
+        <span class="text-xs text-ds-textSecondary px-2">
+          <i class="uil uil-check-circle text-primary"></i> Prioridade para CNPJ
+        </span>
+      </div>
+
+      ${isPjForm ? `
+        <!-- Perfil de Pessoa Jurídica (Fiel à Imagem 3: Autônomo | Empresa | Agência) -->
+        <div class="space-y-2.5">
+          <div>
+            <h4 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
+              Escolha seu perfil de pessoa jurídica
+            </h4>
+            <p class="text-xs text-ds-textSecondary">
+              Selecione a opção que melhor descreve você
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            ${[
+              { key: 'autonomo', icon: 'uil-briefcase-alt', title: 'Autônomo', desc: 'Trabalho de forma independente' },
+              { key: 'empresa', icon: 'uil-building', title: 'Empresa', desc: 'Represento uma empresa' },
+              { key: 'agencia', icon: 'uil-users-alt', title: 'Agência', desc: 'Faço parte ou represento uma agência' }
+            ].map((role) => {
+              const activeRole = (state.billingPjRole || 'empresa') === role.key;
+              return `
+                <button
+                  type="button"
+                  onclick="setBillingPjRole('${role.key}')"
+                  class="p-3.5 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between gap-2 ${
+                    activeRole
+                      ? 'border-2 border-primary bg-[#FFFBF7] shadow-2xs'
+                      : 'border-ds-borderStrong bg-white hover:bg-ds-surface/40'
+                  }"
+                >
+                  <i class="uil ${role.icon} text-lg ${activeRole ? 'text-primary' : 'text-ds-textMain'}"></i>
+                  <div>
+                    <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain">${role.title}</div>
+                    <div class="text-xs text-ds-textSecondary mt-0.5 leading-snug">${role.desc}</div>
+                  </div>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Campos CNPJ: cnpj*, celular*, razão social*, setor/segmento* -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+          <div class="sm:col-span-6">
+            <label class="block text-ds-textSecondary font-medium mb-1">cnpj<span class="text-primary">*</span></label>
+            <input id="billingInputDoc" type="text" value="${escapeHtml(state.billingDoc && state.billingDoc.includes('/') ? state.billingDoc : '12.345.678/0001-99')}" placeholder="00.000.000/0001-00" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-6">
+            <label class="block text-ds-textSecondary font-medium mb-1">celular<span class="text-primary">*</span></label>
+            <input id="billingInputPhone" type="text" value="${escapeHtml(state.billingPhone || '(11) 99876-5432')}" placeholder="(11) 99999-9999" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-6">
+            <label class="block text-ds-textSecondary font-medium mb-1">razão social<span class="text-primary">*</span></label>
+            <input id="billingInputName" type="text" value="${escapeHtml(state.billingCompany && state.billingCompany.includes('LTDA') ? state.billingCompany : 'Padaria & Confeitaria Bela Paulista LTDA')}" placeholder="Razão social da empresa" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-6">
+            <label class="block text-ds-textSecondary font-medium mb-1">setor/segmento<span class="text-primary">*</span></label>
+            <select id="billingInputSegment" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain">
+              ${segmentsList.map((seg) => `<option value="${seg}" ${state.billingSegment === seg ? 'selected' : ''}>${seg}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      ` : `
+        <!-- Campos Pessoa Física: cpf*, nome*, celular* -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+          <div class="sm:col-span-6">
+            <label class="block text-ds-textSecondary font-medium mb-1">cpf<span class="text-primary">*</span></label>
+            <input id="billingInputDoc" type="text" value="${escapeHtml(state.billingDoc && !state.billingDoc.includes('/') ? state.billingDoc : '123.456.789-00')}" placeholder="000.000.000-00" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-6">
+            <label class="block text-ds-textSecondary font-medium mb-1">celular<span class="text-primary">*</span></label>
+            <input id="billingInputPhone" type="text" value="${escapeHtml(state.billingPhone || '(11) 99876-5432')}" placeholder="(11) 99999-9999" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-12">
+            <label class="block text-ds-textSecondary font-medium mb-1">nome<span class="text-primary">*</span></label>
+            <input id="billingInputName" type="text" value="${escapeHtml(state.billingCompany && !state.billingCompany.includes('LTDA') ? state.billingCompany : 'Natalia Ferreira')}" placeholder="Nome completo do titular" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+        </div>
+      `}
+
+      <!-- Seção Endereço (Comum para CNPJ e CPF: cep*, endereço*, número*, bairro*, complemento, cidade*, estado*) -->
+      <div class="space-y-3 pt-1">
+        <h5 class="font-display font-bold text-xs sm:text-sm text-ds-textMain">Endereço</h5>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+          <div class="sm:col-span-4">
+            <label class="block text-ds-textSecondary font-medium mb-1">cep<span class="text-primary">*</span></label>
+            <input id="billingInputCep" type="text" value="${escapeHtml(state.billingCep || '04538-132')}" placeholder="00000-000" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-8">
+            <label class="block text-ds-textSecondary font-medium mb-1">endereço<span class="text-primary">*</span></label>
+            <input id="billingInputStreet" type="text" value="${escapeHtml(state.billingStreet || 'Av. Brigadeiro Faria Lima')}" placeholder="Logradouro / Rua / Avenida" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-4">
+            <label class="block text-ds-textSecondary font-medium mb-1">número<span class="text-primary">*</span></label>
+            <input id="billingInputNumber" type="text" value="${escapeHtml(state.billingNumber || '3477')}" placeholder="Nº" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-4">
+            <label class="block text-ds-textSecondary font-medium mb-1">bairro<span class="text-primary">*</span></label>
+            <input id="billingInputDistrict" type="text" value="${escapeHtml(state.billingDistrict || 'Itaim Bibi')}" placeholder="Bairro" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-4">
+            <label class="block text-ds-textSecondary font-medium mb-1">complemento</label>
+            <input id="billingInputComplement" type="text" value="${escapeHtml(state.billingComplement || '14º andar')}" placeholder="Sala, andar, bloco" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-6">
+            <label class="block text-ds-textSecondary font-medium mb-1">cidade<span class="text-primary">*</span></label>
+            <input id="billingInputCity" type="text" value="${escapeHtml(state.billingCity || 'São Paulo')}" placeholder="Cidade" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain" />
+          </div>
+          <div class="sm:col-span-6">
+            <label class="block text-ds-textSecondary font-medium mb-1">estado<span class="text-primary">*</span></label>
+            <select id="billingInputState" class="w-full px-3 py-2.5 rounded-xl border border-ds-borderStrong bg-[#F3F6FA] focus:bg-white focus:border-primary focus:outline-none text-xs text-ds-textMain">
+              ${ufList.map((uf) => `<option value="${uf}" ${(state.billingState || 'SP') === uf ? 'selected' : ''}>${uf}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Ação: cancelar | salvar -->
+      <div class="flex items-center justify-end gap-3 pt-2">
+        ${hasBillingData ? `
+          <button
+            type="button"
+            onclick="cancelBillingStepForm()"
+            class="px-4 py-2.5 rounded-xl text-ds-textMain hover:bg-ds-surface font-display font-bold text-xs transition cursor-pointer"
+          >
+            cancelar
+          </button>
+        ` : ''}
+        <button
+          type="button"
+          onclick="saveBillingStepForm()"
+          class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+        >
+          <i class="uil uil-check-circle text-base"></i>
+          <span>salvar</span>
+        </button>
+      </div>
+    </div>
+  ` : `
+    <!-- Resumo dos Dados de Faturamento Confirmados na Etapa 1 + Botão para Avançar para Etapa 2 (Pagamento) -->
+    <div class="space-y-4">
+      <div class="rounded-2xl border border-ds-borderStrong bg-ds-surface/60 p-4 sm:p-5 space-y-3">
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <div class="space-y-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary">
+                ${escapeHtml(getProtectedBillingInfo().holderLabel)}
+              </span>
+              ${getProtectedBillingInfo().isProtectedLgpd ? `
+                <span class="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
+                  Protegido · LGPD
+                </span>
+              ` : `
+                <span class="px-2 py-0.5 rounded-md bg-primary-light border border-primary/25 text-xs font-bold text-primary">
+                  CNPJ Prioritário
+                </span>
+              `}
+              ${state.creatorSyncedCnpj ? `
+                <span class="px-2 py-0.5 rounded-md bg-sky-50 border border-sky-200 text-xs font-bold text-sky-800">
+                  Sincronizado pelo titular
+                </span>
+              ` : ''}
+            </div>
+            <div class="font-display font-bold text-base text-ds-textMain">
+              ${escapeHtml(getProtectedBillingInfo().displayName)}
+            </div>
+            <div class="text-xs text-ds-textSecondary">
+              ${escapeHtml(getProtectedBillingInfo().docTypeLabel)}: <strong class="text-ds-textMain">${escapeHtml(getProtectedBillingInfo().displayDoc)}</strong>
+              ${state.billingPhone ? ` · Celular: <strong class="text-ds-textMain">${escapeHtml(state.billingPhone)}</strong>` : ''}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onclick="openBillingStepForm()"
+            class="px-3 py-1.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-primary font-display font-bold text-xs inline-flex items-center gap-1 transition cursor-pointer"
+          >
+            <i class="uil uil-pen"></i>
+            <span>Editar / Cadastrar outro</span>
+          </button>
+        </div>
+
+        <div class="pt-3 border-t border-ds-border text-xs text-ds-textSecondary flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-ds-textMuted">Endereço:</span>
+            <strong class="text-ds-textMain font-medium">
+              ${escapeHtml(state.billingStreet || 'Av. Brigadeiro Faria Lima')}, ${escapeHtml(state.billingNumber || '3477')}${state.billingComplement ? ` (${escapeHtml(state.billingComplement)})` : ''} — ${escapeHtml(state.billingDistrict || 'Itaim Bibi')}, ${escapeHtml(state.billingCity || 'São Paulo')}/${escapeHtml(state.billingState || 'SP')} · CEP ${escapeHtml(state.billingCep || '04538-132')}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      ${getProtectedBillingInfo().isCpf ? `
+        <!-- Atalho de Cenário 2: Caso o titular atualize os dados de faturamento com CNPJ -->
+        <div class="rounded-xl border border-dashed border-ds-borderStrong bg-white p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div class="text-ds-textSecondary">
+            <strong class="text-ds-textMain">Cenário Titular:</strong> Se o perfil gerador da proposta atualizar o cadastro com CNPJ, a proposta atualiza automaticamente priorizando o CNPJ.
+          </div>
+          <button
+            type="button"
+            onclick="simulateCreatorBillingUpdate()"
+            class="px-3.5 py-2 rounded-xl border border-primary/40 bg-primary-light/40 hover:bg-primary-light text-primary font-display font-bold text-xs whitespace-nowrap transition cursor-pointer shrink-0"
+          >
+            <i class="uil uil-sync"></i> Simular atualização CNPJ pelo titular
+          </button>
+        </div>
+      ` : ''}
+
+      <div class="pt-1">
+        <button
+          type="button"
+          onclick="goToPaymentCheckoutStep(2)"
+          class="w-full py-3 px-5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm shadow-aqui-cta flex items-center justify-center gap-2 transition cursor-pointer"
+        >
+          <span>Avançar para pagamento</span>
+          <i class="uil uil-arrow-right text-base"></i>
+        </button>
+      </div>
+    </div>
+  `;
 
   const leftPaymentColumnHtml = `
-    <div class="bg-white rounded-[18px] border border-ds-borderStrong ${mobile ? 'p-3.5 space-y-3.5' : 'p-6 space-y-4'} shadow-aqui-card">
-      <div class="border-b border-ds-border pb-3">
-        <h3 class="font-display font-bold text-ds-textMain ${mobile ? 'text-base' : 'text-xl'}">
-          Escolha a forma de pagamento
-        </h3>
-        <p class="text-xs text-ds-textSecondary mt-0.5">
-          Selecione como deseja pagar os canais de ativação online (${onlineChannelsLabel})
-        </p>
-      </div>
+    <div class="bg-white rounded-[18px] border border-ds-borderStrong ${mobile ? 'p-4 space-y-4' : 'p-6 space-y-5'} shadow-aqui-card">
+      ${paymentStepperHeaderHtml}
 
-      ${billingDisclaimerBannerHtml}
-
+      ${activeStep === 1 ? step1BillingContentHtml : `
       <div class="space-y-3">
 
         <!-- OPÇÃO 1: CARTÃO DE CRÉDITO -->
@@ -6351,12 +6642,23 @@ function renderPaymentTab(m) {
           ` : ''}
         </div>
 
+        <div class="pt-2 border-t border-ds-border flex items-center justify-between">
+          <button
+            type="button"
+            onclick="goToPaymentCheckoutStep(1)"
+            class="text-xs font-display font-bold text-ds-textSecondary hover:text-primary inline-flex items-center gap-1 transition cursor-pointer"
+          >
+            <i class="uil uil-arrow-left text-sm"></i>
+            <span>Voltar para dados de faturamento</span>
+          </button>
+        </div>
       </div>
+      `}
     </div>
   `;
 
   // ==========================================================================
-  // COLUNA DIREITA: RESUMO DA CAMPANHA — HIERARQUIA VISUAL LIMPA
+  // COLUNA DIREITA: RESUMO DA CAMPANHA — HIERARQUIA VISUAL LIMPA + CUPOM (LOGADO E DESLOGADO)
   // ==========================================================================
   const isAwaitingGeneratedPayment =
     (state.paymentMethod === 'pix' && state.pixGenerated) ||
@@ -6380,52 +6682,81 @@ function renderPaymentTab(m) {
           </div>
         </div>
 
-        <!-- Bloco 2: Faturamento (com proteção LGPD para CPF e dados compartilhados) -->
-        <div class="text-xs">
+        <!-- Bloco 2: Faturamento (Integrado com a Etapa 1 de Dados de faturamento, sem chatbot) -->
+        <div class="text-xs pt-2 border-t border-ds-border">
           <div class="flex items-center justify-between gap-2">
             <div class="inline-flex items-center gap-1.5">
               <span class="text-ds-textSecondary">Faturamento</span>
-              ${!(state.simulateUnlogged && !state.billingUnlockedInline) && getProtectedBillingInfo().isProtectedLgpd ? `
-                <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800">
+              ${hasBillingData && getProtectedBillingInfo().isProtectedLgpd ? `
+                <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
                   Protegido · LGPD
+                </span>
+              ` : hasBillingData ? `
+                <span class="px-1.5 py-0.5 rounded bg-primary-light border border-primary/25 text-xs font-bold text-primary">
+                  CNPJ Prioritário
                 </span>
               ` : ''}
             </div>
-            ${state.simulateUnlogged && !state.billingUnlockedInline ? `
-              <button type="button" onclick="openAndreiaBillingChat()" class="text-primary font-display font-bold hover:underline inline-flex items-center gap-1">
-                <span>Cadastrar</span>
-                <i class="uil uil-arrow-right text-xs"></i>
+            ${unlogged ? `
+              <button type="button" onclick="openAuthModal('login')" class="text-primary font-display font-bold hover:underline inline-flex items-center gap-1 cursor-pointer">
+                <i class="uil uil-signin"></i>
+                <span>Entrar para preencher</span>
               </button>
-            ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
-              <span class="text-ds-textMuted font-semibold text-[11px]">Em análise</span>
             ` : `
-              <button type="button" onclick="toggleBillingDrawer()" class="text-primary font-bold hover:underline inline-flex items-center gap-1">
+              <button type="button" onclick="openBillingStepForm()" class="text-primary font-bold hover:underline inline-flex items-center gap-1 cursor-pointer">
                 <i class="uil uil-pen"></i>
-                <span>${state.billingDrawerOpen ? 'fechar' : needsBillingWarning ? 'informar CNPJ' : 'alterar'}</span>
+                <span>${hasBillingData ? 'alterar' : 'cadastrar'}</span>
               </button>
             `}
           </div>
-          ${state.simulateUnlogged && !state.billingUnlockedInline ? `
-            <div class="mt-0.5 text-[11px] text-ds-textMuted">
-              Perfil pendente de cadastro.
+          ${!hasBillingData ? `
+            <div class="mt-0.5 text-xs text-ds-textMuted">
+              ${unlogged ? 'Entre na sua conta ou aguarde o titular atualizar o CNPJ.' : 'Cadastre os dados de faturamento na Etapa 1 ao lado.'}
             </div>
           ` : `
             <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(getProtectedBillingInfo().displayName)}</div>
-            <div class="text-[11px] text-ds-textMuted">${escapeHtml(getProtectedBillingInfo().docTypeLabel)}: ${escapeHtml(getProtectedBillingInfo().displayDoc)}</div>
+            <div class="text-xs text-ds-textMuted">${escapeHtml(getProtectedBillingInfo().docTypeLabel)}: ${escapeHtml(getProtectedBillingInfo().displayDoc)}</div>
           `}
+        </div>
 
-          ${state.billingDrawerOpen && (!state.simulateUnlogged || (state.billingUnlockedInline && !state.billingCnpjRestricted)) ? `
-            <div class="mt-2.5 p-3 rounded-xl bg-ds-bg border border-ds-borderStrong space-y-2 text-[11px] leading-relaxed text-ds-textSecondary">
-              <p>
-                <strong class="text-ds-textMain">Perfil de PJ não pode ser alterado na plataforma</strong> (necessário um executivo). Para cadastrar outro perfil de <strong>CPF</strong>, fale com a <strong>Andreia</strong>.
-              </p>
+        <!-- Bloco 2.5: Cupom de desconto (Habilitado tanto Logado quanto Deslogado) -->
+        <div class="text-xs pt-2.5 border-t border-ds-border">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-ds-textSecondary flex items-center gap-1.5">
+              <i class="uil uil-ticket text-primary text-sm"></i>
+              <span>Cupom de desconto</span>
+            </span>
+            ${state.simulateCoupon ? `
+              <div class="inline-flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 font-mono font-bold text-emerald-800 text-xs">
+                  ${escapeHtml(state.couponCode || 'AQUIADS10')} (-${fmtBRL(f.couponDiscount)})
+                </span>
+                <button type="button" onclick="toggleCouponSimulation(false)" class="text-aqui-red font-bold hover:underline cursor-pointer">
+                  remover
+                </button>
+              </div>
+            ` : `
+              <button type="button" onclick="toggleCouponDrawer()" class="text-primary font-bold hover:underline inline-flex items-center gap-1 cursor-pointer">
+                <span>${state.couponDrawerOpen ? 'fechar' : 'adicionar cupom'}</span>
+              </button>
+            `}
+          </div>
+
+          ${state.couponDrawerOpen && !state.simulateCoupon ? `
+            <div class="mt-2 flex items-center gap-2">
+              <input
+                id="checkoutCouponInput"
+                type="text"
+                value="${escapeHtml(state.couponCode || 'AQUIADS10')}"
+                placeholder="Digite seu cupom"
+                class="flex-1 px-3 py-2 rounded-xl border border-ds-borderStrong bg-white focus:border-primary focus:outline-none font-mono font-bold text-xs text-ds-textMain uppercase"
+              />
               <button
                 type="button"
-                onclick="openAndreiaBillingChangeChat()"
-                class="w-full py-2 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-2xs"
+                onclick="applyCheckoutCoupon()"
+                class="px-4 py-2 rounded-xl bg-ds-textMain hover:bg-primary text-white font-display font-bold text-xs transition cursor-pointer shrink-0"
               >
-                <i class="uil uil-comment-alt-dots text-sm"></i>
-                <span>Falar com Andreia</span>
+                Aplicar
               </button>
             </div>
           ` : ''}
@@ -6461,9 +6792,9 @@ function renderPaymentTab(m) {
           </div>
         </div>
 
-        <!-- 4.2 Selo de Segurança + Link Secundário Discreto (O botão "efetuar pagamento" fica diretamente em cada forma de pagamento à esquerda) -->
+        <!-- 4.2 Selo de Segurança + Link Secundário Discreto -->
         <div class="space-y-2.5 pt-1">
-          <div class="flex items-center justify-center gap-1.5 text-[11px] text-ds-textSecondary select-none cursor-default">
+          <div class="flex items-center justify-center gap-1.5 text-xs text-ds-textSecondary select-none cursor-default">
             <i class="uil uil-padlock text-xs text-ds-textMuted"></i>
             <span>Ambiente 100% criptografado · Homologado pela</span>
             <span class="font-display font-extrabold text-xs text-[#00A868] tracking-tight">stone</span>
@@ -6494,6 +6825,134 @@ function renderPaymentTab(m) {
     </div>
   `;
   syncMobileHoverElimination();
+}
+
+function goToPaymentCheckoutStep(stepNum) {
+  if (state.orderSubmitted) return;
+  if (stepNum === 2) {
+    if (isUserUnlogged()) {
+      openAuthModal('login');
+      showToast('Faça login para informar os dados de faturamento e avançar para o pagamento.');
+      return;
+    }
+    if (!state.billingUnlockedInline || !state.billingDoc) {
+      state.paymentCheckoutStep = 1;
+      state.billingFormOpen = true;
+      renderPaymentTab(getCurrentModel());
+      showToast('Confirme ou salve os dados de faturamento na Etapa 1 antes de pagar.');
+      return;
+    }
+    state.billingFormOpen = false;
+    state.paymentCheckoutStep = 2;
+    if (!state.paymentMethod) state.paymentMethod = 'card';
+  } else {
+    state.paymentCheckoutStep = 1;
+  }
+  renderPaymentTab(getCurrentModel());
+}
+
+function openBillingStepForm() {
+  if (state.orderSubmitted) return;
+  if (isUserUnlogged()) {
+    openAuthModal('login');
+    return;
+  }
+  state.paymentCheckoutStep = 1;
+  state.billingFormOpen = true;
+  if (!state.billingPersonType) {
+    state.billingPersonType = 'CNPJ';
+  }
+  renderPaymentTab(getCurrentModel());
+}
+
+function cancelBillingStepForm() {
+  state.billingFormOpen = false;
+  renderPaymentTab(getCurrentModel());
+}
+
+function setBillingPersonType(personType) {
+  state.billingPersonType = personType === 'CPF' ? 'CPF' : 'CNPJ';
+  renderPaymentTab(getCurrentModel());
+}
+
+function setBillingPjRole(roleKey) {
+  state.billingPjRole = roleKey || 'empresa';
+  renderPaymentTab(getCurrentModel());
+}
+
+function saveBillingStepForm() {
+  if (state.orderSubmitted) return;
+  const docEl = document.getElementById('billingInputDoc');
+  const nameEl = document.getElementById('billingInputName');
+  const phoneEl = document.getElementById('billingInputPhone');
+  const segEl = document.getElementById('billingInputSegment');
+  const cepEl = document.getElementById('billingInputCep');
+  const streetEl = document.getElementById('billingInputStreet');
+  const numEl = document.getElementById('billingInputNumber');
+  const distEl = document.getElementById('billingInputDistrict');
+  const compEl = document.getElementById('billingInputComplement');
+  const cityEl = document.getElementById('billingInputCity');
+  const stateEl = document.getElementById('billingInputState');
+
+  const isPj = (state.billingPersonType || 'CNPJ') === 'CNPJ';
+  state.andreiaProfileType = isPj ? 'CNPJ' : 'CPF';
+  state.billingDoc = (docEl && docEl.value.trim()) || (isPj ? '12.345.678/0001-99' : '123.456.789-00');
+  state.billingCompany = (nameEl && nameEl.value.trim()) || (isPj ? 'Padaria & Confeitaria Bela Paulista LTDA' : 'Natalia Ferreira');
+  if (phoneEl && phoneEl.value.trim()) state.billingPhone = phoneEl.value.trim();
+  if (segEl && segEl.value) state.billingSegment = segEl.value;
+  if (cepEl && cepEl.value.trim()) state.billingCep = cepEl.value.trim();
+  if (streetEl && streetEl.value.trim()) state.billingStreet = streetEl.value.trim();
+  if (numEl && numEl.value.trim()) state.billingNumber = numEl.value.trim();
+  if (distEl && distEl.value.trim()) state.billingDistrict = distEl.value.trim();
+  state.billingComplement = compEl ? compEl.value.trim() : '';
+  if (cityEl && cityEl.value.trim()) state.billingCity = cityEl.value.trim();
+  if (stateEl && stateEl.value) state.billingState = stateEl.value;
+
+  state.billingUnlockedInline = true;
+  state.billingCnpjRestricted = false;
+  state.billingFormOpen = false;
+  state.paymentCheckoutStep = 2;
+  if (!state.paymentMethod) state.paymentMethod = 'card';
+  renderAll();
+  showToast('Dados de faturamento salvos! Avançando para a etapa de pagamento.');
+}
+
+function simulateCreatorBillingUpdate() {
+  // Cenário 2: Assim que o perfil gerador da proposta atualiza os dados de faturamento,
+  // a proposta atualiza automaticamente, SEMPRE priorizando o CNPJ.
+  state.billingPersonType = 'CNPJ';
+  state.andreiaProfileType = 'CNPJ';
+  state.billingPjRole = 'empresa';
+  state.billingCompany = 'Padaria & Confeitaria Bela Paulista LTDA';
+  state.billingDoc = '12.345.678/0001-99';
+  state.billingPhone = '(11) 99876-5432';
+  state.billingSegment = 'Alimentação e Bebidas';
+  state.billingCep = '01414-001';
+  state.billingStreet = 'Rua Haddock Lobo';
+  state.billingNumber = '1421';
+  state.billingDistrict = 'Cerqueira César';
+  state.billingComplement = 'Loja 1';
+  state.billingCity = 'São Paulo';
+  state.billingState = 'SP';
+  state.creatorSyncedCnpj = true;
+  state.billingUnlockedInline = true;
+  state.billingCnpjRestricted = false;
+  state.billingFormOpen = false;
+  state.simulateUnlogged = false;
+  state.authCompleted = true;
+  state.paymentCheckoutStep = 2;
+  if (!state.paymentMethod) state.paymentMethod = 'card';
+  renderAll();
+  showToast('Proposta atualizada automaticamente com o faturamento do titular (CNPJ priorizado)!');
+}
+
+function applyCheckoutCoupon() {
+  if (state.orderSubmitted) return;
+  const inputEl = document.getElementById('checkoutCouponInput');
+  const code = (inputEl ? inputEl.value : state.couponCode || 'AQUIADS10').trim().toUpperCase();
+  state.couponCode = code || 'AQUIADS10';
+  state.couponDrawerOpen = false;
+  toggleCouponSimulation(true);
 }
 
 function setCardMode(mode) {
@@ -6528,27 +6987,23 @@ function toggleCouponSimulation(enable) {
 }
 
 function toggleBillingDrawer() {
-  if (state.orderSubmitted) return;
-  state.billingDrawerOpen = !state.billingDrawerOpen;
-  renderPaymentTab(getCurrentModel());
+  openBillingStepForm();
 }
 
 function saveInlineBilling() {
-  if (state.orderSubmitted) return;
-  const docEl = document.getElementById('inputBillingDoc');
-  const compEl = document.getElementById('inputBillingCompany');
-  if (docEl && docEl.value.trim()) state.billingDoc = docEl.value.trim();
-  if (compEl && compEl.value.trim()) state.billingCompany = compEl.value.trim();
-  state.billingUnlockedInline = true;
-  state.billingDrawerOpen = false;
-  renderAll();
-  showToast('Dados de faturamento atualizados com sucesso!');
+  saveBillingStepForm();
 }
 
 function submitPaymentOrder() {
-  if (isPaymentMethodsBlocked()) {
-    openAndreiaBillingChat();
-    showToast('Cadastre o perfil de faturamento com a Andreia para prosseguir.');
+  if (isUserUnlogged()) {
+    openAuthModal('login');
+    showToast('Entre na sua conta para preencher o faturamento e pagar.');
+    return;
+  }
+  if (!state.billingUnlockedInline || !state.billingDoc) {
+    goToPaymentCheckoutStep(1);
+    openBillingStepForm();
+    showToast('Preencha os dados de faturamento na Etapa 1 para prosseguir.');
     return;
   }
   if (!state.paymentMethod) {
@@ -6649,79 +7104,10 @@ function requestRadioBilling() {
 
 /**
  * ============================================================================
- * 6.1 SEÇÃO "TIRE SUAS DÚVIDAS" (ACORDEÃO FAQ DO FIGMA 3387-12075)
+ * 6.1 CANAL DISCRETO DE DÚVIDAS E IDENTIFICAÇÃO NO RODAPÉ (SEM FAQ)
  * ============================================================================
  */
 function renderFaqSection() {
-  const faqs = [
-    {
-      q: 'Quais são as formas de pagamento, parcelamento e prazos?',
-      a: `
-        <div class="space-y-2">
-          <p>Seus pagamentos online são processados com total segurança via <strong>Stone</strong>. Escolha como prefere pagar:</p>
-          <ul class="space-y-1 list-disc pl-4">
-            <li><strong>Pix:</strong> aprovação na hora (código válido por <strong>24h</strong>).</li>
-            <li><strong>Cartão de crédito:</strong> aprovação em até 2h. Parcele em <strong>até 3x sem juros</strong> em qualquer pedido ou em <strong>até 6x sem juros</strong> em campanhas de 24 semanas.</li>
-            <li><strong>Boleto bancário:</strong> disponível para pedidos a partir de <strong>R$ 1.200,00</strong> (vencimento em 1 dia útil e compensação em até 2 dias úteis).</li>
-          </ul>
-        </div>
-      `
-    },
-    {
-      q: 'Como funciona o pagamento para campanhas de Rádio?',
-      a: `
-        <div class="space-y-2">
-          <p>Em <strong>Rádio</strong>, a validação e o faturamento acontecem direto com a emissora (por isso não usamos cartão, Pix ou boleto comum aqui):</p>
-          <ul class="space-y-1 list-disc pl-4">
-            <li><strong>CPF:</strong> pagamento antecipado por depósito bancário, com campanha liberada após a confirmação.</li>
-            <li><strong>CNPJ:</strong> faturamento <strong>15 DFM (15 Dias Fora Mês)</strong> — as veiculações do mês vencem sempre no dia 15 do mês seguinte.</li>
-          </ul>
-        </div>
-      `
-    },
-    {
-      q: 'Como funciona o cadastro de CNPJ ou CPF e onde encontro minhas notas fiscais?',
-      a: `
-        <div class="space-y-2.5">
-          <p>Você cadastra seu <strong>CNPJ ou CPF</strong> rapidinho na aba de pagamento com a ajuda da <strong>Andreia</strong>, nossa assistente virtual:</p>
-          <ul class="space-y-1 list-disc pl-4">
-            <li><strong>Alteração de faturamento:</strong> perfil de <strong>PJ</strong> não pode ser alterado na plataforma (necessário um executivo). Para cadastrar outro perfil de <strong>CPF</strong>, fale com a <strong>Andreia</strong>.</li>
-            <li><strong>Notas fiscais:</strong> ficam na página <a href="https://aqui.globo/faturamento" target="_blank" rel="noopener noreferrer" class="font-bold text-primary hover:underline">Faturamento</a> da plataforma (exceto rádio). Precisa de alguma observação específica na NF? É só chamar nosso time!</li>
-          </ul>
-          <div class="pt-0.5">
-            <a
-              href="https://aqui.globo/faturamento"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary/30 bg-primary-light/50 hover:bg-primary-light text-primary font-display font-bold text-xs transition"
-            >
-              <span>Acessar página de Faturamento</span>
-              <i class="uil uil-external-link-alt text-xs"></i>
-            </a>
-          </div>
-        </div>
-      `
-    },
-    {
-      q: 'Quando e como envio as artes e vídeos da minha campanha?',
-      a: `
-        <div class="space-y-1.5">
-          <p>Você não precisa ter as peças prontas agora! Assim que o pedido é confirmado, basta clicar em <strong>"Envio de criativos"</strong> para ir até a tela de <strong>Meus anúncios</strong> e, após a confirmação do pagamento, clicar em <strong>"Enviar arte"</strong> na sua campanha.</p>
-          <p>Quer ir adiantando? Todas as medidas, formatos e gabaritos já estão disponíveis na aba <strong>"Especificações de arte"</strong>.</p>
-        </div>
-      `
-    },
-    {
-      q: 'Como faço para tirar dúvidas ou compartilhar esta proposta?',
-      a: `
-        <div class="space-y-1.5">
-          <p>Se houver qualquer dúvida, chame a <strong>Andreia</strong> aqui na página ou fale com nosso atendimento pelos canais oficiais do Aqui Ads.</p>
-          <p>Para mostrar a proposta ao seu sócio ou financeiro, use os botões <strong>"Compartilhar"</strong> ou <strong>"Exportar" (PDF/Excel)</strong> no topo da página.</p>
-        </div>
-      `
-    }
-  ];
-
   const container = document.getElementById('faqSection');
   if (!container) return;
 
@@ -6729,46 +7115,25 @@ function renderFaqSection() {
   const displayProposalId = getDisplayProposalId(m);
 
   container.innerHTML = `
-    <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-6 sm:px-10 py-8 sm:py-12">
-      <div class="max-w-[960px] mx-auto flex flex-col lg:flex-row items-start justify-center gap-6 lg:gap-12 sim-stack-mobile">
-        <div class="shrink-0">
-          <h2 class="font-display font-medium text-2xl sm:text-[32px] grad-text leading-tight">
-            Perguntas frequentes
-          </h2>
-        </div>
-
-        <div class="flex-1 w-full border-b border-[#EAEAEA] divide-y divide-[#EAEAEA]">
-          ${faqs.map((item, idx) => {
-            const isOpen = state.openFaqIndex === idx;
-            return `
-              <div>
-                <button type="button" onclick="toggleFaqItem(${idx})" class="w-full ${idx === 0 ? 'pt-0.5 pb-4' : 'py-4'} text-left flex items-center justify-between gap-4 group">
-                  <span class="font-display font-semibold text-sm sm:text-[15px] ${isOpen ? 'text-primary' : 'text-ds-textMain group-hover:text-primary'} transition">${item.q}</span>
-                  <span class="w-7 h-7 rounded-full ${isOpen ? 'bg-aqui-grad text-white' : 'bg-[#F9FAFB] border border-[#EAEAEA] text-ds-textSecondary group-hover:border-primary group-hover:text-primary'} flex items-center justify-center shrink-0 transition">
-                    <i class="uil ${isOpen ? 'uil-minus' : 'uil-plus'} text-sm leading-none"></i>
-                  </span>
-                </button>
-                ${isOpen ? `
-                  <div class="pb-4 pr-4 sm:pr-10 text-xs sm:text-[13px] text-ds-textSecondary leading-relaxed">
-                    ${item.a}
-                  </div>
-                ` : ''}
-              </div>
-            `;
-          }).join('')}
-        </div>
+    <div class="pt-3 pb-2 border-t border-ds-border/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-ds-textSecondary">
+      <button
+        type="button"
+        onclick="openAndreiaChatWithFlow('specialist')"
+        class="inline-flex items-center gap-1.5 text-ds-textSecondary hover:text-primary font-medium transition cursor-pointer"
+      >
+        <i class="uil uil-comment-question text-sm text-primary"></i>
+        <span>Dúvidas? <strong class="font-display font-semibold text-ds-textMain hover:text-primary underline underline-offset-2">Fale com um especialista</strong></span>
+      </button>
+      <div id="proposalFooterMeta" class="text-xs text-ds-textMuted font-normal">
+        Proposta comercial #${displayProposalId} · Aqui ads
       </div>
-    </div>
-    <div id="proposalFooterMeta" class="mt-4 text-center text-[11px] text-ds-textMuted font-normal">
-      Proposta comercial #${displayProposalId} · Aqui ads
     </div>
   `;
   syncMobileHoverElimination();
 }
 
-function toggleFaqItem(idx) {
-  state.openFaqIndex = state.openFaqIndex === idx ? -1 : idx;
-  renderFaqSection();
+function toggleFaqItem() {
+  // FAQ removido conforme diretriz comercial
 }
 
 /**
@@ -6784,6 +7149,7 @@ function buildOohMapPinPopupHtml(g, m) {
   const screensBadgeText = isStaticOoh
     ? '1 face'
     : `${g.screens} ${g.screens > 1 ? 'telas' : 'tela'}`;
+  const dailyExhText = isStaticOoh ? 'Fixa' : `${fmtInt(g.dailyInsertions)} exib./dia`;
 
   // Mesmo padrão exato de tag dos cards laterais (IMPRESSO roxo #F3E8FF/#6D28D9 | DIGITAL azul #EBF3FE/#1D4ED8)
   const badgeStyle = isStaticOoh
@@ -6794,14 +7160,19 @@ function buildOohMapPinPopupHtml(g, m) {
     <div style="padding:15px 17px;font-family:'Atkinson Hyperlegible','Rethink Sans',sans-serif;">
       <!-- Topo do Card do Mapa (Espelha exatamente as tags do Card Lateral, com espaço livre para o botão ×) -->
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-right:26px;">
-        <span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;${badgeStyle}">
+        <span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;${badgeStyle}">
           ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
         </span>
-        <span style="font-family:monospace;font-size:11px;font-weight:600;color:#56514B;">
-          ID: #${g.displayCode}
+        ${state.isAdminView ? `
+          <span style="font-family:monospace;font-size:11px;font-weight:600;color:#56514B;">
+            ID: #${g.displayCode}
+          </span>
+        ` : ''}
+        <span style="padding:2px 6px;border-radius:5px;font-size:11px;font-weight:600;background:#F9F6F2;color:#56514B;border:1px solid #ECE6DF;">
+          ${dailyExhText}
         </span>
         ${g.kind === 'condo_group' ? `
-          <span style="padding:2px 6px;border-radius:5px;font-size:10px;font-weight:600;background:#F3ECE4;color:#56514B;">
+          <span style="padding:2px 6px;border-radius:5px;font-size:11px;font-weight:600;background:#F3ECE4;color:#56514B;">
             ${g.towersCount} torres
           </span>
         ` : ''}
@@ -7110,11 +7481,6 @@ function updateMobileInlineMap(m) {
 }
 
 function switchMainTab(tab) {
-  if (tab === 'pagamento' && isUserUnlogged()) {
-    openAuthModal('login');
-    showToast('Faça login ou cadastre sua conta para acessar o pagamento.');
-    return;
-  }
   state.activeTab = tab;
   ['plano', 'arte', 'pagamento'].forEach((t) => {
     const content = document.getElementById(`tabContent-${t}`);
@@ -7133,11 +7499,6 @@ function switchMainTab(tab) {
 }
 
 function goToPaymentAnchor() {
-  if (isUserUnlogged()) {
-    openAuthModal('login');
-    showToast('Faça login ou cadastre sua conta para acessar o pagamento.');
-    return;
-  }
   switchMainTab('pagamento');
   const target = document.getElementById('mainTabsSection');
   if (target) {
@@ -7313,39 +7674,48 @@ function renderPdfDocument(m) {
   const oohCitiesCount = c.oohCitiesCount || oohCities.length;
 
   if (hasOoh) {
+    const oohDailyExhibitionsVal = oohDigitalPts > 0
+      ? fmtInt(c.oohDailyInsertions)
+      : 'Fixa';
     const oohTotalExhibitionsVal = oohDigitalPts > 0
       ? fmtInt(c.oohTotalInsertions)
       : 'Fixa';
 
     modularCardsHtml.push(`
       <div class="rounded-xl border border-ds-border overflow-hidden bg-white flex flex-col justify-between pdf-avoid-break">
-        <div class="px-3 py-2.5 bg-white">
+        <div class="px-3.5 py-3 bg-white">
           <div class="font-display font-bold text-sm text-ds-textMain leading-snug">OOH</div>
-          <div class="mt-1.5">
-            <div class="font-display font-extrabold text-xl text-primary leading-tight">${fmtInt(c.oohImpacts)}</div>
-            <div class="text-[11px] text-ds-textSecondary mt-0.5 leading-normal">Impacto no período</div>
+          <div class="mt-2 grid grid-cols-2 gap-3">
+            <div>
+              <div class="text-xs font-medium text-ds-textSecondary">Impacto no período</div>
+              <div class="font-display font-extrabold text-xl text-primary leading-tight mt-0.5">${fmtInt(c.oohImpacts)}</div>
+            </div>
+            <div>
+              <div class="text-xs font-medium text-ds-textSecondary">Alcance estimado</div>
+              <div class="font-display font-extrabold text-xl text-ds-textMain leading-tight mt-0.5">${fmtInt(c.oohReach || c.oohImpacts)}</div>
+            </div>
           </div>
         </div>
-        <div class="bg-[#F7F4EF] p-1.5 border-t border-ds-border grid grid-cols-5 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.oohPointsCount)}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Pontos</div>
+        <div class="bg-[#F7F4EF] p-2 border-t border-ds-border grid grid-cols-5 gap-1.5 flex-1">
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Pontos</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtInt(c.oohPointsCount)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.oohScreensCount)}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Telas</div>
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Telas</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtInt(c.oohScreensCount)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${oohTotalExhibitionsVal}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Exibições</div>
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Exib. diária</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${oohDailyExhibitionsVal}</div>
           </div>
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.oohReach || c.oohImpacts)}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Alcance</div>
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Exib. período</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${oohTotalExhibitionsVal}</div>
           </div>
-          <div class="bg-white rounded-lg px-2 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtFreq(c.oohFrequency || 1.88)}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Frequência</div>
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Frequência</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtFreq(c.oohFrequency || 1.88)}</div>
           </div>
         </div>
       </div>
@@ -7356,11 +7726,11 @@ function renderPdfDocument(m) {
     const portaisVehiclesSet = new Set();
     (m.portaisItems || []).forEach((it) => {
       (it.vehicles || []).forEach((v) => {
+        if (v === 'cartola') return;
         const cleanV = v === 'g1' ? 'G1'
           : v === 'ge' ? 'GE'
           : v === 'gshow' ? 'Gshow'
           : v === 'receitas' ? 'Receitas'
-          : v === 'cartola' ? 'Cartola'
           : v === 'globo.com' ? 'Globo.com'
           : v === 'globoplay' ? 'Globoplay'
           : v;
@@ -7371,24 +7741,31 @@ function renderPdfDocument(m) {
     const portaisCpms = Array.from(new Set((m.portaisItems || []).map((it) => it.cpm).filter((v) => v > 0)));
     const portaisAvgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : (portaisCpms[0] || 0);
     const portaisCpmLabel = portaisCpms.length === 1 ? fmtBRL(portaisCpms[0]) : fmtBRL(portaisAvgCpm);
+    const portaisEstReach = Math.round(c.portaisImpressions * 0.62);
 
     modularCardsHtml.push(`
       <div class="rounded-xl border border-ds-border overflow-hidden bg-white flex flex-col justify-between pdf-avoid-break">
-        <div class="px-3 py-2.5 bg-white">
+        <div class="px-3.5 py-3 bg-white">
           <div class="font-display font-bold text-sm text-ds-textMain leading-snug">Portais e Globoplay</div>
-          <div class="mt-1.5">
-            <div class="font-display font-extrabold text-xl text-primary leading-tight">${fmtInt(c.portaisImpressions)}</div>
-            <div class="text-[11px] text-ds-textSecondary mt-0.5 leading-normal">Impressões contratadas</div>
+          <div class="mt-2 grid grid-cols-2 gap-3">
+            <div>
+              <div class="text-xs font-medium text-ds-textSecondary">Impressões contratadas</div>
+              <div class="font-display font-extrabold text-xl text-primary leading-tight mt-0.5">${fmtInt(c.portaisImpressions)}</div>
+            </div>
+            <div>
+              <div class="text-xs font-medium text-ds-textSecondary">Alcance estimado</div>
+              <div class="font-display font-extrabold text-xl text-ds-textMain leading-tight mt-0.5">${fmtInt(portaisEstReach)}</div>
+            </div>
           </div>
         </div>
-        <div class="bg-[#F7F4EF] p-1.5 border-t border-ds-border grid grid-cols-2 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${escapeHtml(portaisListLabel)}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Portais</div>
+        <div class="bg-[#F7F4EF] p-2 border-t border-ds-border grid grid-cols-2 gap-1.5 flex-1">
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Portais</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${escapeHtml(portaisListLabel)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${portaisCpmLabel}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">CPM</div>
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">CPM médio</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${portaisCpmLabel}</div>
           </div>
         </div>
       </div>
@@ -7400,24 +7777,31 @@ function renderPdfDocument(m) {
     const revistasCpms = Array.from(new Set((m.revistasItems || []).map((it) => it.cpm).filter((v) => v > 0)));
     const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : (revistasCpms[0] || 0);
     const revistasCpmLabel = revistasCpms.length === 1 ? fmtBRL(revistasCpms[0]) : fmtBRL(revistasAvgCpm);
+    const revistasEstReach = Math.round(c.revistasImpressions * 0.62);
 
     modularCardsHtml.push(`
       <div class="rounded-xl border border-ds-border overflow-hidden bg-white flex flex-col justify-between pdf-avoid-break">
-        <div class="px-3 py-2.5 bg-white">
+        <div class="px-3.5 py-3 bg-white">
           <div class="font-display font-bold text-sm text-ds-textMain leading-snug">Revistas e Jornais</div>
-          <div class="mt-1.5">
-            <div class="font-display font-extrabold text-xl text-primary leading-tight">${fmtInt(c.revistasImpressions)}</div>
-            <div class="text-[11px] text-ds-textSecondary mt-0.5 leading-normal">Impressões contratadas</div>
+          <div class="mt-2 grid grid-cols-2 gap-3">
+            <div>
+              <div class="text-xs font-medium text-ds-textSecondary">Impressões contratadas</div>
+              <div class="font-display font-extrabold text-xl text-primary leading-tight mt-0.5">${fmtInt(c.revistasImpressions)}</div>
+            </div>
+            <div>
+              <div class="text-xs font-medium text-ds-textSecondary">Alcance estimado</div>
+              <div class="font-display font-extrabold text-xl text-ds-textMain leading-tight mt-0.5">${fmtInt(revistasEstReach)}</div>
+            </div>
           </div>
         </div>
-        <div class="bg-[#F7F4EF] p-1.5 border-t border-ds-border grid grid-cols-2 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${escapeHtml(revistasListLabel)}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Portais</div>
+        <div class="bg-[#F7F4EF] p-2 border-t border-ds-border grid grid-cols-2 gap-1.5 flex-1">
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Títulos editoriais</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${escapeHtml(revistasListLabel)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${revistasCpmLabel}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">CPM</div>
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">CPM médio</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${revistasCpmLabel}</div>
           </div>
         </div>
       </div>
@@ -7426,28 +7810,35 @@ function renderPdfDocument(m) {
 
   if (hasRadio) {
     const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
+    const radioEstReach = Math.round(c.radioTotalInsertions * 18500 * 0.58);
 
     modularCardsHtml.push(`
       <div class="rounded-xl border border-ds-border overflow-hidden bg-white flex flex-col justify-between pdf-avoid-break">
-        <div class="px-3 py-2.5 bg-white">
+        <div class="px-3.5 py-3 bg-white">
           <div class="font-display font-bold text-sm text-ds-textMain leading-snug">Rádio CBN</div>
-          <div class="mt-1.5">
-            <div class="font-display font-extrabold text-xl text-primary leading-tight">${fmtInt(c.radioTotalInsertions)}</div>
-            <div class="text-[11px] text-ds-textSecondary mt-0.5 leading-normal">Inserções no período</div>
+          <div class="mt-2 grid grid-cols-2 gap-3">
+            <div>
+              <div class="text-xs font-medium text-ds-textSecondary">Inserções no período</div>
+              <div class="font-display font-extrabold text-xl text-primary leading-tight mt-0.5">${fmtInt(c.radioTotalInsertions)}</div>
+            </div>
+            <div>
+              <div class="text-xs font-medium text-ds-textSecondary">Alcance estimado</div>
+              <div class="font-display font-extrabold text-xl text-ds-textMain leading-tight mt-0.5">${fmtInt(radioEstReach)}</div>
+            </div>
           </div>
         </div>
-        <div class="bg-[#F7F4EF] p-1.5 border-t border-ds-border grid grid-cols-3 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.radioCount)}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Rádio/programa</div>
+        <div class="bg-[#F7F4EF] p-2 border-t border-ds-border grid grid-cols-3 gap-1.5 flex-1">
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Rádio/programa</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtInt(c.radioCount)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${fmtInt(c.radioWeeklyInsertions)}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Inserções/semana</div>
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Inserções/semana</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtInt(c.radioWeeklyInsertions)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-1.5 border border-ds-border flex flex-col justify-between">
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug">${escapeHtml(radioDurationsLabel)}</div>
-            <div class="text-[10px] text-ds-textSecondary mt-0.5">Duração</div>
+          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
+            <div class="text-xs text-ds-textSecondary">Duração</div>
+            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${escapeHtml(radioDurationsLabel)}</div>
           </div>
         </div>
       </div>
@@ -7461,18 +7852,15 @@ function renderPdfDocument(m) {
   const secondRowMetricsCards = modularCardsHtml.slice(2);
   const hasTwoMetricsRows = secondRowMetricsCards.length > 0;
 
-  // 1. TABELA OOH & CONDOMÍNIOS (Sem cards internos — 100% Tabela com Exibição Diária e Exibições "Fixa" para Mídias Estáticas)
+  // 1. TABELA OOH & CONDOMÍNIOS (Sem cards internos — 100% Tabela com Exibição Diária e Exibições "Fixa" para Mídias Estáticas; Código visível apenas em Visão Admin)
   const oohTableSectionHtml = hasOoh ? `
     <section class="mt-4">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 pdf-keep-with-next">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-[#199958]"></span>
           <h2 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
-            OOH — Telas Digitais e Estáticas
+            OOH — Telas Digitais e Estáticas (${fmtInt(c.oohPointsCount)} pontos)
           </h2>
-        </div>
-        <div class="text-xs font-bold text-ds-textMain">
-          Subtotal OOH: <span class="text-primary">${fmtBRL(f.oohNet)}</span>
         </div>
       </div>
 
@@ -7480,11 +7868,12 @@ function renderPdfDocument(m) {
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="bg-ds-surface text-ds-textSecondary border-b border-ds-border font-display text-xs">
-              <th class="py-2.5 px-2.5 font-bold w-[68px]">Código</th>
-              <th class="py-2.5 px-3 font-bold w-[34%]">Ponto / Condomínio e endereço</th>
-              <th class="py-2.5 px-2.5 font-bold w-[16%]">Categoria</th>
+              ${state.isAdminView ? `<th class="py-2.5 px-2.5 font-bold w-[68px]">Código</th>` : ''}
+              <th class="py-2.5 px-3 font-bold w-[32%]">Ponto / Condomínio e endereço</th>
+              <th class="py-2.5 px-2.5 font-bold w-[15%]">Categoria</th>
               <th class="py-2.5 px-2 font-bold text-center">Telas</th>
-              <th class="py-2.5 px-2.5 font-bold text-right">Exibições</th>
+              <th class="py-2.5 px-2.5 font-bold text-right">Exibição diária</th>
+              <th class="py-2.5 px-2.5 font-bold text-right">Exib. período</th>
               <th class="py-2.5 px-2.5 font-bold text-right">Alcance</th>
               <th class="py-2.5 px-2.5 font-bold text-right">Impacto</th>
               <th class="py-2.5 px-3 font-bold text-right">Valor líquido</th>
@@ -7506,7 +7895,7 @@ function renderPdfDocument(m) {
                   return escapeHtml(rawName || t.name);
                 });
                 towersNote = `
-                  <div class="mt-1 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-0.5 leading-snug">
+                  <div class="mt-1 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-0.5 leading-snug">
                     <span class="font-bold">${g.towersCount} torres:</span>
                     <span>${shortTowers.join(' · ')}</span>
                   </div>
@@ -7518,19 +7907,24 @@ function renderPdfDocument(m) {
 
               return `
                 <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
-                  <td class="py-2.5 px-2.5 align-top font-mono font-bold text-[11px] text-slate-700 whitespace-nowrap">
-                    <div>#${escapeHtml(g.displayCode || g.code)}</div>
-                  </td>
+                  ${state.isAdminView ? `
+                    <td class="py-2.5 px-2.5 align-top font-mono font-bold text-xs text-slate-700 whitespace-nowrap">
+                      <div>#${escapeHtml(g.displayCode || g.code)}</div>
+                    </td>
+                  ` : ''}
                   <td class="py-2.5 px-3 align-top">
                     <div class="font-bold text-slate-900 leading-snug">${escapeHtml(g.name)}</div>
-                    <div class="text-[11px] text-slate-500 leading-snug mt-0.5">${escapeHtml(g.address)}${geoMeta ? ` · ${escapeHtml(geoMeta)}` : ''}</div>
+                    <div class="text-xs text-slate-500 leading-snug mt-0.5">${escapeHtml(g.address)}${geoMeta ? ` · ${escapeHtml(geoMeta)}` : ''}</div>
                     ${towersNote}
                   </td>
                   <td class="py-2.5 px-2.5 align-top">
                     <div class="font-semibold text-slate-800 leading-snug">${escapeHtml(g.vertical)}</div>
-                    <div class="text-[10px] text-slate-500 mt-0.5 whitespace-nowrap">${exhType} · ${escapeHtml(g.resolution || '1080x1920')}</div>
+                    <div class="text-xs text-slate-500 mt-0.5 whitespace-nowrap">${exhType} · ${escapeHtml(g.resolution || '1080x1920')}</div>
                   </td>
                   <td class="py-2.5 px-2 align-top text-center font-bold text-slate-800 whitespace-nowrap">${fmtInt(g.screens)}</td>
+                  <td class="py-2.5 px-2.5 align-top text-right whitespace-nowrap">
+                    <span class="font-semibold text-slate-800">${isStatic ? 'Fixa' : fmtInt(g.dailyInsertions)}</span>
+                  </td>
                   <td class="py-2.5 px-2.5 align-top text-right whitespace-nowrap">
                     <span class="font-semibold text-slate-900">${isStatic ? 'Fixa' : fmtInt(g.periodInsertions)}</span>
                   </td>
@@ -7538,8 +7932,8 @@ function renderPdfDocument(m) {
                   <td class="py-2.5 px-2.5 align-top text-right text-slate-700 whitespace-nowrap">${impactVal > 0 ? fmtInt(impactVal) : '—'}</td>
                   <td class="py-2.5 px-3 align-top text-right whitespace-nowrap">
                     ${g.residentDiscount > 0 ? `
-                      <div class="text-[10px] text-slate-400 line-through leading-none mb-0.5">${fmtBRL(g.originalPrice)}</div>
-                      <div class="text-[9.5px] font-semibold text-emerald-700 leading-none mb-0.5">Desc. condo. (-${fmtBRL(g.residentDiscount)})</div>
+                      <div class="text-xs text-slate-400 line-through leading-none mb-0.5">${fmtBRL(g.originalPrice)}</div>
+                      <div class="text-xs font-semibold text-emerald-700 leading-none mb-0.5">Desc. condo. (-${fmtBRL(g.residentDiscount)})</div>
                     ` : ''}
                     <div class="font-bold text-slate-900">${fmtBRL(g.netPrice)}</div>
                   </td>
@@ -7548,17 +7942,10 @@ function renderPdfDocument(m) {
             }).join('')}
           </tbody>
           <tfoot class="bg-ds-surface border-t border-ds-borderStrong font-bold text-ds-textMain text-xs">
-            ${f.couponDiscount > 0 ? `
-              <tr class="bg-emerald-50 text-emerald-900 border-b border-emerald-200">
-                <td colspan="7" class="py-2 px-3 text-right font-semibold">
-                  Cupom promocional aplicado em OOH (${escapeHtml(state.couponCode || 'AQUIADS10')} · -10% sobre subtotal líquido OOH):
-                </td>
-                <td class="py-2 px-3 text-right font-bold text-emerald-700 whitespace-nowrap">- ${fmtBRL(f.couponDiscount)}</td>
-              </tr>
-            ` : ''}
             <tr>
-              <td colspan="3" class="py-2.5 px-3">Total OOH</td>
+              <td colspan="${state.isAdminView ? 3 : 2}" class="py-2.5 px-3">Total consolidado OOH</td>
               <td class="py-2.5 px-2 text-center whitespace-nowrap">${fmtInt(c.oohScreensCount)}</td>
+              <td class="py-2.5 px-2.5 text-right whitespace-nowrap">${oohDigitalPts > 0 ? fmtInt(c.oohDailyInsertions) : 'Fixa'}</td>
               <td class="py-2.5 px-2.5 text-right whitespace-nowrap">${oohDigitalPts > 0 ? fmtInt(c.oohTotalInsertions) : 'Fixa'}</td>
               <td class="py-2.5 px-2.5 text-right whitespace-nowrap">${fmtInt(c.oohReach || c.oohImpacts)}</td>
               <td class="py-2.5 px-2.5 text-right whitespace-nowrap">${fmtInt(c.oohImpacts)}</td>
@@ -7580,16 +7967,13 @@ function renderPdfDocument(m) {
             Portais e Globoplay — Vídeo e Display
           </h2>
         </div>
-        <div class="text-xs font-bold text-ds-textMain">
-          Subtotal Portais e Globoplay: <span class="text-primary">${fmtBRL(f.portaisNet)}</span>
-        </div>
       </div>
 
       <div class="overflow-hidden border border-ds-border rounded-2xl">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="bg-ds-surface text-ds-textSecondary border-b border-ds-border font-display text-xs">
-              <th class="py-2.5 px-2.5 font-bold w-[68px]">Código</th>
+              ${state.isAdminView ? `<th class="py-2.5 px-2.5 font-bold w-[68px]">Código</th>` : ''}
               <th class="py-2.5 px-3 font-bold">Produto / Formato</th>
               <th class="py-2.5 px-2.5 font-bold">Ambiente e veículos</th>
               <th class="py-2.5 px-2.5 font-bold">Especificação</th>
@@ -7602,18 +7986,18 @@ function renderPdfDocument(m) {
           <tbody class="divide-y divide-slate-200 text-slate-800">
             ${m.portaisItems.map((p, idx) => `
               <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
-                <td class="py-2.5 px-2.5 align-top font-mono font-bold text-[11px] text-slate-700 whitespace-nowrap">#${escapeHtml(p.code)}</td>
+                ${state.isAdminView ? `<td class="py-2.5 px-2.5 align-top font-mono font-bold text-xs text-slate-700 whitespace-nowrap">#${escapeHtml(p.code)}</td>` : ''}
                 <td class="py-2.5 px-3 align-top">
                   <div class="font-bold text-slate-900">${escapeHtml(p.cleanTitle || p.name)}</div>
-                  <div class="text-[11px] text-slate-500">${escapeHtml(p.subtitleContext || '')}</div>
+                  <div class="text-xs text-slate-500">${escapeHtml(p.subtitleContext || '')}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top">
                   <div class="font-semibold text-slate-800">${escapeHtml(p.channelTypeLabel || p.vertical)}</div>
-                  <div class="text-[10px] text-slate-500 uppercase">${escapeHtml((p.vehicles || []).join(', '))}</div>
+                  <div class="text-xs text-slate-500 uppercase">${escapeHtml((p.vehicles || []).join(', '))}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top">
                   <span class="font-semibold text-slate-800">${escapeHtml(p.formatTagLabel || p.mediaTypeLabel)}</span>
-                  <div class="text-[10px] text-slate-500">${escapeHtml(p.techSpecFooter || '')}</div>
+                  <div class="text-xs text-slate-500">${escapeHtml(p.techSpecFooter || '')}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700 whitespace-nowrap">Nacional / Seg.</td>
                 <td class="py-2.5 px-2.5 align-top text-right font-semibold text-slate-900 whitespace-nowrap">${fmtInt(p.impressions)}</td>
@@ -7624,7 +8008,7 @@ function renderPdfDocument(m) {
           </tbody>
           <tfoot class="bg-ds-surface border-t border-ds-borderStrong font-bold text-ds-textMain text-xs">
             <tr>
-              <td colspan="5" class="py-2.5 px-3">Total Portais e Globoplay</td>
+              <td colspan="${state.isAdminView ? 5 : 4}" class="py-2.5 px-3">Total consolidado Portais e Globoplay</td>
               <td class="py-2.5 px-2.5 text-right whitespace-nowrap">${fmtInt(c.portaisImpressions)}</td>
               <td class="py-2.5 px-2.5 text-right">—</td>
               <td class="py-2.5 px-3 text-right text-primary whitespace-nowrap">${fmtBRL(f.portaisNet)}</td>
@@ -7645,16 +8029,13 @@ function renderPdfDocument(m) {
             Revistas Digitais
           </h2>
         </div>
-        <div class="text-xs font-bold text-ds-textMain">
-          Subtotal Revistas e Jornais: <span class="text-primary">${fmtBRL(f.revistasNet)}</span>
-        </div>
       </div>
 
       <div class="overflow-hidden border border-ds-border rounded-2xl">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="bg-ds-surface text-ds-textSecondary border-b border-ds-border font-display text-xs">
-              <th class="py-2.5 px-2.5 font-bold w-[68px]">Código</th>
+              ${state.isAdminView ? `<th class="py-2.5 px-2.5 font-bold w-[68px]">Código</th>` : ''}
               <th class="py-2.5 px-3 font-bold">Título editorial</th>
               <th class="py-2.5 px-2.5 font-bold">Formato e dimensão</th>
               <th class="py-2.5 px-2.5 font-bold">Posicionamento</th>
@@ -7667,11 +8048,11 @@ function renderPdfDocument(m) {
           <tbody class="divide-y divide-slate-200 text-slate-800">
             ${m.revistasItems.map((r, idx) => `
               <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
-                <td class="py-2.5 px-2.5 align-top font-mono font-bold text-[11px] text-slate-700 whitespace-nowrap">#${escapeHtml(r.code)}</td>
+                ${state.isAdminView ? `<td class="py-2.5 px-2.5 align-top font-mono font-bold text-xs text-slate-700 whitespace-nowrap">#${escapeHtml(r.code)}</td>` : ''}
                 <td class="py-2.5 px-3 align-top font-bold text-slate-900">${escapeHtml(r.editorialTitle)}</td>
                 <td class="py-2.5 px-2.5 align-top">
                   <div class="font-semibold text-slate-800">Display Editorial Multi-Formato</div>
-                  <div class="text-[10px] text-slate-500">970×250, 300×250, 300×600, 320×50 px</div>
+                  <div class="text-xs text-slate-500">970×250, 300×250, 300×600, 320×50 px</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700">Capa e Editorias · Web & Mobile</td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700 whitespace-nowrap">Nacional / BR</td>
@@ -7683,7 +8064,7 @@ function renderPdfDocument(m) {
           </tbody>
           <tfoot class="bg-ds-surface border-t border-ds-borderStrong font-bold text-ds-textMain text-xs">
             <tr>
-              <td colspan="5" class="py-2.5 px-3">Total Revistas e Jornais</td>
+              <td colspan="${state.isAdminView ? 5 : 4}" class="py-2.5 px-3">Total consolidado Revistas e Jornais</td>
               <td class="py-2.5 px-2.5 text-right whitespace-nowrap">${fmtInt(c.revistasImpressions)}</td>
               <td class="py-2.5 px-2.5 text-right">—</td>
               <td class="py-2.5 px-3 text-right text-primary whitespace-nowrap">${fmtBRL(f.revistasNet)}</td>
@@ -7704,16 +8085,13 @@ function renderPdfDocument(m) {
             Rádio CBN — Spots de 30 segundos
           </h2>
         </div>
-        <div class="text-xs font-bold text-ds-textMain">
-          Subtotal Rádio CBN: <span class="text-primary">${fmtBRL(f.radioNet)}</span>
-        </div>
       </div>
 
       <div class="overflow-hidden border border-ds-border rounded-2xl">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="bg-ds-surface text-ds-textSecondary border-b border-ds-border font-display text-xs">
-              <th class="py-2.5 px-2.5 font-bold w-[68px]">Código</th>
+              ${state.isAdminView ? `<th class="py-2.5 px-2.5 font-bold w-[68px]">Código</th>` : ''}
               <th class="py-2.5 px-3 font-bold">Emissora e praça</th>
               <th class="py-2.5 px-2.5 font-bold">Programa / faixa horária</th>
               <th class="py-2.5 px-2.5 font-bold">Formato</th>
@@ -7726,14 +8104,14 @@ function renderPdfDocument(m) {
           <tbody class="divide-y divide-slate-200 text-slate-800">
             ${m.radioItems.map((rd, idx) => `
               <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
-                <td class="py-2.5 px-2.5 align-top font-mono font-bold text-[11px] text-slate-700 whitespace-nowrap">#${escapeHtml(rd.code)}</td>
+                ${state.isAdminView ? `<td class="py-2.5 px-2.5 align-top font-mono font-bold text-xs text-slate-700 whitespace-nowrap">#${escapeHtml(rd.code)}</td>` : ''}
                 <td class="py-2.5 px-3 align-top">
                   <div class="font-bold text-slate-900">${escapeHtml(rd.stationName)}</div>
-                  <div class="text-[11px] text-slate-500">${escapeHtml(rd.city)}/${escapeHtml(rd.state)}</div>
+                  <div class="text-xs text-slate-500">${escapeHtml(rd.city)}/${escapeHtml(rd.state)}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top">
                   <div class="font-semibold text-slate-800">${escapeHtml(rd.cleanTitle || rd.programLabel)}</div>
-                  <div class="text-[11px] text-slate-500">${escapeHtml(rd.frequencyDaysLabel)} · ${escapeHtml(rd.timeWindow)}</div>
+                  <div class="text-xs text-slate-500">${escapeHtml(rd.frequencyDaysLabel)} · ${escapeHtml(rd.timeWindow)}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700 whitespace-nowrap">Spot ${rd.spotDuration}"</td>
                 <td class="py-2.5 px-2.5 align-top text-right font-semibold text-slate-800 whitespace-nowrap">${fmtInt(rd.weeklyInsertions)}/sem</td>
@@ -7745,7 +8123,7 @@ function renderPdfDocument(m) {
           </tbody>
           <tfoot class="bg-ds-surface border-t border-ds-borderStrong font-bold text-ds-textMain text-xs">
             <tr>
-              <td colspan="4" class="py-2.5 px-3">Total Rádio CBN</td>
+              <td colspan="${state.isAdminView ? 4 : 3}" class="py-2.5 px-3">Total consolidado Rádio CBN</td>
               <td class="py-2.5 px-2.5 text-right">${fmtInt(c.radioWeeklyInsertions)}</td>
               <td class="py-2.5 px-2.5 text-right">${fmtInt(c.radioTotalInsertions)}</td>
               <td class="py-2.5 px-2.5 text-right">—</td>
@@ -7963,31 +8341,30 @@ function renderPdfDocument(m) {
                 <h2 class="font-display font-bold text-sm text-ds-textMain">
                   Dados de campanha
                 </h2>
-                <span class="text-[11px] font-medium text-ds-textSecondary bg-ds-surface border border-ds-border px-2.5 py-0.5 rounded-lg whitespace-nowrap">
-                  Mix: ${c.totalItems} ${c.totalItems === 1 ? 'produto contratado' : 'produtos contratados'}
-                </span>
               </div>
 
-              <!-- Linha 1: Código da proposta (esq) e Nome da campanha (dir) -->
-              <div class="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
+              <!-- Linha 1: Código da proposta (esq) e Nome da campanha (dir, ocultado se vazio) -->
+              <div class="grid ${m.campaignName && String(m.campaignName).trim() ? 'grid-cols-2' : 'grid-cols-1'} gap-x-6 gap-y-1.5 text-xs">
                 <div>
-                  <div class="text-[11px] text-ds-textSecondary">Código da proposta</div>
+                  <div class="text-xs text-ds-textSecondary">Código da proposta</div>
                   <div class="font-display font-bold text-sm text-ds-textMain mt-0.5">${proposalDisplayId}</div>
                 </div>
-                <div class="min-w-0">
-                  <div class="text-[11px] text-ds-textSecondary">Nome da campanha</div>
-                  <div class="font-bold text-ds-textMain mt-0.5 truncate" title="${escapeHtml(m.campaignName)}">${escapeHtml(m.campaignName)}</div>
-                </div>
+                ${m.campaignName && String(m.campaignName).trim() ? `
+                  <div class="min-w-0">
+                    <div class="text-xs text-ds-textSecondary">Nome da campanha</div>
+                    <div class="font-bold text-ds-textMain mt-0.5 truncate" title="${escapeHtml(m.campaignName)}">${escapeHtml(m.campaignName)}</div>
+                  </div>
+                ` : ''}
               </div>
 
               <!-- Linha 2: Duração da campanha (esq) e Período de veiculação (dir) -->
               <div class="mt-2 pt-2 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
                 <div>
-                  <div class="text-[11px] text-ds-textSecondary">Duração da campanha</div>
+                  <div class="text-xs text-ds-textSecondary">Duração da campanha</div>
                   <div class="font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${m.durationDays} dias corridos</div>
                 </div>
                 <div>
-                  <div class="text-[11px] text-ds-textSecondary">Período de veiculação</div>
+                  <div class="text-xs text-ds-textSecondary">Período de veiculação</div>
                   <div class="font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${m.startDate} a ${m.endDate}</div>
                 </div>
               </div>
@@ -8113,47 +8490,49 @@ function renderPdfDocument(m) {
         ${radioTableSectionHtml}
         ${artTableSectionHtml}
 
-        <!-- FECHAMENTO DO PDF: BANNER "SUA MARCA NO LUGAR CERTO" + RODAPÉ EXECUTIVO (CASES SALVOS EM docs/06_PONTO_DE_RESGATE_BIGNUMBERS_PDF.md) -->
+        <!-- FECHAMENTO DO PDF: BANNER "SUA MARCA NO LUGAR CERTO" COM LOGOTIPO OFICIAL EM DESTAQUE E ZERO GRAFISMOS CONCORRENTES -->
         <section class="mt-6 pt-2 pdf-avoid-break flex flex-col justify-between">
           <!-- BANNER INSTITUCIONAL DE FECHAMENTO ("SUA MARCA NO LUGAR CERTO.") -->
           <div
-            class="rounded-2xl relative overflow-hidden text-white min-h-[176px] flex items-center"
+            class="rounded-2xl relative overflow-hidden text-white min-h-[172px] flex items-center justify-between px-8 py-6 gap-6"
             style="background: linear-gradient(90deg, #E83C39 0%, #F15A22 55%, #F7980F 100%);"
           >
-            <img
-              src="assets/kv-closing-shapes.png"
-              alt="Aqui ads"
-              class="absolute right-0 bottom-0 h-full w-auto object-contain object-right-bottom pointer-events-none select-none"
-            />
-            <div class="relative z-10 px-8 py-5 max-w-[60%]">
-              <h2 class="font-display font-bold text-2xl sm:text-3xl text-white leading-tight">
-                Sua marca no<br />lugar certo.
-              </h2>
-              <p class="text-xs text-[#FFF8F3] mt-1.5 leading-relaxed max-w-[360px]">
-                Escolha onde aparecer, envie sua arte e acompanhe tudo no seu painel.
-              </p>
-              <div class="mt-4 flex flex-wrap items-center gap-4">
-                <a
-                  href="${escapeHtml(onlineProposalUrl)}"
-                  onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); }"
-                  class="px-4 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-900 font-display font-bold text-xs transition shadow-xs inline-flex items-center justify-center"
-                >
-                  anunciar agora
-                </a>
-                <a
-                  href="${escapeHtml(onlineProposalUrl)}"
-                  onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); }"
-                  class="inline-flex items-center gap-1.5 text-white font-display font-bold text-xs hover:underline"
-                >
-                  <i class="uil uil-comment-dots text-sm"></i>
-                  <span>falar com especialista</span>
-                </a>
+            <div class="relative z-10 max-w-[68%]">
+              <!-- Logotipo Oficial Aqui Ads em destaque -->
+              <div class="mb-3">
+                <svg class="h-7 w-auto" viewBox="0 0 740.84 182.70" role="img" aria-label="Aqui ads">
+                  <path fill="#FFFFFF" d="M 597.46 143.41 C 591.15 138.92 587.05 132.61 585.16 124.47 C 584.98 123.58 585.15 122.86 585.65 122.3 C 586.15 121.74 586.87 121.46 587.81 121.46 L 598.08 121.46 C 599.61 121.46 600.74 122.23 601.44 123.76 C 603.15 127.95 605.6 130.95 608.79 132.74 C 611.97 134.54 616.55 135.44 622.51 135.44 C 627.58 135.44 631.5 134.63 634.28 133.01 C 637.05 131.39 638.44 129.01 638.44 125.88 C 638.44 123.53 637.64 121.61 636.05 120.13 C 634.45 118.66 632.12 117.48 629.05 116.59 C 625.99 115.71 621.98 114.91 617.02 114.2 C 606.46 112.73 598.66 110.1 593.61 106.32 C 588.57 102.55 586.04 97.09 586.04 89.95 C 586.04 85.23 587.39 80.99 590.07 77.21 C 592.76 73.44 596.5 70.48 601.31 68.36 C 606.12 66.24 611.59 65.18 617.73 65.18 C 627.17 65.18 634.97 67.42 641.13 71.9 C 647.3 76.38 651.24 82.52 652.95 90.31 C 653.12 91.25 652.98 91.99 652.51 92.52 C 652.03 93.05 651.3 93.32 650.29 93.32 L 640.38 93.32 C 639.62 93.32 638.98 93.14 638.48 92.79 C 637.98 92.43 637.55 91.84 637.2 91.02 C 635.37 86.95 632.92 84.07 629.85 82.39 C 626.78 80.71 622.51 79.86 617.02 79.86 C 612 79.86 608.21 80.68 605.65 82.3 C 603.08 83.92 601.8 86.3 601.8 89.42 C 601.8 92.32 603.26 94.44 606.18 95.79 C 609.1 97.15 613.24 98.27 618.61 99.16 C 626.58 100.52 633.02 102.02 637.95 103.67 C 642.87 105.32 646.84 107.88 649.85 111.33 C 652.86 114.78 654.36 119.45 654.36 125.36 C 654.36 130.13 653.04 134.41 650.38 138.18 C 647.73 141.96 643.95 144.9 639.06 146.99 C 634.16 149.09 628.52 150.13 622.15 150.13 C 612 150.13 603.77 147.89 597.46 143.41 M 513.04 121.95 C 515.22 126.16 518.21 129.44 522.02 131.77 C 525.82 134.1 530.06 135.27 534.72 135.27 C 539.56 135.27 543.91 134.22 547.77 132.13 C 551.63 130.03 554.67 126.9 556.89 122.74 C 559.1 118.58 560.21 113.55 560.21 107.66 C 560.21 101.7 559.1 96.65 556.89 92.52 C 554.67 88.39 551.65 85.28 547.82 83.18 C 543.98 81.09 539.62 80.04 534.72 80.04 C 530.47 80.04 526.44 81.11 522.64 83.23 C 518.83 85.35 515.74 88.5 513.35 92.65 C 510.96 96.81 509.76 101.81 509.76 107.66 C 509.76 112.96 510.85 117.73 513.04 121.95 M 513.61 144.78 C 507.51 141.21 502.68 136.21 499.14 129.78 C 495.6 123.35 493.83 115.97 493.83 107.66 C 493.83 99.51 495.63 92.21 499.23 85.75 C 502.83 79.29 507.7 74.25 513.83 70.62 C 519.97 66.99 526.69 65.18 534.01 65.18 C 539.73 65.18 544.81 66.18 549.23 68.18 C 553.66 70.19 557.2 72.96 559.85 76.5 L 559.85 35.62 C 559.85 34.73 560.1 34.04 560.6 33.54 C 561.1 33.04 561.8 32.79 562.68 32.79 L 572.95 32.79 C 573.83 32.79 574.53 33.04 575.03 33.54 C 575.53 34.04 575.78 34.73 575.78 35.62 L 575.78 145.88 C 575.78 146.77 575.53 147.46 575.03 147.96 C 574.53 148.46 573.83 148.71 572.95 148.71 L 562.86 148.71 C 561.98 148.71 561.28 148.46 560.78 147.96 C 560.28 147.46 560.03 146.77 560.03 145.88 L 560.03 138.63 C 557.49 142.17 553.95 144.97 549.41 147.04 C 544.86 149.1 539.67 150.13 533.83 150.13 C 526.46 150.13 519.72 148.35 513.61 144.78 M 420.83 121.95 C 423.01 126.16 426 129.44 429.81 131.77 C 433.61 134.1 437.85 135.27 442.51 135.27 C 447.34 135.27 451.7 134.22 455.56 132.13 C 459.42 130.03 462.46 126.9 464.68 122.74 C 466.89 118.58 467.99 113.55 467.99 107.66 C 467.99 101.7 466.89 96.65 464.68 92.52 C 462.46 88.39 459.44 85.28 455.6 83.18 C 451.77 81.09 447.4 80.04 442.51 80.04 C 438.26 80.04 434.23 81.11 430.43 83.23 C 426.62 85.35 423.52 88.5 421.13 92.65 C 418.74 96.81 417.55 101.81 417.55 107.66 C 417.55 112.96 418.64 117.73 420.83 121.95 M 421.71 144.78 C 415.51 141.21 410.62 136.21 407.02 129.78 C 403.42 123.35 401.62 115.97 401.62 107.66 C 401.62 99.51 403.44 92.21 407.06 85.75 C 410.69 79.29 415.63 74.25 421.89 70.62 C 428.14 66.99 435.07 65.18 442.68 65.18 C 448.29 65.18 453.3 66.18 457.73 68.18 C 462.15 70.19 465.69 72.96 468.35 76.5 L 468.35 69.42 C 468.35 68.54 468.6 67.84 469.1 67.34 C 469.6 66.84 470.3 66.59 471.18 66.59 L 481.09 66.59 C 481.98 66.59 482.67 66.84 483.17 67.34 C 483.67 67.84 483.92 68.54 483.92 69.42 L 483.92 145.88 C 483.92 146.77 483.67 147.46 483.17 147.96 C 482.67 148.46 481.98 148.71 481.09 148.71 L 471.18 148.71 C 470.3 148.71 469.6 148.46 469.1 147.96 C 468.6 147.46 468.35 146.77 468.35 145.88 L 468.35 138.1 C 465.75 141.87 462.21 144.82 457.73 146.95 C 453.24 149.07 448.17 150.13 442.51 150.13 C 434.84 150.13 427.9 148.35 421.71 144.78 M 334.72 147.83 C 334.13 147.24 333.83 146.47 333.83 145.53 L 333.83 69.07 C 333.83 68.07 334.13 67.29 334.72 66.72 C 335.31 66.16 336.07 65.88 337.02 65.88 L 355.43 65.88 C 356.43 65.88 357.21 66.16 357.77 66.72 C 358.33 67.29 358.61 68.07 358.61 69.07 L 358.61 145.53 C 358.61 146.47 358.33 147.24 357.77 147.83 C 357.21 148.42 356.43 148.71 355.43 148.71 L 337.02 148.71 C 336.07 148.71 335.31 148.42 334.72 147.83 M 335.38 54.2 C 332.58 51.49 331.18 48 331.18 43.76 C 331.18 40.98 331.81 38.52 333.08 36.37 C 334.35 34.21 336.13 32.52 338.43 31.28 C 340.73 30.04 343.33 29.42 346.22 29.42 C 349.11 29.42 351.71 30.04 354.01 31.28 C 356.31 32.52 358.09 34.21 359.36 36.37 C 360.63 38.52 361.27 40.98 361.27 43.76 C 361.27 48 359.86 51.49 357.06 54.2 C 354.26 56.91 350.65 58.27 346.22 58.27 C 341.8 58.27 338.18 56.91 335.38 54.2 M 250.34 141.15 C 245.23 135.16 242.68 126.59 242.68 115.44 L 242.68 69.07 C 242.68 68.07 242.98 67.29 243.57 66.72 C 244.15 66.16 244.92 65.88 245.87 65.88 L 264.45 65.88 C 265.46 65.88 266.24 66.16 266.8 66.72 C 267.36 67.29 267.64 68.07 267.64 69.07 L 267.64 110.48 C 267.64 115.56 268.67 119.45 270.74 122.17 C 272.8 124.88 275.84 126.24 279.85 126.24 C 284.22 126.24 287.61 124.84 290.03 122.04 C 292.45 119.23 293.66 115.32 293.66 110.31 L 293.66 69.07 C 293.66 68.07 293.95 67.29 294.54 66.72 C 295.13 66.16 295.9 65.88 296.84 65.88 L 315.43 65.88 C 316.43 65.88 317.21 66.16 317.77 66.72 C 318.33 67.29 318.61 68.07 318.61 69.07 L 318.61 145.53 C 318.61 146.47 318.33 147.24 317.77 147.83 C 317.21 148.42 316.43 148.71 315.43 148.71 L 298.26 148.71 C 297.31 148.71 296.55 148.42 295.96 147.83 C 295.37 147.24 295.07 146.47 295.07 145.53 L 295.07 139.34 C 292.59 142.7 289.39 145.34 285.47 147.25 C 281.55 149.17 277.13 150.13 272.24 150.13 C 262.74 150.13 255.44 147.14 250.34 141.15 M 169.89 117.17 C 171.52 120.09 173.68 122.36 176.4 123.98 C 179.11 125.61 182.09 126.41 185.34 126.41 C 188.76 126.41 191.84 125.63 194.58 124.07 C 197.33 122.51 199.48 120.29 201.05 117.43 C 202.61 114.57 203.39 111.2 203.39 107.3 C 203.39 103.46 202.61 100.1 201.05 97.21 C 199.48 94.32 197.33 92.09 194.58 90.53 C 191.84 88.96 188.76 88.18 185.34 88.18 C 182.15 88.18 179.2 88.96 176.49 90.53 C 173.77 92.09 171.59 94.32 169.94 97.21 C 168.29 100.1 167.46 103.46 167.46 107.3 C 167.46 110.96 168.27 114.25 169.89 117.17 M 203.74 181.86 C 203.15 181.3 202.86 180.52 202.86 179.51 L 202.86 141.11 C 200.56 143.88 197.55 146.08 193.83 147.7 C 190.11 149.32 185.75 150.13 180.73 150.13 C 173.65 150.13 167.21 148.27 161.4 144.56 C 155.59 140.84 151.01 135.72 147.68 129.2 C 144.35 122.68 142.68 115.38 142.68 107.3 C 142.68 99.39 144.39 92.17 147.81 85.62 C 151.23 79.07 155.88 73.91 161.75 70.13 C 167.62 66.36 174.07 64.47 181.09 64.47 C 186.22 64.47 190.76 65.43 194.72 67.34 C 198.67 69.26 201.8 71.84 204.1 75.09 L 204.1 69.07 C 204.1 68.07 204.39 67.29 204.98 66.72 C 205.57 66.16 206.34 65.88 207.28 65.88 L 224.63 65.88 C 225.63 65.88 226.41 66.16 226.97 66.72 C 227.53 67.29 227.82 68.07 227.82 69.07 L 227.82 179.51 C 227.82 180.52 227.53 181.3 226.97 181.86 C 226.41 182.42 225.63 182.7 224.63 182.7 L 206.04 182.7 C 205.1 182.7 204.33 182.42 203.74 181.86 M 119.43 13.89 C 118.36 4.75 114.76 0.24 105.41 0.24 L 40.12 0.24 C 40.12 0.24 34.58 0 26.57 0.43 C 18.26 1.41 15.74 5.39 14.75 13.89 L 13.2 26.45 L 0.17 144.43 C 0 145.98 1.22 147.33 2.78 147.33 L 24.21 147.33 C 25.55 147.33 26.67 146.33 26.82 145 L 31.42 103.32 L 31.42 103.32 C 31.52 102.4 34.81 72.63 34.9 71.77 L 39.61 29.13 L 39.62 29.13 C 39.62 28.88 39.65 28.64 39.69 28.4 L 39.7 28.29 C 40.09 26.41 41.76 25 43.77 25 L 90.11 25 C 92.11 25 93.78 26.41 94.16 28.29 L 94.18 28.4 C 94.22 28.64 94.25 28.88 94.25 29.13 L 94.26 29.13 L 98.97 71.77 C 99.06 72.63 98.16 73.33 97.28 73.33 L 50.31 67.03 C 48.76 66.86 47.4 68.07 47.4 69.63 L 45.21 92.33 C 45.21 93.66 46.21 94.79 47.55 94.93 L 100.76 101.67 C 100.77 101.67 100.78 101.68 100.78 101.68 C 101.69 101.79 102.36 102.4 102.45 103.32 L 102.45 103.32 L 107.05 145 C 107.2 146.33 108.32 147.33 109.66 147.33 L 131.4 147.33 C 132.96 147.33 134.18 145.98 134.01 144.43 L 120.98 26.45 Z M 701.02 56.17 C 710.1 56.17 717.11 48.84 717.11 40 C 717.11 31.24 710.1 23.91 701.02 23.91 C 691.94 23.91 684.93 31.24 684.93 40 C 684.93 48.84 691.94 56.17 701.02 56.17 M 728.18 58.79 C 719.5 59.75 710.1 59.99 701.02 59.99 C 691.94 59.99 682.54 59.75 673.78 58.79 C 671.31 58.55 670.04 57.92 669.72 55.29 C 669.24 50.27 669.24 45.18 669.24 40 C 669.24 34.9 669.24 29.8 669.72 24.79 C 670.04 22.16 671.31 21.52 673.78 21.28 C 682.54 20.32 691.94 20.09 701.02 20.09 C 710.1 20.09 719.5 20.32 728.18 21.28 C 730.73 21.52 732 22.16 732.32 24.79 C 732.72 29.8 732.72 34.9 732.72 40 C 732.72 45.18 732.72 50.27 732.32 55.29 C 732 57.92 730.73 58.55 728.18 58.79 M 701.02 0.25 C 679.12 0.25 661.28 18.09 661.28 40 C 661.28 61.98 679.12 79.82 701.02 79.82 C 722.92 79.82 740.84 61.98 740.84 40 C 740.84 18.09 722.92 0.25 701.02 0.25"></path>
+                </svg>
               </div>
+              <h2 class="font-display font-bold text-2xl sm:text-3xl text-white leading-tight">
+                Sua marca no lugar certo.
+              </h2>
+              <p class="text-xs text-[#FFF8F3] mt-1.5 leading-relaxed max-w-[440px]">
+                Revise o plano completo online, efetue o pagamento e acompanhe tudo no seu painel.
+              </p>
+            </div>
+            <div class="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+              <a
+                href="${escapeHtml(onlineProposalUrl)}"
+                onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
+                class="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 font-display font-bold text-xs transition shadow-sm inline-flex items-center justify-center gap-1.5"
+              >
+                <span>Efetuar pagamento</span>
+                <i class="uil uil-arrow-right text-sm"></i>
+              </a>
+              <a
+                href="${escapeHtml(onlineProposalUrl)}"
+                onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); openAndreiaChatWithFlow('specialist'); }"
+                class="px-4 py-2.5 rounded-xl border border-white/40 hover:bg-white/10 text-white font-display font-bold text-xs inline-flex items-center justify-center gap-1.5 transition"
+              >
+                <i class="uil uil-comment-dots text-sm"></i>
+                <span>Falar com especialista</span>
+              </a>
             </div>
           </div>
 
           <!-- RODAPÉ EXECUTIVO DE VALIDADE E GOVERNANÇA (INTEGRADO NA MESMA PÁGINA FINAL) -->
-          <footer class="mt-3 pt-2.5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-500">
+          <footer class="mt-3 pt-2.5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
             <div>
               <strong>Aqui ads</strong> · Proposta comercial sujeita à disponibilidade de inventário no momento da confirmação do pagamento.
             </div>
@@ -8454,13 +8833,15 @@ function setPaymentMethod(pm) {
     showToast('Após gerar o pagamento, não é possível alterar a forma de pagamento.');
     return;
   }
-  if (isPaymentMethodsBlocked()) {
-    if (state.billingCnpjRestricted) {
-      showToast('Proposta enviada para um especialista. Aguarde o retorno.');
-    } else {
-      openAndreiaBillingChat();
-      showToast('Cadastre o perfil de faturamento com a Andreia para liberar os métodos de pagamento.');
-    }
+  if (isUserUnlogged()) {
+    openAuthModal('login');
+    showToast('Faça login para informar os dados de faturamento e escolher a forma de pagamento.');
+    return;
+  }
+  if (!state.billingUnlockedInline || !state.billingDoc) {
+    goToPaymentCheckoutStep(1);
+    openBillingStepForm();
+    showToast('Preencha os dados de faturamento na Etapa 1 para liberar os métodos de pagamento.');
     return;
   }
   state.paymentMethod = pm;
@@ -8485,7 +8866,6 @@ function unlockInlineBilling() {
 /**
  * ============================================================================
  * 8. JORNADA DO USUÁRIO DESLOGADO: MODAL DE LOGIN / CADASTRO (FIEL ÀS IMAGENS 1 E 2)
- *    + CHATBOT DA IA ANDREIA (CADASTRO DE PERFIL DE FATURAMENTO & REGRA DE CNPJ ENCARTEIRADO)
  * ============================================================================
  */
 function openAuthModal(initialTab) {
@@ -8517,10 +8897,15 @@ function toggleSignupForeigner(checked) {
 function submitAuthModal(sourceLabel) {
   state.authCompleted = true;
   state.authModalOpen = false;
-  // Quando o usuário cria a conta ou entra pela 1ª vez nesta simulação, não há perfil de faturamento previamente criado:
+  // Cenário 1 (Sócia loga para pagar, mas não tem dados de faturamento):
+  // Abre diretamente o formulário inline de Dados de faturamento na Etapa 1 da aba de pagamento (sem chatbot)
   state.billingUnlockedInline = false;
   state.billingCnpjRestricted = false;
-  state.paymentMethod = null;
+  state.andreiaChatOpen = false;
+  state.billingFormOpen = true;
+  state.billingPersonType = state.signupNoCnpj ? 'CPF' : 'CNPJ';
+  state.paymentCheckoutStep = 1;
+  state.paymentMethod = 'card';
   state.activeTab = 'pagamento';
   renderAll();
   switchMainTab('pagamento');
@@ -8532,8 +8917,8 @@ function submitAuthModal(sourceLabel) {
   }, 60);
   showToast(
     sourceLabel === 'cadastro'
-      ? 'Conta criada com sucesso! Cadastre o perfil de faturamento para liberar o pagamento.'
-      : 'Login realizado! Cadastre o perfil de faturamento para prosseguir.'
+      ? 'Conta criada! Preencha os dados de faturamento na Etapa 1 para realizar o pagamento.'
+      : 'Login realizado! Preencha os dados de faturamento na Etapa 1 para realizar o pagamento.'
   );
 }
 
@@ -8782,19 +9167,16 @@ function renderAuthModal() {
  * ============================================================================
  */
 function openAndreiaBillingChat() {
-  state.andreiaChatOpen = true;
-  if (!state.andreiaStep || state.andreiaStep === 'change_billing' || state.andreiaStep === 'executive_billing_change') {
-    state.andreiaStep = 'select_type';
-  }
-  renderAndreiaChat();
+  state.andreiaChatOpen = false;
+  goToPaymentAnchor();
+  openBillingStepForm();
 }
 
 function openAndreiaBillingChangeChat() {
   state.billingDrawerOpen = false;
-  state.andreiaChatOpen = true;
-  state.andreiaStep = 'change_billing';
-  renderPaymentTab(getCurrentModel());
-  renderAndreiaChat();
+  state.andreiaChatOpen = false;
+  goToPaymentAnchor();
+  openBillingStepForm();
 }
 
 function requestExecutiveForPjBillingChange() {
@@ -9306,9 +9688,11 @@ function applyStyledWorksheet(ws, cfg) {
     const activeCols = rMeta.maxCol || colCount;
 
     if (rType === 'orange_title') {
-      rowHeights[r] = { hpt: 28 };
+      rowHeights[r] = { hpt: 30 };
     } else if (rType === 'orange_subtitle' || rType === 'orange_section') {
       rowHeights[r] = { hpt: 23 };
+    } else if (rType === 'cta_link') {
+      rowHeights[r] = { hpt: 26 };
     } else if (rType === 'table_header') {
       rowHeights[r] = { hpt: 25 };
     } else if (rType === 'total' || rType === 'highlight_total') {
@@ -9328,6 +9712,13 @@ function applyStyledWorksheet(ws, cfg) {
       }
       const cell = ws[ref];
       const isNum = cell.t === 'n' || (typeof cell.v === 'number' && Number.isFinite(cell.v));
+
+      if (rMeta.hyperlinks && rMeta.hyperlinks[c]) {
+        cell.l = {
+          Target: rMeta.hyperlinks[c],
+          Tooltip: 'Clique para acessar a proposta online'
+        };
+      }
 
       const isCurrency = Boolean(
         isNum && (
@@ -9354,7 +9745,7 @@ function applyStyledWorksheet(ws, cfg) {
       let horiz = 'left';
       if (isNum) {
         horiz = centerColsSet.has(c) && !isCurrency ? 'center' : 'right';
-      } else if (centerColsSet.has(c) && rType !== 'orange_title' && rType !== 'orange_subtitle' && rType !== 'orange_section') {
+      } else if (centerColsSet.has(c) && rType !== 'orange_title' && rType !== 'orange_subtitle' && rType !== 'orange_section' && rType !== 'cta_link') {
         horiz = 'center';
       } else if (rType === 'table_header' && (currencyColsSet.has(c) || integerColsSet.has(c) || (Array.isArray(rMeta.rightHeaderCols) && rMeta.rightHeaderCols.includes(c)))) {
         horiz = centerColsSet.has(c) ? 'center' : 'right';
@@ -9380,6 +9771,20 @@ function applyStyledWorksheet(ws, cfg) {
           font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderOrange
+        };
+      } else if (rType === 'cta_link') {
+        const isLinkCell = c === 1;
+        cell.s = {
+          fill: { patternType: 'solid', fgColor: { rgb: isLinkCell ? 'FFF3EA' : 'FBF8F4' } },
+          font: {
+            name: 'Arial',
+            sz: 10.5,
+            bold: true,
+            underline: isLinkCell,
+            color: { rgb: isLinkCell ? 'F15A22' : '121212' }
+          },
+          alignment: { vertical: 'center', horizontal: 'left' },
+          border: borderHeader
         };
       } else if (rType === 'table_header') {
         cell.s = {
@@ -9471,15 +9876,15 @@ function exportFullCsv() {
   const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
   const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
 
-  // Portais e Revistas helpers iguais ao PDF
+  // Portais e Revistas helpers iguais ao PDF (sem Cartola)
   const portaisVehiclesSet = new Set();
   (m.portaisItems || []).forEach((it) => {
     (it.vehicles || []).forEach((v) => {
+      if (v === 'cartola') return;
       const cleanV = v === 'g1' ? 'G1'
         : v === 'ge' ? 'GE'
         : v === 'gshow' ? 'Gshow'
         : v === 'receitas' ? 'Receitas'
-        : v === 'cartola' ? 'Cartola'
         : v === 'globo.com' ? 'Globo.com'
         : v === 'globoplay' ? 'Globoplay'
         : v;
@@ -9499,10 +9904,14 @@ function exportFullCsv() {
 
   const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
 
+  const onlineProposalUrl = typeof window !== 'undefined' && window.location && window.location.href
+    ? window.location.href.split('#')[0]
+    : 'https://aquiads.com.br/proposta/' + m.id;
+
   const sheetsData = [];
 
   // ==========================================================================
-  // 1. ABA RESUMO DA PROPOSTA (Organizada visualmente com cabeçalhos laranja, títulos em bold e totais em bold)
+  // 1. ABA RESUMO DA PROPOSTA (Capa Institucional Aqui Ads + Link Direto Online + Resumo Executivo)
   // ==========================================================================
   const resumoColsCount = 6;
   const resumoRows = [];
@@ -9516,11 +9925,24 @@ function exportFullCsv() {
     return idx;
   };
 
-  const rTitleIdx = pushResumoRow(['PROPOSTA COMERCIAL — AQUI ADS'], { type: 'orange_title', maxCol: resumoColsCount });
+  // Capa Institucional de Abertura (Padrão Executivo Aqui Ads / Eletromidia Ads)
+  const rTitleIdx = pushResumoRow(['AQUI ADS (GLOBO & ELETROMIDIA) — PROPOSTA COMERCIAL EXECUTIVA'], { type: 'orange_title', maxCol: resumoColsCount });
   resumoMerges.push({ s: { r: rTitleIdx, c: 0 }, e: { r: rTitleIdx, c: resumoColsCount - 1 } });
 
-  const rSubIdx = pushResumoRow([`${m.campaignName} · Proposta ${proposalDisplayId} · Período: ${m.startDate} a ${m.endDate} (${m.durationDays} dias)`], { type: 'orange_subtitle', maxCol: resumoColsCount });
+  const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
+  const subtitleCoverText = `${hasCampaignName ? `${m.campaignName} · ` : ''}Proposta ${proposalDisplayId} · Período de veiculação: ${m.startDate} a ${m.endDate} (${m.durationDays} dias corridos)`;
+  const rSubIdx = pushResumoRow([subtitleCoverText], { type: 'orange_subtitle', maxCol: resumoColsCount });
   resumoMerges.push({ s: { r: rSubIdx, c: 0 }, e: { r: rSubIdx, c: resumoColsCount - 1 } });
+
+  // Ligação Direta Destacada para a Proposta Online
+  pushResumoRow([
+    'Acesso direto à proposta virtual',
+    'Acessar a proposta online (Mapa interativo, envio de artes e pagamento)'
+  ], {
+    type: 'cta_link',
+    maxCol: 2,
+    hyperlinks: { 1: onlineProposalUrl }
+  });
 
   pushResumoRow([], { type: 'spacer' });
 
@@ -9529,10 +9951,12 @@ function exportFullCsv() {
   resumoMerges.push({ s: { r: secCampIdx, c: 0 }, e: { r: secCampIdx, c: 1 } });
   pushResumoRow(['Campo', 'Informação'], { type: 'table_header', maxCol: 2 });
   pushResumoRow(['Código da proposta', proposalDisplayId], { type: 'kv_row', maxCol: 2, boldValue: true });
-  pushResumoRow(['Nome da campanha', m.campaignName], { type: 'kv_row', maxCol: 2 });
+  if (hasCampaignName) {
+    pushResumoRow(['Nome da campanha', m.campaignName], { type: 'kv_row', maxCol: 2 });
+  }
   pushResumoRow(['Duração da campanha', `${m.durationDays} dias corridos`], { type: 'kv_row', maxCol: 2 });
   pushResumoRow(['Período de veiculação', `${m.startDate} a ${m.endDate}`], { type: 'kv_row', maxCol: 2 });
-  pushResumoRow(['Mix contratado', `${c.totalItems} ${c.totalItems === 1 ? 'produto contratado' : 'produtos contratados'}`], { type: 'kv_row', maxCol: 2 });
+  pushResumoRow(['Link da proposta online', onlineProposalUrl], { type: 'kv_row', maxCol: 2, hyperlinks: { 1: onlineProposalUrl } });
 
   pushResumoRow([], { type: 'spacer' });
 
@@ -9546,36 +9970,34 @@ function exportFullCsv() {
 
   pushResumoRow([], { type: 'spacer' });
 
-  // Bloco 3: Investimento Total e Subtotais
-  const secInvIdx = pushResumoRow(['INVESTIMENTO TOTAL E SUBTOTAIS'], { type: 'orange_section', maxCol: 2 });
+  // Bloco 3: Investimento Consolidado por Canal
+  const secInvIdx = pushResumoRow(['INVESTIMENTO CONSOLIDADO'], { type: 'orange_section', maxCol: 2 });
   resumoMerges.push({ s: { r: secInvIdx, c: 0 }, e: { r: secInvIdx, c: 1 } });
-  pushResumoRow(['Item', 'Valor (R$)'], { type: 'table_header', maxCol: 2, rightHeaderCols: [1] });
-  if (hasOoh) pushResumoRow(['Subtotal OOH — Telas Digitais e Estáticas', Number(f.oohNet.toFixed(2))], { type: 'data', dataIndex: 0, maxCol: 2, currencyCols: [1] });
-  if (hasPortais) pushResumoRow(['Subtotal Portais e Globoplay — Vídeo e Display', Number(f.portaisNet.toFixed(2))], { type: 'data', dataIndex: 1, maxCol: 2, currencyCols: [1] });
-  if (hasRevistas) pushResumoRow(['Subtotal Revistas Digitais', Number(f.revistasNet.toFixed(2))], { type: 'data', dataIndex: 2, maxCol: 2, currencyCols: [1] });
-  if (hasRadio) pushResumoRow(['Subtotal Rádio CBN — Spots de 30 segundos', Number(f.radioNet.toFixed(2))], { type: 'data', dataIndex: 3, maxCol: 2, currencyCols: [1] });
+  pushResumoRow(['Item', 'Valor Líquido (R$)'], { type: 'table_header', maxCol: 2, rightHeaderCols: [1] });
+  if (hasOoh) pushResumoRow(['OOH — Telas Digitais e Estáticas', Number(f.oohNet.toFixed(2))], { type: 'data', dataIndex: 0, maxCol: 2, currencyCols: [1] });
+  if (hasPortais) pushResumoRow(['Portais e Globoplay — Vídeo e Display', Number(f.portaisNet.toFixed(2))], { type: 'data', dataIndex: 1, maxCol: 2, currencyCols: [1] });
+  if (hasRevistas) pushResumoRow(['Revistas Digitais', Number(f.revistasNet.toFixed(2))], { type: 'data', dataIndex: 2, maxCol: 2, currencyCols: [1] });
+  if (hasRadio) pushResumoRow(['Rádio CBN — Spots de 30 segundos', Number(f.radioNet.toFixed(2))], { type: 'data', dataIndex: 3, maxCol: 2, currencyCols: [1] });
   pushResumoRow(['Valor bruto da proposta', Number(f.totalGrossProposal.toFixed(2))], { type: 'kv_row', maxCol: 2, currencyCols: [1] });
   if (f.totalDiscounts > 0) {
-    pushResumoRow(['Descontos aplicados', Number((-f.totalDiscounts).toFixed(2))], { type: 'coupon', maxCol: 2, currencyCols: [1] });
-  } else {
-    pushResumoRow(['Descontos aplicados', 0], { type: 'kv_row', maxCol: 2, currencyCols: [1] });
+    pushResumoRow(['Descontos aplicados (Condomínios)', Number((-f.totalDiscounts).toFixed(2))], { type: 'coupon', maxCol: 2, currencyCols: [1] });
   }
   pushResumoRow(['Investimento total líquido', Number(f.trueProposalTotal.toFixed(2))], { type: 'highlight_total', maxCol: 2, currencyCols: [1] });
 
   pushResumoRow([], { type: 'spacer' });
 
-  // Bloco 4: Detalhamento de Métricas por Canal (Colunas organizadas sem colisão visual entre números e textos)
+  // Bloco 4: Detalhamento de Métricas por Canal
   const secMetIdx = pushResumoRow(['DETALHAMENTO DE MÉTRICAS POR CANAL'], { type: 'orange_section', maxCol: resumoColsCount });
   resumoMerges.push({ s: { r: secMetIdx, c: 0 }, e: { r: secMetIdx, c: resumoColsCount - 1 } });
 
   const metHeaderIdx = pushResumoRow([
     'Canal',
-    'Unidade da Métrica',
-    'Entrega Principal',
-    'Inventário / Veículos',
-    'Alcance / Frequência / CPM',
-    'Subtotal Líquido (R$)'
-  ], { type: 'table_header', maxCol: resumoColsCount, rightHeaderCols: [2, 5] });
+    'Métrica Principal',
+    'Impacto / Impressões',
+    'Alcance Estimado',
+    'Inventário e Exibição Diária',
+    'Total Líquido (R$)'
+  ], { type: 'table_header', maxCol: resumoColsCount, rightHeaderCols: [2, 3, 5] });
 
   let metItemIdx = 0;
   if (hasOoh) {
@@ -9583,46 +10005,46 @@ function exportFullCsv() {
       'OOH — Telas Digitais e Estáticas',
       'Impacto no período',
       c.oohImpacts,
-      `${fmtInt(c.oohPointsCount)} pontos · ${fmtInt(c.oohScreensCount)} telas · ${oohDigitalPts > 0 ? `${fmtInt(c.oohTotalInsertions)} exibições` : 'Exibição fixa'}`,
-      `Alcance: ${fmtInt(c.oohReach || c.oohImpacts)} · Frequência: ${fmtFreq(c.oohFrequency || 1.88)}`,
+      c.oohReach || c.oohImpacts,
+      `${fmtInt(c.oohPointsCount)} pontos · ${fmtInt(c.oohScreensCount)} telas · ${oohDigitalPts > 0 ? `${fmtInt(c.oohDailyInsertions)} exib./dia (${fmtInt(c.oohTotalInsertions)} no período)` : 'Exibição fixa'}`,
       Number(f.oohNet.toFixed(2))
-    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2], currencyCols: [5], boldCols: [0, 2, 5] });
+    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2, 3], currencyCols: [5], boldCols: [0, 2, 3, 5] });
   }
   if (hasPortais) {
     pushResumoRow([
       'Portais e Globoplay',
       'Impressões contratadas',
       c.portaisImpressions,
-      `Portais: ${portaisListLabel}`,
-      `CPM médio: ${portaisCpmLabel}`,
+      Math.round(c.portaisImpressions * 0.62),
+      `Portais: ${portaisListLabel} · CPM médio: ${portaisCpmLabel}`,
       Number(f.portaisNet.toFixed(2))
-    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2], currencyCols: [5], boldCols: [0, 2, 5] });
+    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2, 3], currencyCols: [5], boldCols: [0, 2, 3, 5] });
   }
   if (hasRevistas) {
     pushResumoRow([
       'Revistas e Jornais',
       'Impressões contratadas',
       c.revistasImpressions,
-      `Títulos: ${revistasListLabel}`,
-      `CPM médio: ${revistasCpmLabel}`,
+      Math.round(c.revistasImpressions * 0.62),
+      `Títulos: ${revistasListLabel} · CPM médio: ${revistasCpmLabel}`,
       Number(f.revistasNet.toFixed(2))
-    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2], currencyCols: [5], boldCols: [0, 2, 5] });
+    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2, 3], currencyCols: [5], boldCols: [0, 2, 3, 5] });
   }
   if (hasRadio) {
     pushResumoRow([
       'Rádio CBN',
       'Inserções no período',
       c.radioTotalInsertions,
-      `${fmtInt(c.radioCount)} praças/programas · ${fmtInt(c.radioWeeklyInsertions)} inserções/semana`,
-      `Duração: ${radioDurationsLabel}`,
+      Math.round(c.radioTotalInsertions * 18500 * 0.58),
+      `${fmtInt(c.radioCount)} praças/programas · ${fmtInt(c.radioWeeklyInsertions)} inserções/semana · ${radioDurationsLabel}`,
       Number(f.radioNet.toFixed(2))
-    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2], currencyCols: [5], boldCols: [0, 2, 5] });
+    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2, 3], currencyCols: [5], boldCols: [0, 2, 3, 5] });
   }
 
   const lastMetDataIdx = resumoRows.length - 1;
   pushResumoRow([
     'Total Geral da Proposta',
-    `${c.totalItems} ${c.totalItems === 1 ? 'item no plano' : 'itens no plano'}`,
+    `${c.totalItems} ${c.totalItems === 1 ? 'ativo contratado' : 'ativos contratados'}`,
     '',
     '',
     '',
@@ -9639,33 +10061,33 @@ function exportFullCsv() {
       ? `A${metHeaderIdx + 1}:F${lastMetDataIdx + 1}`
       : null,
     customCols: [
-      { wch: 40 },
+      { wch: 38 },
       { wch: 36 },
       { wch: 22 },
-      { wch: 44 },
-      { wch: 36 },
+      { wch: 22 },
+      { wch: 48 },
       { wch: 24 }
     ]
   });
 
   // ==========================================================================
-  // 2. ABA OOH (Mesma tabela de OOH do PDF, com banner laranja, cabeçalho destacado, filtro e total em bold)
+  // 2. ABA OOH (Desagrupamento 1 por Linha para Condomínios/Torres + Manutenção de Códigos + Exibição Diária + Período)
   // ==========================================================================
   if (hasOoh) {
-    const oohColCount = 13;
+    const oohColCount = 14;
     const oohRows = [
-      ['OOH — Telas Digitais e Estáticas'],
-      [`Subtotal OOH: ${fmtBRL(f.oohNet)}`],
+      [`OOH — Inventário Detalhado de Pontos e Condomínios (${fmtInt(c.oohPointsCount)} pontos)`],
       [],
       [
         'Código',
-        'Ponto / Condomínio',
+        'Ponto / Condomínio (Torre Individual)',
         'Endereço e Praça',
-        'Torres',
         'Categoria',
-        'Exibição e Resolução',
+        'Formato e Resolução',
+        'Período de Veiculação',
         'Telas',
-        'Exibições',
+        'Exibição Diária',
+        'Exibições no Período',
         'Alcance',
         'Impacto',
         'Valor Bruto (R$)',
@@ -9675,87 +10097,92 @@ function exportFullCsv() {
     ];
     const oohMeta = {
       0: { type: 'orange_title', maxCol: oohColCount },
-      1: { type: 'orange_subtitle', maxCol: oohColCount },
-      2: { type: 'spacer' },
-      3: { type: 'table_header', maxCol: oohColCount }
+      1: { type: 'spacer' },
+      2: { type: 'table_header', maxCol: oohColCount }
     };
 
-    m.oohDisplayGroups.forEach((g, idx) => {
+    const periodText = `${m.startDate} a ${m.endDate} (${m.durationDays}d)`;
+    let oohRowCounter = 0;
+
+    m.oohDisplayGroups.forEach((g) => {
       const isStatic = Boolean(g.isStatic);
       const exhType = isStatic ? 'Estático' : 'DOOH';
-      let towersText = `${g.towersCount || 1} ${(g.towersCount || 1) === 1 ? 'torre' : 'torres'}`;
-      if (g.kind === 'condo_group' && g.towers && g.towers.length > 1) {
-        const shortTowers = g.towers.map((t) => {
-          let rawName = String(t.name || '').trim();
-          if (g.name && rawName.toLowerCase().startsWith(g.name.toLowerCase())) {
-            rawName = rawName.slice(g.name.length).replace(/^[\s\-–—:·]+/, '').trim();
-          } else if (rawName.includes(' - ')) {
-            rawName = rawName.split(' - ').slice(1).join(' - ').trim();
-          }
-          return rawName || t.name;
-        });
-        towersText = `${g.towersCount} torres: ${shortTowers.join(' · ')}`;
-      }
       const geoMeta = [g.district, g.city ? `${g.city}/${g.state || 'SP'}` : ''].filter(Boolean).join(', ');
       const fullAddress = `${g.address}${geoMeta ? ` · ${geoMeta}` : ''}`;
-      const reachVal = g.reach || 0;
-      const impactVal = g.impacts || g.reach || 0;
 
-      const rIdx = oohRows.length;
-      oohRows.push([
-        `#${g.displayCode || g.code}`,
-        g.name,
-        fullAddress,
-        towersText,
-        g.vertical,
-        `${exhType} · ${g.resolution || '1080x1920'}`,
-        g.screens,
-        isStatic ? 'Fixa' : g.periodInsertions,
-        reachVal > 0 ? reachVal : '—',
-        impactVal > 0 ? impactVal : '—',
-        Number(g.originalPrice.toFixed(2)),
-        Number((g.residentDiscount || 0).toFixed(2)),
-        Number(g.netPrice.toFixed(2))
-      ]);
-      oohMeta[rIdx] = { type: 'data', dataIndex: idx, maxCol: oohColCount };
+      // Regra de Exibição 1 por Linha: quando for condomínio, desdobra cada torre individualmente linha a linha
+      if (g.kind === 'condo_group' && Array.isArray(g.towers) && g.towers.length > 0) {
+        g.towers.forEach((t) => {
+          let towerCleanName = String(t.name || '').trim();
+          if (g.name && !towerCleanName.toLowerCase().includes(g.name.toLowerCase())) {
+            towerCleanName = `${g.name} — ${towerCleanName}`;
+          }
+          const tReach = t.reach || Math.round(g.reach / Math.max(1, g.towers.length));
+          const tImpacts = t.impacts || Math.round(g.impacts / Math.max(1, g.towers.length));
+          const tGross = Number((t.originalPrice ?? t.netPrice).toFixed(2));
+          const tDisc = Number((t.residentDiscount ?? Math.max(0, tGross - t.netPrice)).toFixed(2));
+          const tNet = Number(t.netPrice.toFixed(2));
+
+          const rIdx = oohRows.length;
+          oohRows.push([
+            `#${t.code}`,
+            towerCleanName,
+            fullAddress,
+            g.vertical,
+            `${exhType} · ${t.resolution || g.resolution || '1080x1920'}`,
+            periodText,
+            t.screens,
+            isStatic ? 'Fixa' : t.dailyInsertions,
+            isStatic ? 'Fixa' : t.periodInsertions,
+            tReach > 0 ? tReach : '—',
+            tImpacts > 0 ? tImpacts : '—',
+            tGross,
+            tDisc,
+            tNet
+          ]);
+          oohMeta[rIdx] = { type: 'data', dataIndex: oohRowCounter++, maxCol: oohColCount };
+        });
+      } else {
+        const reachVal = g.reach || 0;
+        const impactVal = g.impacts || g.reach || 0;
+        const rIdx = oohRows.length;
+        oohRows.push([
+          `#${g.displayCode || g.code}`,
+          g.name,
+          fullAddress,
+          g.vertical,
+          `${exhType} · ${g.resolution || '1080x1920'}`,
+          periodText,
+          g.screens,
+          isStatic ? 'Fixa' : g.dailyInsertions,
+          isStatic ? 'Fixa' : g.periodInsertions,
+          reachVal > 0 ? reachVal : '—',
+          impactVal > 0 ? impactVal : '—',
+          Number(g.originalPrice.toFixed(2)),
+          Number((g.residentDiscount || 0).toFixed(2)),
+          Number(g.netPrice.toFixed(2))
+        ]);
+        oohMeta[rIdx] = { type: 'data', dataIndex: oohRowCounter++, maxCol: oohColCount };
+      }
     });
 
-    const lastOohItemRow1Based = oohRows.length; // 1-based Excel row of the last item
-
-    if (f.couponDiscount > 0) {
-      const cIdx = oohRows.length;
-      oohRows.push([
-        'Cupom OOH',
-        `Cupom promocional aplicado em OOH (${state.couponCode || 'AQUIADS10'} · -10% sobre subtotal líquido OOH)`,
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        Number(f.couponDiscount.toFixed(2)),
-        Number((-f.couponDiscount).toFixed(2))
-      ]);
-      oohMeta[cIdx] = { type: 'coupon', maxCol: oohColCount };
-    }
+    const lastOohItemRow1Based = oohRows.length;
 
     const totOohIdx = oohRows.length;
     oohRows.push([
-      'Total OOH',
-      `${m.oohDisplayGroups.length} ${m.oohDisplayGroups.length === 1 ? 'ponto/condomínio' : 'pontos/condomínios'}`,
+      'Total Consolidado OOH',
+      `${c.oohPointsCount} ${c.oohPointsCount === 1 ? 'ponto listado' : 'pontos/torres listados individualmente'}`,
       '',
       '',
       '',
-      '',
+      periodText,
       c.oohScreensCount,
+      oohDigitalPts > 0 ? c.oohDailyInsertions : 'Fixa',
       oohDigitalPts > 0 ? c.oohTotalInsertions : 'Fixa',
       c.oohReach || c.oohImpacts,
       c.oohImpacts,
       Number(f.oohGross.toFixed(2)),
-      Number((f.oohResidentDiscounts + f.couponDiscount).toFixed(2)),
+      Number(f.oohResidentDiscounts.toFixed(2)),
       Number(f.oohNet.toFixed(2))
     ]);
     oohMeta[totOohIdx] = { type: 'total', maxCol: oohColCount };
@@ -9765,15 +10192,14 @@ function exportFullCsv() {
       rows: oohRows,
       colCount: oohColCount,
       merges: [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: oohColCount - 1 } },
-        { s: { r: 1, c: 0 }, e: { r: 1, c: oohColCount - 1 } }
+        { s: { r: 0, c: 0 }, e: { r: 0, c: oohColCount - 1 } }
       ],
       rowMeta: oohMeta,
-      integerCols: [6, 7, 8, 9],
-      currencyCols: [10, 11, 12],
-      centerCols: [0, 6],
-      boldCols: [0, 1, 12],
-      autofilterRef: `A4:M${lastOohItemRow1Based}`
+      integerCols: [6, 7, 8, 9, 10],
+      currencyCols: [11, 12, 13],
+      centerCols: [0, 5, 6],
+      boldCols: [0, 1, 13],
+      autofilterRef: `A3:N${lastOohItemRow1Based}`
     });
   }
 
@@ -9781,10 +10207,9 @@ function exportFullCsv() {
   // 3. ABA PORTAIS E GLOBOPLAY
   // ==========================================================================
   if (hasPortais) {
-    const portaisColCount = 11;
+    const portaisColCount = 12;
     const portaisRows = [
       ['Portais e Globoplay — Vídeo e Display'],
-      [`Subtotal Portais e Globoplay: ${fmtBRL(f.portaisNet)}`],
       [],
       [
         'Código',
@@ -9793,6 +10218,7 @@ function exportFullCsv() {
         'Ambiente',
         'Veículos',
         'Especificação',
+        'Período de Veiculação',
         'Detalhes Técnicos',
         'Abrangência',
         'Impressões',
@@ -9802,9 +10228,8 @@ function exportFullCsv() {
     ];
     const portaisMeta = {
       0: { type: 'orange_title', maxCol: portaisColCount },
-      1: { type: 'orange_subtitle', maxCol: portaisColCount },
-      2: { type: 'spacer' },
-      3: { type: 'table_header', maxCol: portaisColCount }
+      1: { type: 'spacer' },
+      2: { type: 'table_header', maxCol: portaisColCount }
     };
 
     m.portaisItems.forEach((p, idx) => {
@@ -9816,6 +10241,7 @@ function exportFullCsv() {
         p.channelTypeLabel || p.vertical,
         (p.vehicles || []).join(', ').toUpperCase(),
         p.formatTagLabel || p.mediaTypeLabel,
+        `${m.startDate} a ${m.endDate}`,
         p.techSpecFooter || '',
         'Nacional / Seg.',
         p.impressions,
@@ -9834,6 +10260,7 @@ function exportFullCsv() {
       '',
       '',
       '',
+      `${m.durationDays} dias`,
       '',
       '',
       c.portaisImpressions,
@@ -9847,15 +10274,14 @@ function exportFullCsv() {
       rows: portaisRows,
       colCount: portaisColCount,
       merges: [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: portaisColCount - 1 } },
-        { s: { r: 1, c: 0 }, e: { r: 1, c: portaisColCount - 1 } }
+        { s: { r: 0, c: 0 }, e: { r: 0, c: portaisColCount - 1 } }
       ],
       rowMeta: portaisMeta,
-      integerCols: [8],
-      currencyCols: [9, 10],
-      centerCols: [0, 7],
-      boldCols: [0, 1, 10],
-      autofilterRef: `A4:K${lastPortaisItemRow1Based}`
+      integerCols: [9],
+      currencyCols: [10, 11],
+      centerCols: [0, 6, 8],
+      boldCols: [0, 1, 11],
+      autofilterRef: `A3:L${lastPortaisItemRow1Based}`
     });
   }
 
@@ -9863,10 +10289,9 @@ function exportFullCsv() {
   // 4. ABA REVISTAS E JORNAIS
   // ==========================================================================
   if (hasRevistas) {
-    const revistasColCount = 9;
+    const revistasColCount = 10;
     const revistasRows = [
       ['Revistas Digitais'],
-      [`Subtotal Revistas Digitais: ${fmtBRL(f.revistasNet)}`],
       [],
       [
         'Código',
@@ -9874,6 +10299,7 @@ function exportFullCsv() {
         'Formato',
         'Dimensões',
         'Posicionamento',
+        'Período de Veiculação',
         'Abrangência',
         'Impressões',
         'CPM (R$)',
@@ -9882,9 +10308,8 @@ function exportFullCsv() {
     ];
     const revistasMeta = {
       0: { type: 'orange_title', maxCol: revistasColCount },
-      1: { type: 'orange_subtitle', maxCol: revistasColCount },
-      2: { type: 'spacer' },
-      3: { type: 'table_header', maxCol: revistasColCount }
+      1: { type: 'spacer' },
+      2: { type: 'table_header', maxCol: revistasColCount }
     };
 
     m.revistasItems.forEach((r, idx) => {
@@ -9895,6 +10320,7 @@ function exportFullCsv() {
         'Display Editorial Multi-Formato',
         '970×250, 300×250, 300×600, 320×50 px',
         'Capa e Editorias · Web & Mobile',
+        `${m.startDate} a ${m.endDate}`,
         'Nacional / BR',
         r.impressions,
         Number(r.cpm.toFixed(2)),
@@ -9911,6 +10337,7 @@ function exportFullCsv() {
       '',
       '',
       '',
+      `${m.durationDays} dias`,
       '',
       c.revistasImpressions,
       Number(revistasAvgCpm.toFixed(2)),
@@ -9923,15 +10350,14 @@ function exportFullCsv() {
       rows: revistasRows,
       colCount: revistasColCount,
       merges: [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: revistasColCount - 1 } },
-        { s: { r: 1, c: 0 }, e: { r: 1, c: revistasColCount - 1 } }
+        { s: { r: 0, c: 0 }, e: { r: 0, c: revistasColCount - 1 } }
       ],
       rowMeta: revistasMeta,
-      integerCols: [6],
-      currencyCols: [7, 8],
-      centerCols: [0, 5],
-      boldCols: [0, 1, 8],
-      autofilterRef: `A4:I${lastRevistasItemRow1Based}`
+      integerCols: [7],
+      currencyCols: [8, 9],
+      centerCols: [0, 5, 6],
+      boldCols: [0, 1, 9],
+      autofilterRef: `A3:J${lastRevistasItemRow1Based}`
     });
   }
 
@@ -9939,10 +10365,9 @@ function exportFullCsv() {
   // 5. ABA RÁDIO CBN
   // ==========================================================================
   if (hasRadio) {
-    const radioColCount = 10;
+    const radioColCount = 11;
     const radioRows = [
       ['Rádio CBN — Spots de 30 segundos'],
-      [`Subtotal Rádio CBN: ${fmtBRL(f.radioNet)}`],
       [],
       [
         'Código',
@@ -9950,6 +10375,7 @@ function exportFullCsv() {
         'Praça (Cidade/UF)',
         'Programa',
         'Frequência e faixa horária',
+        'Período de Veiculação',
         'Formato',
         'Spots/sem.',
         'Inserções',
@@ -9959,9 +10385,8 @@ function exportFullCsv() {
     ];
     const radioMeta = {
       0: { type: 'orange_title', maxCol: radioColCount },
-      1: { type: 'orange_subtitle', maxCol: radioColCount },
-      2: { type: 'spacer' },
-      3: { type: 'table_header', maxCol: radioColCount }
+      1: { type: 'spacer' },
+      2: { type: 'table_header', maxCol: radioColCount }
     };
 
     m.radioItems.forEach((rd, idx) => {
@@ -9972,6 +10397,7 @@ function exportFullCsv() {
         `${rd.city}/${rd.state}`,
         rd.cleanTitle || rd.programLabel,
         `${rd.frequencyDaysLabel} · ${rd.timeWindow}`,
+        `${m.startDate} a ${m.endDate}`,
         `Spot ${rd.spotDuration}"`,
         rd.weeklyInsertions,
         rd.totalInsertions,
@@ -9989,6 +10415,7 @@ function exportFullCsv() {
       '',
       '',
       '',
+      `${m.durationDays} dias`,
       '',
       c.radioWeeklyInsertions,
       c.radioTotalInsertions,
@@ -10002,15 +10429,14 @@ function exportFullCsv() {
       rows: radioRows,
       colCount: radioColCount,
       merges: [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: radioColCount - 1 } },
-        { s: { r: 1, c: 0 }, e: { r: 1, c: radioColCount - 1 } }
+        { s: { r: 0, c: 0 }, e: { r: 0, c: radioColCount - 1 } }
       ],
       rowMeta: radioMeta,
-      integerCols: [6, 7],
-      currencyCols: [8, 9],
-      centerCols: [0, 5, 6],
-      boldCols: [0, 1, 9],
-      autofilterRef: `A4:J${lastRadioItemRow1Based}`
+      integerCols: [7, 8],
+      currencyCols: [9, 10],
+      centerCols: [0, 5, 6, 7],
+      boldCols: [0, 1, 10],
+      autofilterRef: `A3:K${lastRadioItemRow1Based}`
     });
   }
 
@@ -10038,17 +10464,23 @@ function exportFullCsv() {
   const worksheetsXml = sheetsData.map((sheet) => {
     const rowMetaMap = sheet.rowMeta || {};
     const rowsXml = sheet.rows.map((r, rIdx) => {
-      const rType = (rowMetaMap[rIdx] && rowMetaMap[rIdx].type) || 'data';
+      const rMeta = rowMetaMap[rIdx] || {};
+      const rType = rMeta.type || 'data';
       const styleId = (rType === 'orange_title' || rType === 'orange_subtitle' || rType === 'orange_section')
         ? 'sOrange'
-        : rType === 'table_header'
-          ? 'sHeader'
-          : (rType === 'total' || rType === 'highlight_total')
-            ? 'sTotal'
-            : 'sData';
-      const cellsXml = (r || []).map((cell) => {
+        : rType === 'link_cta'
+          ? 'sLink'
+          : rType === 'table_header'
+            ? 'sHeader'
+            : (rType === 'total' || rType === 'highlight_total')
+              ? 'sTotal'
+              : 'sData';
+      const cellsXml = (r || []).map((cell, cIdx) => {
         const isNum = typeof cell === 'number' && Number.isFinite(cell);
-        return `<Cell ss:StyleID="${styleId}"><Data ss:Type="${isNum ? 'Number' : 'String'}">${xmlEsc(cell)}</Data></Cell>`;
+        const hrefAttr = (rType === 'link_cta' && cIdx === 0 && rMeta.linkTarget)
+          ? ` ss:HRef="${xmlEsc(rMeta.linkTarget)}"`
+          : '';
+        return `<Cell ss:StyleID="${styleId}"${hrefAttr}><Data ss:Type="${isNum ? 'Number' : 'String'}">${xmlEsc(cell)}</Data></Cell>`;
       }).join('');
       return `<Row>${cellsXml}</Row>`;
     }).join('');
@@ -10063,6 +10495,7 @@ function exportFullCsv() {
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
  <Styles>
   <Style ss:ID="sOrange"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sLink"><Font ss:Bold="1" ss:Underline="Single" ss:Color="#F15A22"/><Interior ss:Color="#FFF5F0" ss:Pattern="Solid"/></Style>
   <Style ss:ID="sHeader"><Font ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#E8E0D5" ss:Pattern="Solid"/></Style>
   <Style ss:ID="sTotal"><Font ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#F3ECE4" ss:Pattern="Solid"/></Style>
   <Style ss:ID="sData"><Font ss:Color="#121212"/></Style>
