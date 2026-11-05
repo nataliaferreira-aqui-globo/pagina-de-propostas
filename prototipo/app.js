@@ -2253,8 +2253,8 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
         </div>
       </div>
 
-      <!-- Seção expansível de Detalhamento (mesmo peso tipográfico de OOH) -->
-      <div class="bg-ds-bg border-t border-ds-border px-4 sm:px-5 py-3 text-xs">
+      <!-- Seção expansível de Detalhamento (mesma cor do card bg-white) -->
+      <div class="bg-white border-t border-ds-border px-4 sm:px-5 py-3 text-xs">
         <div
           onclick="toggleSummaryCardMetrics('${cardKey}')"
           class="flex items-center justify-between gap-2 cursor-pointer select-none"
