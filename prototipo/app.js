@@ -1431,7 +1431,7 @@ function initApp() {
     window.PROPOSAL_SCENARIOS.so_revistas = buildSingleChannelScenario(
       'so_revistas',
       '6. Só Revistas Digitais (4 títulos)',
-      'Campanha exclusiva em Revistas e Jornais Digitais (O Globo, Extra, Galileu, Globo Rural).',
+      'Campanha exclusiva em Revistas Digitais (O Globo, Extra, Galileu, Globo Rural).',
       'revistas',
       'REV',
       743452
@@ -2463,7 +2463,7 @@ function renderModularMetrics(m) {
   // CASO 1C: CAMPANHA ÚNICA — SÓ REVISTAS DIGITAIS
   // =========================================================================
   } else if (activeChannelsCount === 1 && c.revistasCount > 0) {
-    singleChannelTitle = 'Estimativa de entrega — Revistas e Jornais';
+    singleChannelTitle = 'Estimativa de entrega — Revistas Digitais';
     const avgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : 9.6;
 
     cards = [
@@ -2584,7 +2584,7 @@ function renderModularMetrics(m) {
 
       cards.push(buildExpandableSummaryChannelCard({
         cardKey: 'revistas',
-        channelTitle: 'Revistas e Jornais',
+        channelTitle: 'Revistas Digitais',
         primaryLabel: 'Impressões contratadas',
         primaryValue: fmtInt(c.revistasImpressions),
         mobile,
@@ -7759,7 +7759,7 @@ function renderPdfDocument(m) {
     modularCardsHtml.push(`
       <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-semibold text-ds-textSecondary">Revistas e Jornais</div>
+          <div class="text-xs font-semibold text-ds-textSecondary">Revistas Digitais</div>
           <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.revistasImpressions)}</div>
           <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impressões contratadas</div>
         </div>
@@ -8025,7 +8025,7 @@ function renderPdfDocument(m) {
     </section>
   ` : '';
 
-  // 3. TABELA REVISTAS E JORNAIS DIGITAIS
+  // 3. TABELA REVISTAS DIGITAIS
   const revistasTableSectionHtml = hasRevistas ? `
     <section class="mt-4">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 pdf-keep-with-next">
@@ -8070,7 +8070,7 @@ function renderPdfDocument(m) {
           </tbody>
           <tfoot class="bg-ds-surface border-t border-ds-borderStrong font-bold text-ds-textMain text-xs">
             <tr>
-              <td colspan="${state.isAdminView ? 5 : 4}" class="py-2.5 px-3">Total consolidado Revistas e Jornais</td>
+              <td colspan="${state.isAdminView ? 5 : 4}" class="py-2.5 px-3">Total consolidado Revistas Digitais</td>
               <td class="py-2.5 px-2.5 text-right whitespace-nowrap">${fmtInt(c.revistasImpressions)}</td>
               <td class="py-2.5 px-2.5 text-right">—</td>
               <td class="py-2.5 px-3 text-right text-primary whitespace-nowrap">${fmtBRL(f.revistasNet)}</td>
@@ -10413,7 +10413,7 @@ function exportFullCsv() {
   const activeChannelsList = [
     hasOoh ? 'OOH (Telas Digitais e Estáticas)' : null,
     hasPortais ? 'Portais e Globoplay' : null,
-    hasRevistas ? 'Revistas e Jornais' : null,
+    hasRevistas ? 'Revistas Digitais' : null,
     hasRadio ? 'Rádio CBN' : null
   ].filter(Boolean).join(' · ');
 
@@ -10587,7 +10587,7 @@ function exportFullCsv() {
   }
   if (hasRevistas) {
     pushResumoRow([
-      'Revistas e Jornais Digitais',
+      'Revistas Digitais',
       `${fmtInt(c.revistasCount)} títulos (${revistasListLabel})`,
       `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
       Number(f.revistasNet.toFixed(2)),
@@ -10708,7 +10708,7 @@ function exportFullCsv() {
     const rIdx = metPeriodRows.length;
     totalPeriodPrimaryDeliveries += (c.revistasImpressions || 0);
     metPeriodRows.push([
-      `Revistas e Jornais (${revistasListLabel})`,
+      `Revistas Digitais (${revistasListLabel})`,
       'Nacional / BR',
       `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
       c.revistasCount,
@@ -10989,12 +10989,12 @@ function exportFullCsv() {
   }
 
   // ==========================================================================
-  // 6. ABA REVISTAS E JORNAIS
+  // 6. ABA REVISTAS DIGITAIS
   // ==========================================================================
   if (hasRevistas) {
     const revistasColCount = 10;
     const revistasRows = [
-      ['AQUI ADS (GLOBO & ELETROMIDIA) — REVISTAS E JORNAIS DIGITAIS'],
+      ['AQUI ADS (GLOBO & ELETROMIDIA) — REVISTAS DIGITAIS'],
       ['Publicações editoriais digitais e formatos multi-plataforma contratados'],
       [],
       [
@@ -11037,7 +11037,7 @@ function exportFullCsv() {
     const lastRevistasItemRow1Based = revistasRows.length;
     const totRevistasIdx = revistasRows.length;
     revistasRows.push([
-      'SUBTOTAL REVISTAS E JORNAIS',
+      'SUBTOTAL REVISTAS DIGITAIS',
       `${m.revistasItems.length} ${m.revistasItems.length === 1 ? 'título' : 'títulos'}`,
       '',
       '',
@@ -11051,7 +11051,7 @@ function exportFullCsv() {
     revistasMeta[totRevistasIdx] = { type: 'subtotal', maxCol: revistasColCount };
 
     sheetsData.push({
-      name: 'REVISTAS E JORNAIS',
+      name: 'REVISTAS DIGITAIS',
       rows: revistasRows,
       colCount: revistasColCount,
       merges: [
@@ -11177,7 +11177,7 @@ function exportFullCsv() {
     specMeta[specRows.length - 1] = { type: 'data', dataIndex: spIdx++, maxCol: specColCount };
   }
   if (hasRevistas) {
-    specRows.push(['Revistas e Jornais', 'Display Editorial Multi-Formato', '970×250, 300×250, 300×600, 320×50 px', 'JPG, PNG ou HTML5', 'Máx. 150 KB por peça', 'Borda de 1px quando fundo da arte for branco']);
+    specRows.push(['Revistas Digitais', 'Display Editorial Multi-Formato', '970×250, 300×250, 300×600, 320×50 px', 'JPG, PNG ou HTML5', 'Máx. 150 KB por peça', 'Borda de 1px quando fundo da arte for branco']);
     specMeta[specRows.length - 1] = { type: 'data', dataIndex: spIdx++, maxCol: specColCount };
   }
   if (hasRadio) {
