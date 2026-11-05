@@ -1521,6 +1521,20 @@ function initApp() {
 
   const initialMode = params.get('mode') === 'pdf' ? 'pdf' : 'desktop';
   setViewportMode(initialMode);
+  const urlTab = params.get('tab');
+  if (urlTab && ['resumo', 'arte', 'pagamento'].includes(urlTab)) {
+    switchMainTab(urlTab);
+  }
+  const urlAction = params.get('action');
+  if (urlAction === 'payment') {
+    setTimeout(() => {
+      goToPaymentAnchor();
+    }, 150);
+  } else if (urlAction === 'specialist') {
+    setTimeout(() => {
+      openAndreiaChatWithFlow('specialist');
+    }, 150);
+  }
   if (initialMode === 'pdf' && params.get('print') === '1') {
     setTimeout(() => {
       window.print();
@@ -9625,11 +9639,11 @@ function applyStyledWorksheet(ws, cfg) {
     left: { style: 'thin', color: { rgb: 'DED6CC' } },
     right: { style: 'thin', color: { rgb: 'DED6CC' } }
   };
-  const borderOrange = {
-    top: { style: 'thin', color: { rgb: 'D54300' } },
-    bottom: { style: 'thin', color: { rgb: 'D54300' } },
-    left: { style: 'thin', color: { rgb: 'D54300' } },
-    right: { style: 'thin', color: { rgb: 'D54300' } }
+  const borderOrangeSeamless = {
+    top: { style: 'thin', color: { rgb: 'F15A22' } },
+    bottom: { style: 'thin', color: { rgb: 'F15A22' } },
+    left: { style: 'thin', color: { rgb: 'F15A22' } },
+    right: { style: 'thin', color: { rgb: 'F15A22' } }
   };
 
   ws['!ref'] = U.encode_range({
@@ -9658,8 +9672,14 @@ function applyStyledWorksheet(ws, cfg) {
 
     if (rType === 'orange_title') {
       rowHeights[r] = { hpt: 30 };
+    } else if (rType === 'hero_banner_pad') {
+      rowHeights[r] = { hpt: 12 };
+    } else if (rType === 'hero_banner_brand') {
+      rowHeights[r] = { hpt: 26 };
     } else if (rType === 'hero_banner_main') {
-      rowHeights[r] = { hpt: 38 };
+      rowHeights[r] = { hpt: 34 };
+    } else if (rType === 'hero_banner_sub') {
+      rowHeights[r] = { hpt: 24 };
     } else if (rType === 'orange_subtitle') {
       rowHeights[r] = { hpt: 22 };
     } else if (rType === 'orange_section') {
@@ -9687,24 +9707,31 @@ function applyStyledWorksheet(ws, cfg) {
       const isNum = cell.t === 'n' || (typeof cell.v === 'number' && Number.isFinite(cell.v));
 
       if (rMeta.hyperlinks && rMeta.hyperlinks[c]) {
+        const targetUrl = rMeta.hyperlinks[c];
         cell.l = {
-          Target: rMeta.hyperlinks[c],
+          Target: targetUrl,
           Tooltip: 'Clique para acessar a proposta online'
         };
+        if (rMeta.useFormulaLink && cell.v) {
+          const safeUrl = String(targetUrl).replace(/"/g, '""');
+          const safeText = String(cell.v).replace(/"/g, '""');
+          cell.f = `HYPERLINK("${safeUrl}","${safeText}")`;
+        }
       }
 
-      const isCurrency = Boolean(
-        isNum && (
-          rMeta.allNumericCurrency ||
-          (Array.isArray(rMeta.currencyCols) ? rMeta.currencyCols.includes(c) : currencyColsSet.has(c))
-        )
+      const isColCurrency = Boolean(
+        rMeta.allNumericCurrency ||
+        (Array.isArray(rMeta.currencyCols) ? rMeta.currencyCols.includes(c) : currencyColsSet.has(c))
       );
-      const isInt = Boolean(
-        isNum && !isCurrency && (
+      const isColInt = Boolean(
+        !isColCurrency && (
           rMeta.allNumericInt ||
           (Array.isArray(rMeta.integerCols) ? rMeta.integerCols.includes(c) : integerColsSet.has(c))
         )
       );
+
+      const isCurrency = Boolean(isNum && isColCurrency);
+      const isInt = Boolean(isNum && isColInt);
 
       let numFmt = undefined;
       if (isCurrency) {
@@ -9715,10 +9742,12 @@ function applyStyledWorksheet(ws, cfg) {
         cell.z = numFmt;
       }
 
+      const isHeroRow = rType === 'hero_banner_pad' || rType === 'hero_banner_brand' || rType === 'hero_banner_main' || rType === 'hero_banner_sub';
       let horiz = 'left';
-      if (isNum) {
-        horiz = centerColsSet.has(c) && !isCurrency ? 'center' : 'right';
-      } else if (centerColsSet.has(c) && rType !== 'orange_title' && rType !== 'orange_subtitle' && rType !== 'orange_section' && rType !== 'cta_link' && rType !== 'hero_banner_main') {
+      if (isNum || ((isColCurrency || isColInt) && rType !== 'orange_title' && rType !== 'orange_subtitle' && rType !== 'orange_section' && !isHeroRow && c > 0)) {
+        // Garante que valores textuais como "Fixa" ou "—" em colunas numéricas sigam exatamente o mesmo alinhamento (direita/centro) dos números da coluna
+        horiz = centerColsSet.has(c) && !isColCurrency ? 'center' : 'right';
+      } else if (centerColsSet.has(c) && rType !== 'orange_title' && rType !== 'orange_subtitle' && rType !== 'orange_section' && rType !== 'cta_link' && !isHeroRow) {
         horiz = 'center';
       } else if ((rType === 'table_header' || rType === 'green_header') && (currencyColsSet.has(c) || integerColsSet.has(c) || (Array.isArray(rMeta.rightHeaderCols) && rMeta.rightHeaderCols.includes(c)))) {
         horiz = centerColsSet.has(c) ? 'center' : 'right';
@@ -9735,82 +9764,103 @@ function applyStyledWorksheet(ws, cfg) {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
           font: { name: 'Century Gothic', sz: 12, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
-          border: borderOrange
+          border: borderOrangeSeamless
+        };
+      } else if (rType === 'hero_banner_pad') {
+        cell.s = {
+          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
+          font: { name: 'Century Gothic', sz: 9, color: { rgb: 'FFFFFF' } },
+          alignment: { vertical: 'center', horizontal: 'left' },
+          border: borderOrangeSeamless
+        };
+      } else if (rType === 'hero_banner_brand') {
+        cell.s = {
+          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
+          font: { name: 'Century Gothic', sz: 15, bold: true, color: { rgb: 'FFFFFF' } },
+          alignment: { vertical: 'bottom', horizontal: 'left' },
+          border: borderOrangeSeamless
         };
       } else if (rType === 'hero_banner_main') {
-        if (c === 2) {
-          // Botão Primário Branco ("Efetuar pagamento ->") dentro do banner laranja (igual à imagem do PDF)
+        if (c === 3) {
+          // Botão Primário Branco ("Efetuar pagamento ➔") dentro do banner laranja (alto contraste #121212 no #FFFFFF)
           cell.s = {
             fill: { patternType: 'solid', fgColor: { rgb: 'FFFFFF' } },
-            font: { name: 'Century Gothic', sz: 10, bold: true, underline: true, color: { rgb: '121212' } },
+            font: { name: 'Century Gothic', sz: 10, bold: true, color: { rgb: '121212' } },
             alignment: { vertical: 'center', horizontal: 'center' },
             border: {
-              top: { style: 'medium', color: { rgb: 'F15A22' } },
-              bottom: { style: 'medium', color: { rgb: 'F15A22' } },
-              left: { style: 'medium', color: { rgb: 'F15A22' } },
-              right: { style: 'medium', color: { rgb: 'F15A22' } }
+              top: { style: 'medium', color: { rgb: 'FFFFFF' } },
+              bottom: { style: 'medium', color: { rgb: 'FFFFFF' } },
+              left: { style: 'medium', color: { rgb: 'FFFFFF' } },
+              right: { style: 'medium', color: { rgb: 'FFFFFF' } }
             }
           };
-        } else if (c === 3) {
-          // Botão Secundário Laranja com Borda ("Falar com especialista") dentro do banner laranja
+        } else if (c === 5) {
+          // Botão Secundário Outlined ("💬 Falar com especialista") dentro do banner laranja (borda branca #FFFFFF e texto #FFFFFF)
           cell.s = {
-            fill: { patternType: 'solid', fgColor: { rgb: 'D94A16' } },
-            font: { name: 'Century Gothic', sz: 10, bold: true, underline: true, color: { rgb: 'FFFFFF' } },
+            fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
+            font: { name: 'Century Gothic', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
             alignment: { vertical: 'center', horizontal: 'center' },
             border: {
-              top: { style: 'thin', color: { rgb: 'FFF5EE' } },
-              bottom: { style: 'thin', color: { rgb: 'FFF5EE' } },
-              left: { style: 'thin', color: { rgb: 'FFF5EE' } },
-              right: { style: 'thin', color: { rgb: 'FFF5EE' } }
+              top: { style: 'thin', color: { rgb: 'FFFFFF' } },
+              bottom: { style: 'thin', color: { rgb: 'FFFFFF' } },
+              left: { style: 'thin', color: { rgb: 'FFFFFF' } },
+              right: { style: 'thin', color: { rgb: 'FFFFFF' } }
             }
           };
         } else {
-          // Headline "Sua marca no lugar certo."
+          // Headline "Sua marca no lugar certo." e células de respiro do banner
           cell.s = {
             fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-            font: { name: 'Century Gothic', sz: 16, bold: true, color: { rgb: 'FFFFFF' } },
+            font: { name: 'Century Gothic', sz: 18, bold: true, color: { rgb: 'FFFFFF' } },
             alignment: { vertical: 'center', horizontal: 'left' },
-            border: borderOrange
+            border: borderOrangeSeamless
           };
         }
+      } else if (rType === 'hero_banner_sub') {
+        cell.s = {
+          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
+          font: { name: 'Century Gothic', sz: 9.5, bold: false, color: { rgb: 'FFFFFF' } },
+          alignment: { vertical: 'top', horizontal: 'left' },
+          border: borderOrangeSeamless
+        };
       } else if (rType === 'orange_subtitle') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 9.5, italic: true, color: { rgb: 'FFF5EE' } },
+          font: { name: 'Century Gothic', sz: 9.5, italic: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
-          border: borderOrange
+          border: borderOrangeSeamless
         };
       } else if (rType === 'orange_section') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
           font: { name: 'Century Gothic', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
-          border: borderOrange
+          border: borderOrangeSeamless
         };
       } else if (rType === 'cta_button') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
           font: { name: 'Century Gothic', sz: 10, bold: true, underline: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'center' },
-          border: borderOrange
+          border: borderOrangeSeamless
         };
       } else if (rType === 'cta_link') {
+        // Alto contraste WCAG AAA: texto sempre em #121212 (nunca laranja no bege!)
         const isLinkCell = c >= 1;
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: isLinkCell ? 'FFF3EA' : 'E8E0D5' } },
+          fill: { patternType: 'solid', fgColor: { rgb: isLinkCell ? 'FFFFFF' : 'E8E0D5' } },
           font: {
             name: 'Century Gothic',
             sz: 9.5,
-            bold: !isLinkCell,
-            italic: isLinkCell,
+            bold: true,
             underline: isLinkCell,
-            color: { rgb: isLinkCell ? 'F15A22' : '121212' }
+            color: { rgb: '121212' }
           },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderHeader
         };
       } else if (rType === 'table_header' || rType === 'green_header') {
-        // Todos os headers de coluna padronizados na cor bege/areia #E8E0D5 (sem verde!)
+        // Todos os headers de coluna padronizados na cor bege/areia #E8E0D5 com texto #121212 bold
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'E8E0D5' } },
           font: { name: 'Century Gothic', sz: 9.5, bold: true, color: { rgb: '121212' } },
@@ -9818,32 +9868,31 @@ function applyStyledWorksheet(ws, cfg) {
           border: borderHeader
         };
       } else if (rType === 'subtotal' || rType === 'total' || rType === 'highlight_total' || rType === 'black_total') {
-        // Subtotal / Total padronizado em todas as abas (#FFF3EA com destaque laranja na última coluna monetária)
-        const isFinalNetCol = c === activeCols - 1 && isCurrency;
+        // Subtotal / Total padronizado em todas as abas com alto contraste #121212 bold (zero laranja no bege!)
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'FFF3EA' } },
           font: {
             name: 'Century Gothic',
             sz: 10,
             bold: true,
-            color: { rgb: isFinalNetCol ? 'F15A22' : '121212' }
+            color: { rgb: '121212' }
           },
           alignment: { vertical: 'center', horizontal: horiz },
           border: borderTotal,
           ...(numFmt ? { numFmt } : {})
         };
       } else if (rType === 'kv_row') {
-        const isKeyCol = c === 0;
+        const isKeyCol = c === 0 || (Array.isArray(rMeta.keyCols) && rMeta.keyCols.includes(c));
         const isLinkVal = Boolean(rMeta.hyperlinks && rMeta.hyperlinks[c]);
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: isKeyCol ? 'FBF8F4' : 'FFFFFF' } },
           font: {
             name: 'Century Gothic',
             sz: 9.5,
-            bold: Boolean(isKeyCol || rMeta.boldValue),
-            italic: Boolean(!isKeyCol && (isItalicCol || isLinkVal)),
+            bold: Boolean(isKeyCol || rMeta.boldValue || isLinkVal),
+            italic: Boolean(!isKeyCol && isItalicCol && !isLinkVal),
             underline: isLinkVal,
-            color: { rgb: isLinkVal ? 'F15A22' : (!isKeyCol && isItalicCol ? '5C564F' : '121212') }
+            color: { rgb: !isKeyCol && isItalicCol && !isLinkVal ? '5C564F' : '121212' }
           },
           alignment: { vertical: 'center', horizontal: horiz },
           border: borderThin,
@@ -9924,20 +9973,24 @@ function exportFullCsv() {
 
   const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
 
-  const onlineProposalUrl = typeof window !== 'undefined' && window.location && window.location.href
-    ? window.location.href.split('#')[0]
-    : 'https://aquiads.com.br/proposta/' + m.id;
+  const baseProposalUrl = (typeof window !== 'undefined' && window.location && window.location.href && !window.location.href.startsWith('file:'))
+    ? window.location.href.split('#')[0].split('?')[0]
+    : 'https://nataliaferreira-aqui-globo.github.io/pagina-de-propostas/prototipo/';
+  const scenarioQuery = state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}` : '';
+  const onlineProposalUrl = `${baseProposalUrl}${scenarioQuery}`;
+  const paymentRedirectUrl = `${baseProposalUrl}${scenarioQuery ? `${scenarioQuery}&` : '?'}action=payment`;
+  const specialistRedirectUrl = `${baseProposalUrl}${scenarioQuery ? `${scenarioQuery}&` : '?'}action=specialist`;
 
   const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
   const sheetsData = [];
 
   // ==========================================================================
-  // 1. CAPA INSTITUCIONAL DE ABERTURA: "ACESSAR O PLANO NO ADS" (Banner Visual Aqui Ads)
+  // 1. CAPA INSTITUCIONAL DE ABERTURA: "ACESSAR O PLANO NO ADS" (Banner Visual Aqui Ads + Botões de Redirecionamento)
   // ==========================================================================
+  const coverColsCount = 7;
   const coverRows = [];
   const coverMeta = {};
   const coverMerges = [];
-  const whatsappSpecialistUrl = 'https://wa.me/5511999999999?text=' + encodeURIComponent(`Olá! Gostaria de falar com um especialista sobre a proposta ${proposalDisplayId} no Aqui Ads.`);
   const activeChannelsList = [
     hasOoh ? 'OOH (Telas Digitais e Estáticas)' : null,
     hasPortais ? 'Portais e Globoplay' : null,
@@ -9952,58 +10005,66 @@ function exportFullCsv() {
     return idx;
   };
 
-  // Bloco Visual do Banner Aqui Ads ("Sua marca no lugar certo." + CTAs lado a lado)
-  const cTitleIdx = pushCoverRow(['AQUI ADS (GLOBO & ELETROMIDIA) — PLANO DE MÍDIA INTERATIVO', '', '', ''], { type: 'orange_title', maxCol: 4 });
-  coverMerges.push({ s: { r: cTitleIdx, c: 0 }, e: { r: cTitleIdx, c: 3 } });
+  // Banner Visual Aqui Ads (5 linhas x 7 colunas A:G sem bordas internas — idêntico à referência visual do PDF com botões isolados à direita)
+  pushCoverRow(['', '', '', '', '', '', ''], { type: 'hero_banner_pad', maxCol: coverColsCount });
+
+  const cBrandIdx = pushCoverRow(['', 'Aqui ads ®', '', '', '', '', ''], { type: 'hero_banner_brand', maxCol: coverColsCount });
+  coverMerges.push({ s: { r: cBrandIdx, c: 1 }, e: { r: cBrandIdx, c: 2 } });
 
   const cHeroIdx = pushCoverRow([
+    '',
     'Sua marca no lugar certo.',
     '',
-    'Efetuar pagamento ➔',
-    'Falar com especialista'
+    'Efetuar pagamento  ➔',
+    '',
+    '💬 Falar com especialista',
+    ''
   ], {
     type: 'hero_banner_main',
-    maxCol: 4,
+    maxCol: coverColsCount,
+    useFormulaLink: true,
     hyperlinks: {
-      2: onlineProposalUrl,
-      3: whatsappSpecialistUrl
+      3: paymentRedirectUrl,
+      5: specialistRedirectUrl
     }
   });
-  coverMerges.push({ s: { r: cHeroIdx, c: 0 }, e: { r: cHeroIdx, c: 1 } });
+  coverMerges.push({ s: { r: cHeroIdx, c: 1 }, e: { r: cHeroIdx, c: 2 } });
 
   const cSubIdx = pushCoverRow([
-    'Revise o plano completo online, veja os pontos no mapa interativo, envie as artes e acompanhe tudo no seu painel.',
+    '',
+    'Revise o plano completo online, efetue o pagamento e acompanhe tudo no seu painel.',
+    '',
+    '',
     '',
     '',
     ''
-  ], { type: 'orange_subtitle', maxCol: 4 });
-  coverMerges.push({ s: { r: cSubIdx, c: 0 }, e: { r: cSubIdx, c: 3 } });
+  ], { type: 'hero_banner_sub', maxCol: coverColsCount });
+  coverMerges.push({ s: { r: cSubIdx, c: 1 }, e: { r: cSubIdx, c: 2 } });
 
-  const cLinkIdx = pushCoverRow(['Link direto da proposta online', onlineProposalUrl, '', ''], {
-    type: 'cta_link',
-    maxCol: 4,
-    hyperlinks: { 1: onlineProposalUrl, 2: onlineProposalUrl, 3: onlineProposalUrl }
-  });
-  coverMerges.push({ s: { r: cLinkIdx, c: 1 }, e: { r: cLinkIdx, c: 3 } });
+  pushCoverRow(['', '', '', '', '', '', ''], { type: 'hero_banner_pad', maxCol: coverColsCount });
 
   pushCoverRow([], { type: 'spacer' });
 
-  // Bloco Resumo Executivo padronizado na mesma largura (4 colunas A:D)
-  const cSecIdx = pushCoverRow(['RESUMO EXECUTIVO DA PROPOSTA COMERCIAL', '', '', ''], { type: 'orange_section', maxCol: 4 });
-  coverMerges.push({ s: { r: cSecIdx, c: 0 }, e: { r: cSecIdx, c: 3 } });
+  // Bloco Resumo Executivo padronizado na mesma largura do Banner (colunas A:G)
+  const cSecIdx = pushCoverRow(['RESUMO EXECUTIVO DA PROPOSTA COMERCIAL', '', '', '', '', '', ''], { type: 'orange_section', maxCol: coverColsCount });
+  coverMerges.push({ s: { r: cSecIdx, c: 0 }, e: { r: cSecIdx, c: coverColsCount - 1 } });
 
-  const cHdrIdx = pushCoverRow(['Campo', 'Detalhamento da Proposta', '', ''], { type: 'table_header', maxCol: 4 });
-  coverMerges.push({ s: { r: cHdrIdx, c: 1 }, e: { r: cHdrIdx, c: 3 } });
+  const cHdrIdx = pushCoverRow(['Campo', '', 'Detalhamento da Proposta', '', '', '', ''], { type: 'table_header', maxCol: coverColsCount });
+  coverMerges.push({ s: { r: cHdrIdx, c: 0 }, e: { r: cHdrIdx, c: 1 } });
+  coverMerges.push({ s: { r: cHdrIdx, c: 2 }, e: { r: cHdrIdx, c: coverColsCount - 1 } });
 
   const pushCoverKv = (label, val, opts = {}) => {
-    const rIdx = pushCoverRow([label, val, '', ''], {
+    const rIdx = pushCoverRow([label, '', val, '', '', '', ''], {
       type: 'kv_row',
-      maxCol: 4,
+      maxCol: coverColsCount,
+      keyCols: [0, 1],
       boldValue: Boolean(opts.boldValue),
       italicValue: Boolean(opts.italicValue),
-      hyperlinks: opts.hyperlink ? { 1: opts.hyperlink } : undefined
+      useFormulaLink: Boolean(opts.hyperlink),
+      hyperlinks: opts.hyperlink ? { 2: opts.hyperlink } : undefined
     });
-    coverMerges.push({ s: { r: rIdx, c: 1 }, e: { r: rIdx, c: 3 } });
+    coverMerges.push({ s: { r: rIdx, c: 0 }, e: { r: rIdx, c: 1 } });
+    coverMerges.push({ s: { r: rIdx, c: 2 }, e: { r: rIdx, c: coverColsCount - 1 } });
   };
 
   pushCoverKv('Código da proposta', proposalDisplayId, { boldValue: true });
@@ -10014,25 +10075,30 @@ function exportFullCsv() {
   pushCoverKv(billingDocTypeLabel, billingCnpj);
   pushCoverKv('Período de veiculação', `${m.startDate} a ${m.endDate} (${m.durationDays} dias corridos)`);
   pushCoverKv('Canais contemplados', activeChannelsList, { italicValue: true });
+  pushCoverKv('Link direto da proposta online', 'Acessar proposta interativa no navegador ➔', { hyperlink: onlineProposalUrl });
 
-  const cTotIdx = pushCoverRow(['Investimento total líquido', '', '', Number(f.trueProposalTotal.toFixed(2))], {
+  const cTotIdx = pushCoverRow(['Investimento total líquido', '', Number(f.trueProposalTotal.toFixed(2)), '', '', '', ''], {
     type: 'subtotal',
-    maxCol: 4,
-    currencyCols: [3]
+    maxCol: coverColsCount,
+    currencyCols: [2]
   });
-  coverMerges.push({ s: { r: cTotIdx, c: 0 }, e: { r: cTotIdx, c: 2 } });
+  coverMerges.push({ s: { r: cTotIdx, c: 0 }, e: { r: cTotIdx, c: 1 } });
+  coverMerges.push({ s: { r: cTotIdx, c: 2 }, e: { r: cTotIdx, c: coverColsCount - 1 } });
 
   sheetsData.push({
     name: 'ACESSAR O PLANO NO ADS',
     rows: coverRows,
-    colCount: 4,
+    colCount: coverColsCount,
     merges: coverMerges,
     rowMeta: coverMeta,
     customCols: [
-      { wch: 34 },
-      { wch: 36 },
+      { wch: 3 },
+      { wch: 30 },
       { wch: 28 },
-      { wch: 28 }
+      { wch: 24 },
+      { wch: 3 },
+      { wch: 26 },
+      { wch: 3 }
     ]
   });
 
@@ -10060,10 +10126,11 @@ function exportFullCsv() {
 
   pushResumoRow([
     'Acesso direto à proposta virtual',
-    'Acessar a proposta online (Mapa interativo, envio de artes e pagamento)'
+    'Acessar a proposta online (Mapa interativo, envio de artes e pagamento) ➔'
   ], {
     type: 'cta_link',
     maxCol: 2,
+    useFormulaLink: true,
     hyperlinks: { 1: onlineProposalUrl }
   });
 
@@ -10080,7 +10147,7 @@ function exportFullCsv() {
   pushResumoRow(['Período de veiculação', `${m.startDate} a ${m.endDate} (${m.durationDays} dias)`], { type: 'kv_row', maxCol: 2 });
   pushResumoRow([billingHolderLabel, billingCompany], { type: 'kv_row', maxCol: 2 });
   pushResumoRow([billingDocTypeLabel, billingCnpj], { type: 'kv_row', maxCol: 2 });
-  pushResumoRow(['Link da proposta online', onlineProposalUrl], { type: 'kv_row', maxCol: 2, hyperlinks: { 1: onlineProposalUrl } });
+  pushResumoRow(['Link da proposta online', onlineProposalUrl], { type: 'kv_row', maxCol: 2, useFormulaLink: true, hyperlinks: { 1: onlineProposalUrl } });
 
   pushResumoRow([], { type: 'spacer' });
 
@@ -10298,7 +10365,7 @@ function exportFullCsv() {
   // 4. ABA MÉTRICAS POR PRODUTO (OOH) — Desagrupamento 1 por Linha para Condomínios + Códigos Visíveis
   // ==========================================================================
   if (hasOoh) {
-    const oohColCount = 14;
+    const oohColCount = 15;
     const oohRows = [
       [`AQUI ADS (GLOBO & ELETROMIDIA) — INVENTÁRIO DETALHADO OOH (${fmtInt(c.oohPointsCount)} PONTOS)`],
       ['Relação detalhada de pontos, condomínios, telas e estimativas individuais de entrega no período'],
@@ -10308,7 +10375,8 @@ function exportFullCsv() {
         'Ponto / Condomínio (Torre Individual)',
         'Endereço e Praça',
         'Categoria',
-        'Formato e Resolução',
+        'Formato',
+        'Resolução',
         'Período de Veiculação',
         'Telas',
         'Exibição Diária',
@@ -10355,7 +10423,8 @@ function exportFullCsv() {
             towerCleanName,
             fullAddress,
             g.vertical,
-            `${exhType} · ${t.resolution || g.resolution || '1080x1920'}`,
+            exhType,
+            t.resolution || g.resolution || '1080x1920',
             periodText,
             t.screens,
             isStatic ? 'Fixa' : t.dailyInsertions,
@@ -10377,7 +10446,8 @@ function exportFullCsv() {
           g.name,
           fullAddress,
           g.vertical,
-          `${exhType} · ${g.resolution || '1080x1920'}`,
+          exhType,
+          g.resolution || '1080x1920',
           periodText,
           g.screens,
           isStatic ? 'Fixa' : g.dailyInsertions,
@@ -10398,6 +10468,7 @@ function exportFullCsv() {
     oohRows.push([
       'SUBTOTAL OOH',
       `${c.oohPointsCount} ${c.oohPointsCount === 1 ? 'ponto listado' : 'pontos/torres listados individualmente'}`,
+      '',
       '',
       '',
       '',
@@ -10422,12 +10493,12 @@ function exportFullCsv() {
         { s: { r: 1, c: 0 }, e: { r: 1, c: oohColCount - 1 } }
       ],
       rowMeta: oohMeta,
-      integerCols: [6, 7, 8, 9, 10],
-      currencyCols: [11, 12, 13],
-      centerCols: [0, 5, 6],
-      boldCols: [0, 13],
-      italicCols: [2, 4],
-      autofilterRef: `A4:N${lastOohItemRow1Based}`
+      integerCols: [7, 8, 9, 10, 11],
+      currencyCols: [12, 13, 14],
+      centerCols: [0, 4, 5, 6, 7],
+      boldCols: [0, 14],
+      italicCols: [2],
+      autofilterRef: `A4:O${lastOohItemRow1Based}`
     });
   }
 
@@ -10500,7 +10571,7 @@ function exportFullCsv() {
     portaisMeta[totPortaisIdx] = { type: 'subtotal', maxCol: portaisColCount };
 
     sheetsData.push({
-      name: 'Portais e Globoplay',
+      name: 'PORTAIS E GLOBOPLAY',
       rows: portaisRows,
       colCount: portaisColCount,
       merges: [
@@ -10580,7 +10651,7 @@ function exportFullCsv() {
     revistasMeta[totRevistasIdx] = { type: 'subtotal', maxCol: revistasColCount };
 
     sheetsData.push({
-      name: 'Revistas e Jornais',
+      name: 'REVISTAS E JORNAIS',
       rows: revistasRows,
       colCount: revistasColCount,
       merges: [
@@ -10663,7 +10734,7 @@ function exportFullCsv() {
     radioMeta[totRadioIdx] = { type: 'subtotal', maxCol: radioColCount };
 
     sheetsData.push({
-      name: 'Rádio CBN',
+      name: 'RÁDIO CBN',
       rows: radioRows,
       colCount: radioColCount,
       merges: [
@@ -10733,7 +10804,7 @@ function exportFullCsv() {
       const ws = window.XLSX.utils.aoa_to_sheet(sheet.rows);
       applyStyledWorksheet(ws, sheet);
       ws['!cols'] = sheet.customCols || autoFitSheetColumns(sheet.rows, 16);
-      window.XLSX.utils.book_append_sheet(wb, ws, sheet.name.slice(0, 31));
+      window.XLSX.utils.book_append_sheet(wb, ws, String(sheet.name || '').toUpperCase().slice(0, 31));
     });
     window.XLSX.writeFile(wb, `proposta_aquiads_${m.id}.xlsx`);
     showToast('Planilha Excel (.xlsx) exportada no padrão executivo');
@@ -10752,7 +10823,7 @@ function exportFullCsv() {
     const rowsXml = sheet.rows.map((r, rIdx) => {
       const rMeta = rowMetaMap[rIdx] || {};
       const rType = rMeta.type || 'data';
-      const styleId = (rType === 'orange_title' || rType === 'orange_section' || rType === 'cta_button' || rType === 'hero_banner_main')
+      const styleId = (rType === 'orange_title' || rType === 'orange_section' || rType === 'cta_button' || rType === 'hero_banner_pad' || rType === 'hero_banner_brand' || rType === 'hero_banner_main' || rType === 'hero_banner_sub')
         ? 'sOrange'
         : rType === 'orange_subtitle'
           ? 'sOrangeSub'
@@ -10772,7 +10843,7 @@ function exportFullCsv() {
       }).join('');
       return `<Row>${cellsXml}</Row>`;
     }).join('');
-    return `<Worksheet ss:Name="${xmlEsc(sheet.name.slice(0, 31))}"><Table>${rowsXml}</Table></Worksheet>`;
+    return `<Worksheet ss:Name="${xmlEsc(String(sheet.name || '').toUpperCase().slice(0, 31))}"><Table>${rowsXml}</Table></Worksheet>`;
   }).join('');
 
   const workbookXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -10783,8 +10854,8 @@ function exportFullCsv() {
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
  <Styles>
   <Style ss:ID="sOrange"><Font ss:FontName="Century Gothic" ss:Size="11" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sOrangeSub"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Italic="1" ss:Color="#FFF5EE"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sLink"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Italic="1" ss:Underline="Single" ss:Color="#F15A22"/><Interior ss:Color="#FFF3EA" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sOrangeSub"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Italic="1" ss:Color="#FFFFFF"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sLink"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Bold="1" ss:Underline="Single" ss:Color="#121212"/><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/></Style>
   <Style ss:ID="sHeader"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#E8E0D5" ss:Pattern="Solid"/></Style>
   <Style ss:ID="sTotal"><Font ss:FontName="Century Gothic" ss:Size="10" ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#FFF3EA" ss:Pattern="Solid"/></Style>
   <Style ss:ID="sData"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Color="#121212"/></Style>
