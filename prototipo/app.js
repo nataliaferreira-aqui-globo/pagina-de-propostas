@@ -6005,9 +6005,9 @@ function renderPaymentTab(m) {
     'Outros Segmentos'
   ];
 
-  // Stepper de 2 etapas no canto superior central do lado esquerdo (sem quebrar linha no mobile)
+  // Stepper de 2 etapas no canto superior central do lado esquerdo (sem subtítulo e sem quebrar linha no mobile)
   const paymentStepperHeaderHtml = `
-    <div class="border-b border-ds-border pb-3.5 space-y-1.5">
+    <div class="border-b border-ds-border pb-3.5">
       <div class="flex items-center justify-center ${mobile ? 'gap-2 text-xs' : 'gap-3 sm:gap-4 text-xs sm:text-sm'} whitespace-nowrap">
         <button
           type="button"
@@ -6047,13 +6047,6 @@ function renderPaymentTab(m) {
           </span>
         </button>
       </div>
-
-      <p class="text-xs text-ds-textSecondary text-center">
-        ${activeStep === 1
-          ? 'Conferir os dados de faturamento ou cadastrar se não houver nenhum.'
-          : `Selecione como deseja pagar os canais de ativação online (${onlineChannelsLabel}).`
-        }
-      </p>
     </div>
   `;
 
