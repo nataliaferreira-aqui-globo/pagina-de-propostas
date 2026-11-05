@@ -2305,51 +2305,55 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
   const padClass = mobile ? 'p-4' : 'p-5';
 
   return `
-    <div class="bg-white rounded-2xl border border-ds-border shadow-sm flex flex-col justify-between self-start w-full overflow-hidden">
+    <div class="bg-white rounded-2xl border border-ds-border shadow-sm flex flex-col justify-between self-start w-full overflow-hidden group/maincard">
       <div class="${padClass}">
         <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
           ${channelTitle}
         </div>
         <div class="mt-2.5">
           <div class="text-xs text-ds-textSecondary leading-normal">${primaryLabel}</div>
-          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain group-hover/maincard:text-primary transition-colors leading-tight mt-0.5 whitespace-nowrap">
             ${primaryValue}
           </div>
         </div>
       </div>
 
-      <!-- Linha separadora com "DETALHAMENTO DE MÉTRICAS" e botão de expandir/ocultar (mesma mecânica do card de pontos) -->
-      <div class="px-4 sm:px-5 py-2.5 border-t border-ds-border bg-ds-surface/50 flex items-center justify-between gap-2">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
-          <i class="uil uil-chart-bar text-sm text-ds-textMain"></i>
-          <span>DETALHAMENTO DE MÉTRICAS</span>
-        </span>
-        <button
-          type="button"
+      <!-- Seção expansível de Detalhamento de Métricas (mesma estrutura do drawer de pontos) -->
+      <div class="bg-ds-bg border-t border-ds-border px-4 sm:px-5 py-3 text-xs">
+        <div
           onclick="toggleSummaryCardMetrics('${cardKey}')"
-          class="text-xs font-bold text-ds-textSecondary hover:text-primary transition inline-flex items-center gap-0.5 cursor-pointer"
+          class="flex items-center justify-between gap-2 cursor-pointer select-none group/toggle"
         >
-          <span>${isExpanded ? 'Ocultar' : 'Expandir'}</span>
-          <i class="uil ${isExpanded ? 'uil-angle-up' : 'uil-angle-down'} text-sm"></i>
-        </button>
-      </div>
-
-      ${isExpanded ? `
-        <div class="bg-ds-bg border-t border-ds-border p-3 grid grid-cols-2 gap-2.5 text-xs">
-          ${subCards.map((sc) => `
-            <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-3 py-2.5 border border-ds-border group/subcard hover:border-primary/45 hover:bg-[#FFFBF7] transition cursor-default">
-              <div class="text-ds-textSecondary text-xs">${sc.label}</div>
-              ${sc.rawHtml ? `
-                <div class="mt-0.5">${sc.rawHtml}</div>
-              ` : `
-                <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain group-hover/subcard:text-primary transition-colors block mt-0.5 whitespace-nowrap">
-                  ${sc.value}
-                </strong>
-              `}
-            </div>
-          `).join('')}
+          <span class="text-[11px] font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+            <i class="uil uil-chart-bar text-sm text-ds-textMain"></i>
+            <span>DETALHAMENTO DE MÉTRICAS</span>
+          </span>
+          <button
+            type="button"
+            class="text-xs font-semibold text-ds-textSecondary group-hover/toggle:text-primary transition inline-flex items-center gap-0.5 cursor-pointer"
+          >
+            <span>${isExpanded ? 'Ocultar' : 'Expandir'}</span>
+            <i class="uil ${isExpanded ? 'uil-angle-up' : 'uil-angle-down'} text-sm"></i>
+          </button>
         </div>
-      ` : ''}
+
+        ${isExpanded ? `
+          <div class="mt-2.5 grid grid-cols-2 gap-2">
+            ${subCards.map((sc) => `
+              <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-3 py-2.5 border border-ds-border group/subcard hover:border-primary/45 hover:bg-[#FFFBF7] hover:shadow-xs transition cursor-default">
+                <div class="text-ds-textSecondary text-xs">${sc.label}</div>
+                ${sc.rawHtml ? `
+                  <div class="mt-0.5">${sc.rawHtml}</div>
+                ` : `
+                  <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain group-hover/subcard:text-primary transition-colors block mt-0.5 whitespace-nowrap">
+                    ${sc.value}
+                  </strong>
+                `}
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
     </div>
   `;
 }
