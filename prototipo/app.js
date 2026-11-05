@@ -8312,132 +8312,130 @@ function renderPdfDocument(m) {
         </div>
       </header>
 
-      <!-- 2. CORPO DO DOCUMENTO: INFORMAÇÕES DA CAMPANHA LOGO NO SEGUNDO SCROLL -->
+      <!-- 2. CORPO DO DOCUMENTO: CARD HERO IDÊNTICO AO DA PÁGINA ONLINE LOGO NO SEGUNDO SCROLL -->
       <div class="pdf-body-content p-3.5 sm:p-4">
 
-        <!-- GRID EXECUTIVO: DADOS DA CAMPANHA (ESQUERDA) + RECONCILIAÇÃO FINANCEIRA (DIREITA) -->
-        <div class="grid grid-cols-12 gap-3.5 items-stretch pdf-avoid-break">
-
-          <!-- Dados de Campanha e Faturamento (7 colunas — 2 cards separados) -->
-          <div class="col-span-7 flex flex-col gap-2.5 h-full">
-            <!-- Card 1: Dados de campanha -->
-            <div class="rounded-2xl border border-ds-border bg-white p-3.5 flex-1 flex flex-col justify-between">
-              <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-ds-border">
-                <h2 class="font-display font-bold text-sm text-ds-textMain">
-                  Dados de campanha
-                </h2>
-              </div>
-
-              <!-- Linha 1: Código da proposta (esq) e Nome da campanha (dir, ocultado se vazio) -->
-              <div class="grid ${m.campaignName && String(m.campaignName).trim() ? 'grid-cols-2' : 'grid-cols-1'} gap-x-6 gap-y-1.5 text-xs">
-                <div>
-                  <div class="text-xs text-ds-textSecondary">Código da proposta</div>
-                  <div class="font-display font-bold text-sm text-ds-textMain mt-0.5">${proposalDisplayId}</div>
-                </div>
-                ${m.campaignName && String(m.campaignName).trim() ? `
-                  <div class="min-w-0">
-                    <div class="text-xs text-ds-textSecondary">Nome da campanha</div>
-                    <div class="font-bold text-ds-textMain mt-0.5 truncate" title="${escapeHtml(m.campaignName)}">${escapeHtml(m.campaignName)}</div>
-                  </div>
-                ` : ''}
-              </div>
-
-              <!-- Linha 2: Duração da campanha (esq) e Período de veiculação (dir) -->
-              <div class="mt-2 pt-2 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
-                <div>
-                  <div class="text-xs text-ds-textSecondary">Duração da campanha</div>
-                  <div class="font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${m.durationDays} dias corridos</div>
-                </div>
-                <div>
-                  <div class="text-xs text-ds-textSecondary">Período de veiculação</div>
-                  <div class="font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${m.startDate} a ${m.endDate}</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 2: Dados de faturamento (Protegidos para compartilhamento — LGPD) -->
-            <div class="rounded-2xl border border-ds-border bg-white p-3.5 flex flex-col justify-between">
-              <div class="pb-2 mb-2 border-b border-ds-border flex items-center justify-between gap-2">
-                <h2 class="font-display font-bold text-sm text-ds-textMain">
-                  Dados de faturamento
-                </h2>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800 whitespace-nowrap">
-                  Dados protegidos · LGPD
-                </span>
-              </div>
-              <div class="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
-                <div class="min-w-0">
-                  <div class="text-[11px] text-ds-textSecondary">${billingHolderLabel}</div>
-                  <div class="font-bold text-ds-textMain mt-0.5">${billingCompany}</div>
-                </div>
-                <div>
-                  <div class="text-[11px] text-ds-textSecondary">${billingDocTypeLabel}</div>
-                  <div class="font-mono font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${billingCnpj}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Resumo Financeiro (5 colunas — seguindo exatamente a estrutura e hierarquia visual do checkout oficial) -->
-          <div class="col-span-5 h-full rounded-2xl border border-ds-border bg-white p-3.5 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-xs font-normal text-ds-textSecondary">Investimento total</span>
-                ${hasDiscounts ? `
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold whitespace-nowrap">
-                    Desc. -${fmtBRL(f.totalDiscounts)}
+        <!-- HERO DA PROPOSTA (REPETINDO VISUALMENTE O CARD DA PÁGINA PRINCIPAL) -->
+        <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-7 sm:px-9 py-6 sm:py-7 pdf-avoid-break">
+          <div class="grid grid-cols-12 gap-6 sm:gap-8 items-center">
+            <!-- Lado Esquerdo: Identificação + Valor Principal + Botões de Ação logo abaixo -->
+            <div class="col-span-7 space-y-4">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs sm:text-sm text-ds-textSecondary font-medium truncate">
+                    ${m.campaignName && String(m.campaignName).trim() ? `Plano de mídia · ${escapeHtml(m.campaignName)}` : 'Plano de mídia'}
                   </span>
-                ` : ''}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
+                    <span>${statusMeta.label}</span>
+                  </span>
+                </div>
+
+                <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <div class="font-display font-extrabold text-3xl sm:text-[38px] text-ds-textMain tracking-tight leading-none">
+                    ${fmtBRL(f.trueProposalTotal)}
+                  </div>
+                </div>
               </div>
-              <div class="mt-1">
-                ${hasDiscounts ? `
-                  <div class="text-[11px] text-ds-textMuted line-through font-medium leading-none mb-1">${fmtBRL(f.totalGrossProposal)}</div>
-                ` : ''}
-                <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none">${fmtBRL(f.trueProposalTotal)}</div>
+
+              <div class="flex flex-wrap items-center gap-2.5 pt-1">
+                ${state.proposalStatus === 'completed' ? `
+                  <a
+                    href="${escapeHtml(onlineProposalUrl)}"
+                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); renewCampaignProposal('${m.id}'); }"
+                    class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                  >
+                    Renovar campanha
+                  </a>
+                  <a
+                    href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
+                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
+                    class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                  >
+                    Ver pagamento
+                  </a>
+                ` : state.proposalStatus === 'processing' ? `
+                  <a
+                    href="${escapeHtml(onlineProposalUrl)}"
+                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToAdDetailingStep('${m.id}'); }"
+                    class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                  >
+                    Enviar criativos
+                  </a>
+                  <a
+                    href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
+                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
+                    class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                  >
+                    Detalhes do pagamento
+                  </a>
+                ` : `
+                  <a
+                    href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
+                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
+                    class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                  >
+                    Efetuar pagamento
+                  </a>
+                  <a
+                    href="${escapeHtml(onlineProposalUrl)}"
+                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); showToast('Modo de edição do plano acionado'); }"
+                    class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                  >
+                    Alterar proposta
+                  </a>
+                `}
               </div>
             </div>
 
-            ${hasRadio && f.onlinePayableNow <= 0 ? `
-              <div class="mt-2.5 rounded-xl bg-ds-surface border border-ds-border p-2.5 space-y-1">
-                <div class="flex items-center gap-1.5 text-xs font-bold text-ds-textMain leading-tight">
-                  <i class="uil uil-info-circle text-primary text-sm shrink-0"></i>
-                  <span>Faturamento à parte</span>
-                </div>
-                <p class="text-[11px] text-ds-textSecondary leading-snug">
-                  Rádio tem um processo de faturamento à parte, nosso time de especialistas vai entrar em contato para combinar o pagamento.
-                </p>
-              </div>
-            ` : `
-              <div class="mt-2.5 rounded-xl bg-ds-surface border border-ds-border p-2.5 space-y-2">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="min-w-0">
-                    <div class="text-xs font-bold text-ds-textMain leading-tight">Checkout imediato</div>
-                    <div class="text-[11px] text-ds-textSecondary leading-tight mt-0.5">Até 6x s/ juros, Pix ou Boleto</div>
+            <!-- Separador Central + Lado Direito: Período, Duração, Pontos e Criado por -->
+            <div class="col-span-5 border-l border-ds-border pl-8 space-y-4">
+              <div class="flex items-center">
+                <div class="pr-5 sm:pr-6 border-r border-ds-border">
+                  <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
+                    PERÍODO
                   </div>
-                  <strong class="font-display font-extrabold text-sm text-[#199958] whitespace-nowrap shrink-0">${fmtBRL(f.onlinePayableNow)}</strong>
-                </div>
-                ${hasRadio ? `
-                  <div class="border-t border-ds-border pt-2 flex items-center justify-between gap-2">
-                    <div class="min-w-0">
-                      <div class="text-xs font-semibold text-ds-textSecondary leading-tight">Pós-reserva (Rádio)</div>
-                      <div class="text-[11px] text-ds-textMuted leading-tight mt-0.5">Boleto após confirmar grade</div>
-                    </div>
-                    <strong class="font-display font-bold text-sm text-ds-textMain whitespace-nowrap shrink-0">${fmtBRL(f.radioNet)}</strong>
+                  <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+                    ${formatHeroShortPeriod(m.startDate, m.endDate)}
                   </div>
-                ` : ''}
-              </div>
-            `}
-          </div>
+                </div>
 
+                <div class="px-5 sm:px-6 border-r border-ds-border">
+                  <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
+                    DURAÇÃO
+                  </div>
+                  <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+                    ${formatHeroDurationLabel(m.durationDays)}
+                  </div>
+                </div>
+
+                <div class="pl-5 sm:pl-6">
+                  <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
+                    ${c.oohPointsCount > 0 ? 'PONTOS' : 'PRODUTOS'}
+                  </div>
+                  <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+                    ${c.oohPointsCount > 0 ? fmtInt(c.oohPointsCount) : fmtInt(c.totalItems)}
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-ds-border text-xs text-ds-textSecondary">
+                ${escapeHtml(`Criado por ${state.creatorName || 'Natalia Ferreira'} (${state.creatorEmail || 'natalia.ferreira@aqui.globo'})`)}
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- ESTIMATIVA DE ENTREGA POR CANAL (SEM CAIXA EXTERNA REDUNDANTE — HIERARQUIA PONTOOH) -->
         <section class="mt-4 text-xs pdf-metrics-container ${hasTwoMetricsRows ? '' : 'pdf-avoid-break'}">
           <div class="pdf-avoid-break">
             <div class="flex items-center justify-between gap-2 mb-2.5">
-              <h2 class="font-display font-bold text-sm text-ds-textMain">
+              <h2 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
                 Estimativa de entrega por canal
               </h2>
+              <span class="text-xs text-ds-textSecondary">
+                Projeção para ${m.durationDays} dias de campanha
+              </span>
             </div>
             <div class="grid ${metricsGridColsClass} gap-3 items-stretch">
               ${firstRowMetricsCards.join('')}
