@@ -3400,10 +3400,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       <button
                         type="button"
                         onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
-                        class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white text-ds-textSecondary font-sans font-medium text-xs inline-flex items-center justify-center gap-1 transition whitespace-nowrap shrink-0"
+                        class="h-8 px-2 text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center justify-center transition whitespace-nowrap shrink-0 cursor-pointer"
                         aria-label="Ver localização no mapa"
                       >
-                        <i class="uil uil-map-marker text-xs"></i>
                         <span>Mapa</span>
                       </button>
                     </div>
@@ -3507,10 +3506,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     <button
                       type="button"
                       onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
-                      class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap"
+                      class="h-8 px-2 text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center justify-center transition whitespace-nowrap cursor-pointer"
                       title="Ver localização no mapa"
                     >
-                      <i class="uil uil-map-marker text-xs"></i>
                       <span>Ver no mapa</span>
                     </button>
                   </div>
@@ -3613,10 +3611,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     <button
                       type="button"
                       onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
-                      class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white text-ds-textSecondary font-sans font-medium text-xs inline-flex items-center justify-center gap-1 transition whitespace-nowrap shrink-0"
+                      class="h-8 px-2 text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center justify-center transition whitespace-nowrap shrink-0 cursor-pointer"
                       aria-label="Ver localização no mapa"
                     >
-                      <i class="uil uil-map-marker text-xs"></i>
                       <span>Mapa</span>
                     </button>
                   </div>
@@ -3709,10 +3706,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <button
                     type="button"
                     onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
-                    class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap"
+                    class="h-8 px-2 text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs inline-flex items-center justify-center transition whitespace-nowrap cursor-pointer"
                     title="Ver localização no mapa"
                   >
-                    <i class="uil uil-map-marker text-xs"></i>
                     <span>Ver no mapa</span>
                   </button>
                 </div>
