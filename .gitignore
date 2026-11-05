@@ -4,5 +4,12 @@ Thumbs.db
 *.log
 .env
 *.pdf
+*.xlsx
+*.zip
 data/
 scripts/
+Portfolio_Pessoal_Limpo/
+Case_Portfolio_PM_Pagina_de_Propostas.md
+PRD_Pagina_de_Propostas_AquiAds.md
+
+
