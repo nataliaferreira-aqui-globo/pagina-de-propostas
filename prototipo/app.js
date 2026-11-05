@@ -10516,27 +10516,8 @@ function exportFullCsv() {
     return idx;
   };
 
-  const rTitleIdx = pushResumoRow(['AQUI ADS (GLOBO & ELETROMIDIA) — RESUMO DA PROPOSTA COMERCIAL'], { type: 'orange_title', maxCol: resumoColsCount });
-  resumoMerges.push({ s: { r: rTitleIdx, c: 0 }, e: { r: rTitleIdx, c: resumoColsCount - 1 } });
-
-  const subtitleCoverText = `${hasCampaignName ? `${m.campaignName} · ` : ''}Proposta ${proposalDisplayId} · Período de veiculação: ${m.startDate} a ${m.endDate} (${m.durationDays} dias corridos)`;
-  const rSubIdx = pushResumoRow([subtitleCoverText], { type: 'orange_subtitle', maxCol: resumoColsCount });
-  resumoMerges.push({ s: { r: rSubIdx, c: 0 }, e: { r: rSubIdx, c: resumoColsCount - 1 } });
-
-  pushResumoRow([
-    'Acesso direto à proposta virtual',
-    'Acessar a proposta online (Mapa interativo, envio de artes e pagamento) ➔'
-  ], {
-    type: 'cta_link',
-    maxCol: 2,
-    useFormulaLink: true,
-    hyperlinks: { 1: onlineProposalUrl }
-  });
-
-  pushResumoRow([], { type: 'spacer' });
-
-  // Bloco 1: Dados de Campanha & Faturamento (LGPD)
-  const secCampIdx = pushResumoRow(['IDENTIFICAÇÃO DA CAMPANHA E FATURAMENTO (LGPD)'], { type: 'orange_section', maxCol: 2 });
+  // Bloco 1: Dados de Campanha & Faturamento
+  const secCampIdx = pushResumoRow(['IDENTIFICAÇÃO DA CAMPANHA E FATURAMENTO'], { type: 'orange_section', maxCol: 2 });
   resumoMerges.push({ s: { r: secCampIdx, c: 0 }, e: { r: secCampIdx, c: 1 } });
   pushResumoRow(['Campo', 'Informação'], { type: 'table_header', maxCol: 2 });
   pushResumoRow(['Código da proposta', proposalDisplayId], { type: 'kv_row', maxCol: 2, boldValue: true });
