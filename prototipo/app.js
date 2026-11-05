@@ -3735,30 +3735,30 @@ function renderMediaPlanList(m, preserveScroll = false) {
             </h3>
           </div>
 
-          <!-- Segmented Switcher Inline Lista ↔ Mapa (Web e Mobile) -->
-          <div class="p-0.5 rounded-xl bg-ds-bg border border-ds-borderStrong inline-flex items-center shrink-0">
+          <!-- Segmented Switcher Inline Lista ↔ Mapa (Web e Mobile — Tokenizado Pontooh DS) -->
+          <div class="inline-flex items-center h-9 rounded-xl border border-ds-borderStrong bg-ds-surface p-1 shrink-0">
             <button
               type="button"
               onclick="setMobileOohView('list')"
-              class="px-2.5 py-1 rounded-lg font-display font-bold text-xs inline-flex items-center gap-1 transition ${
+              class="h-7 px-3 rounded-lg font-display font-semibold text-xs inline-flex items-center gap-1.5 transition cursor-pointer ${
                 !isOohMapActive
-                  ? 'bg-white text-ds-textMain shadow-xs'
-                  : 'text-ds-textSecondary hover:text-ds-textMain'
+                  ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80'
+                  : 'text-ds-textSecondary hover:text-ds-textMain border border-transparent'
               }"
             >
-              <i class="uil uil-list-ul text-xs"></i>
+              <i class="uil uil-list-ul text-xs leading-none"></i>
               <span>Lista</span>
             </button>
             <button
               type="button"
               onclick="setMobileOohView('map')"
-              class="px-2.5 py-1 rounded-lg font-display font-bold text-xs inline-flex items-center gap-1 transition ${
+              class="h-7 px-3 rounded-lg font-display font-semibold text-xs inline-flex items-center gap-1.5 transition cursor-pointer ${
                 isOohMapActive
-                  ? 'bg-primary text-white shadow-xs'
-                  : 'text-ds-textSecondary hover:text-ds-textMain'
+                  ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80'
+                  : 'text-ds-textSecondary hover:text-ds-textMain border border-transparent'
               }"
             >
-              <i class="uil uil-map text-xs"></i>
+              <i class="uil uil-map text-xs leading-none"></i>
               <span>Mapa</span>
             </button>
           </div>
@@ -5031,7 +5031,7 @@ function renderArtTab(m) {
               aria-expanded="${state.mobileArtFiltersOpen ? 'true' : 'false'}"
             >
               <i class="uil uil-sliders-v-alt text-base leading-none"></i>
-              <span>filtrar</span>
+              <span>Filtrar</span>
               ${activeArtSecondaryCount > 0 ? `
                 <span class="ml-0.5 w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold inline-flex items-center justify-center leading-none">
                   ${activeArtSecondaryCount}
@@ -5039,24 +5039,24 @@ function renderArtTab(m) {
               ` : ''}
             </button>
 
-            <div class="inline-flex items-center h-10 rounded-xl border border-ds-borderStrong bg-ds-surface/60 p-1 shrink-0">
+            <div class="inline-flex items-center h-9 rounded-xl border border-ds-borderStrong bg-ds-surface p-1 shrink-0">
               <button
                 type="button"
                 onclick="setArtViewMode('grid')"
-                class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-sm font-normal transition ${state.artViewMode === 'grid' ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80' : 'text-ds-textSecondary hover:text-ds-textMain'}"
+                class="w-7 h-7 inline-flex items-center justify-center rounded-lg text-xs font-semibold transition cursor-pointer ${state.artViewMode === 'grid' ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80' : 'text-ds-textSecondary hover:text-ds-textMain border border-transparent'}"
                 title="Visualização em grade"
                 aria-label="Visualização em grade"
               >
-                <i class="uil uil-apps"></i>
+                <i class="uil uil-apps text-xs leading-none"></i>
               </button>
               <button
                 type="button"
                 onclick="setArtViewMode('list')"
-                class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-sm font-normal transition ${state.artViewMode === 'list' ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80' : 'text-ds-textSecondary hover:text-ds-textMain'}"
+                class="w-7 h-7 inline-flex items-center justify-center rounded-lg text-xs font-semibold transition cursor-pointer ${state.artViewMode === 'list' ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80' : 'text-ds-textSecondary hover:text-ds-textMain border border-transparent'}"
                 title="Visualização em lista"
                 aria-label="Visualização em lista"
               >
-                <i class="uil uil-list-ul"></i>
+                <i class="uil uil-list-ul text-xs leading-none"></i>
               </button>
             </div>
           </div>
@@ -5179,7 +5179,7 @@ function renderArtTab(m) {
               title="Abrir filtros secundários"
             >
               <i class="uil uil-sliders-v-alt text-base leading-none"></i>
-              <span>filtrar</span>
+              <span>Filtrar</span>
               ${activeArtSecondaryCount > 0 ? `
                 <span class="ml-0.5 w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold inline-flex items-center justify-center leading-none">
                   ${activeArtSecondaryCount}
@@ -5187,22 +5187,22 @@ function renderArtTab(m) {
               ` : ''}
             </button>
 
-            <div class="inline-flex items-center h-10 rounded-xl border border-ds-borderStrong bg-ds-surface p-1 shrink-0">
+            <div class="inline-flex items-center h-9 rounded-xl border border-ds-borderStrong bg-ds-surface p-1 shrink-0">
               <button
                 type="button"
                 onclick="setArtViewMode('grid')"
-                class="h-8 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-normal transition ${state.artViewMode === 'grid' ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80' : 'text-ds-textSecondary hover:text-ds-textMain'}"
+                class="h-7 px-3 rounded-lg font-display font-semibold text-xs inline-flex items-center gap-1.5 transition cursor-pointer ${state.artViewMode === 'grid' ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80' : 'text-ds-textSecondary hover:text-ds-textMain border border-transparent'}"
               >
-                <i class="uil uil-apps"></i>
-                <span>grade</span>
+                <i class="uil uil-apps text-xs leading-none"></i>
+                <span>Grade</span>
               </button>
               <button
                 type="button"
                 onclick="setArtViewMode('list')"
-                class="h-8 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-normal transition ${state.artViewMode === 'list' ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80' : 'text-ds-textSecondary hover:text-ds-textMain'}"
+                class="h-7 px-3 rounded-lg font-display font-semibold text-xs inline-flex items-center gap-1.5 transition cursor-pointer ${state.artViewMode === 'list' ? 'bg-white text-ds-textMain shadow-xs border border-ds-border/80' : 'text-ds-textSecondary hover:text-ds-textMain border border-transparent'}"
               >
-                <i class="uil uil-list-ul"></i>
-                <span>lista</span>
+                <i class="uil uil-list-ul text-xs leading-none"></i>
+                <span>Lista</span>
               </button>
             </div>
           </div>
