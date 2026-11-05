@@ -3272,14 +3272,15 @@ function renderMediaPlanList(m, preserveScroll = false) {
                     <button
                       type="button"
                       onclick="toggleCardMetrics('${g.code}')"
-                      class="w-8 h-8 rounded-[8px] border ${
+                      class="h-8 px-2.5 rounded-[8px] border ${
                         isMetricsOpen
-                          ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                          : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                      } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                          ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
+                          : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
+                      } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                       aria-label="Ver métricas detalhadas"
                     >
-                      <i class="uil uil-chart-bar text-base"></i>
+                      <i class="uil uil-chart-bar text-xs"></i>
+                      <span>Métricas</span>
                     </button>
                     <button
                       type="button"
@@ -3481,14 +3482,15 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <button
                     type="button"
                     onclick="toggleCardMetrics('${g.code}')"
-                    class="w-8 h-8 rounded-[8px] border ${
+                    class="h-8 px-2.5 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
+                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
+                    } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
-                    <i class="uil uil-chart-bar text-base"></i>
+                    <i class="uil uil-chart-bar text-xs"></i>
+                    <span>Métricas</span>
                   </button>
                   <button
                     type="button"
@@ -3736,14 +3738,15 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <button
                     type="button"
                     onclick="toggleCardMetrics('${itemKey}')"
-                    class="w-8 h-8 rounded-[8px] border ${
+                    class="h-8 px-2.5 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
+                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
+                    } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
-                    <i class="uil uil-chart-bar text-base"></i>
+                    <i class="uil uil-chart-bar text-xs"></i>
+                    <span>Métricas</span>
                   </button>
                 </div>
               </div>
@@ -3922,14 +3925,15 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <button
                     type="button"
                     onclick="toggleCardMetrics('${itemKey}')"
-                    class="w-8 h-8 rounded-[8px] border ${
+                    class="h-8 px-2.5 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
+                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
+                    } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
-                    <i class="uil uil-chart-bar text-base"></i>
+                    <i class="uil uil-chart-bar text-xs"></i>
+                    <span>Métricas</span>
                   </button>
                 </div>
               </div>
@@ -4119,14 +4123,15 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <button
                     type="button"
                     onclick="toggleCardMetrics('${itemKey}')"
-                    class="w-8 h-8 rounded-[8px] border ${
+                    class="h-8 px-2.5 rounded-[8px] border ${
                       isMetricsOpen
-                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                        ? 'border-ds-textMain bg-ds-surface text-ds-textMain'
+                        : 'border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain'
+                    } font-sans font-medium text-xs inline-flex items-center gap-1 transition whitespace-nowrap cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
-                    <i class="uil uil-chart-bar text-base"></i>
+                    <i class="uil uil-chart-bar text-xs"></i>
+                    <span>Métricas</span>
                   </button>
                 </div>
               </div>
