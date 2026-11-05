@@ -7713,40 +7713,38 @@ function renderPdfDocument(m) {
       : 'Fixa';
 
     modularCardsHtml.push(`
-      <div class="rounded-xl border border-ds-border overflow-hidden bg-white flex flex-col justify-between pdf-avoid-break">
-        <div class="px-3.5 py-3 bg-white">
-          <div class="font-display font-bold text-sm text-ds-textMain leading-snug">OOH</div>
-          <div class="mt-2 grid grid-cols-2 gap-3">
-            <div>
-              <div class="text-xs font-medium text-ds-textSecondary">Impacto no período</div>
-              <div class="font-display font-extrabold text-xl text-primary leading-tight mt-0.5">${fmtInt(c.oohImpacts)}</div>
-            </div>
-            <div>
-              <div class="text-xs font-medium text-ds-textSecondary">Alcance estimado</div>
-              <div class="font-display font-extrabold text-xl text-ds-textMain leading-tight mt-0.5">${fmtInt(c.oohReach || c.oohImpacts)}</div>
-            </div>
+      <div class="rounded-2xl border border-ds-border bg-white p-4 flex flex-col justify-between pdf-avoid-break">
+        <div>
+          <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">OOH</div>
+          <div class="mt-2">
+            <div class="text-xs text-ds-textSecondary">Impacto estimado</div>
+            <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-1">${fmtInt(c.oohImpacts)}</div>
           </div>
         </div>
-        <div class="bg-[#F7F4EF] p-2 border-t border-ds-border grid grid-cols-5 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Pontos</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtInt(c.oohPointsCount)}</div>
+        <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-3 gap-x-3 gap-y-2.5">
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Alcance único</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.oohReach || c.oohImpacts)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Telas</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtInt(c.oohScreensCount)}</div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Pontos</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.oohPointsCount)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Exib. diária</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${oohDailyExhibitionsVal}</div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Telas</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.oohScreensCount)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Exib. período</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${oohTotalExhibitionsVal}</div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Exibição diária</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${oohDailyExhibitionsVal}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Frequência</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtFreq(c.oohFrequency || 1.88)}</div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Exibições</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${oohTotalExhibitionsVal}</div>
+          </div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Frequência</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtFreq(c.oohFrequency || 1.88)}</div>
           </div>
         </div>
       </div>
@@ -7775,28 +7773,26 @@ function renderPdfDocument(m) {
     const portaisEstReach = Math.round(c.portaisImpressions * 0.62);
 
     modularCardsHtml.push(`
-      <div class="rounded-xl border border-ds-border overflow-hidden bg-white flex flex-col justify-between pdf-avoid-break">
-        <div class="px-3.5 py-3 bg-white">
-          <div class="font-display font-bold text-sm text-ds-textMain leading-snug">Portais e Globoplay</div>
-          <div class="mt-2 grid grid-cols-2 gap-3">
-            <div>
-              <div class="text-xs font-medium text-ds-textSecondary">Impressões contratadas</div>
-              <div class="font-display font-extrabold text-xl text-primary leading-tight mt-0.5">${fmtInt(c.portaisImpressions)}</div>
-            </div>
-            <div>
-              <div class="text-xs font-medium text-ds-textSecondary">Alcance estimado</div>
-              <div class="font-display font-extrabold text-xl text-ds-textMain leading-tight mt-0.5">${fmtInt(portaisEstReach)}</div>
-            </div>
+      <div class="rounded-2xl border border-ds-border bg-white p-4 flex flex-col justify-between pdf-avoid-break">
+        <div>
+          <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">Portais e Globoplay</div>
+          <div class="mt-2">
+            <div class="text-xs text-ds-textSecondary">Impressões contratadas</div>
+            <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-1">${fmtInt(c.portaisImpressions)}</div>
           </div>
         </div>
-        <div class="bg-[#F7F4EF] p-2 border-t border-ds-border grid grid-cols-2 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Portais</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${escapeHtml(portaisListLabel)}</div>
+        <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-2 gap-x-4 gap-y-2.5">
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Alcance estimado</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(portaisEstReach)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">CPM médio</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${portaisCpmLabel}</div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">CPM médio</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${portaisCpmLabel}</div>
+          </div>
+          <div class="col-span-2">
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Veículos</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 leading-snug">${escapeHtml(portaisListLabel)}</div>
           </div>
         </div>
       </div>
@@ -7811,28 +7807,26 @@ function renderPdfDocument(m) {
     const revistasEstReach = Math.round(c.revistasImpressions * 0.62);
 
     modularCardsHtml.push(`
-      <div class="rounded-xl border border-ds-border overflow-hidden bg-white flex flex-col justify-between pdf-avoid-break">
-        <div class="px-3.5 py-3 bg-white">
-          <div class="font-display font-bold text-sm text-ds-textMain leading-snug">Revistas e Jornais</div>
-          <div class="mt-2 grid grid-cols-2 gap-3">
-            <div>
-              <div class="text-xs font-medium text-ds-textSecondary">Impressões contratadas</div>
-              <div class="font-display font-extrabold text-xl text-primary leading-tight mt-0.5">${fmtInt(c.revistasImpressions)}</div>
-            </div>
-            <div>
-              <div class="text-xs font-medium text-ds-textSecondary">Alcance estimado</div>
-              <div class="font-display font-extrabold text-xl text-ds-textMain leading-tight mt-0.5">${fmtInt(revistasEstReach)}</div>
-            </div>
+      <div class="rounded-2xl border border-ds-border bg-white p-4 flex flex-col justify-between pdf-avoid-break">
+        <div>
+          <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">Revistas e Jornais</div>
+          <div class="mt-2">
+            <div class="text-xs text-ds-textSecondary">Impressões contratadas</div>
+            <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-1">${fmtInt(c.revistasImpressions)}</div>
           </div>
         </div>
-        <div class="bg-[#F7F4EF] p-2 border-t border-ds-border grid grid-cols-2 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Títulos editoriais</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${escapeHtml(revistasListLabel)}</div>
+        <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-2 gap-x-4 gap-y-2.5">
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Alcance estimado</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(revistasEstReach)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">CPM médio</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${revistasCpmLabel}</div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">CPM médio</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${revistasCpmLabel}</div>
+          </div>
+          <div class="col-span-2">
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Títulos editoriais</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 leading-snug">${escapeHtml(revistasListLabel)}</div>
           </div>
         </div>
       </div>
@@ -7844,32 +7838,30 @@ function renderPdfDocument(m) {
     const radioEstReach = Math.round(c.radioTotalInsertions * 18500 * 0.58);
 
     modularCardsHtml.push(`
-      <div class="rounded-xl border border-ds-border overflow-hidden bg-white flex flex-col justify-between pdf-avoid-break">
-        <div class="px-3.5 py-3 bg-white">
-          <div class="font-display font-bold text-sm text-ds-textMain leading-snug">Rádio CBN</div>
-          <div class="mt-2 grid grid-cols-2 gap-3">
-            <div>
-              <div class="text-xs font-medium text-ds-textSecondary">Inserções no período</div>
-              <div class="font-display font-extrabold text-xl text-primary leading-tight mt-0.5">${fmtInt(c.radioTotalInsertions)}</div>
-            </div>
-            <div>
-              <div class="text-xs font-medium text-ds-textSecondary">Alcance estimado</div>
-              <div class="font-display font-extrabold text-xl text-ds-textMain leading-tight mt-0.5">${fmtInt(radioEstReach)}</div>
-            </div>
+      <div class="rounded-2xl border border-ds-border bg-white p-4 flex flex-col justify-between pdf-avoid-break">
+        <div>
+          <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">Rádio CBN</div>
+          <div class="mt-2">
+            <div class="text-xs text-ds-textSecondary">Inserções no período</div>
+            <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-1">${fmtInt(c.radioTotalInsertions)}</div>
           </div>
         </div>
-        <div class="bg-[#F7F4EF] p-2 border-t border-ds-border grid grid-cols-3 gap-1.5 flex-1">
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Rádio/programa</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtInt(c.radioCount)}</div>
+        <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-2 gap-x-4 gap-y-2.5">
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Alcance estimado</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(radioEstReach)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Inserções/semana</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${fmtInt(c.radioWeeklyInsertions)}</div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Rádio/programa</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.radioCount)}</div>
           </div>
-          <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border flex flex-col justify-between">
-            <div class="text-xs text-ds-textSecondary">Duração</div>
-            <div class="font-display font-bold text-ds-textMain text-xs leading-snug mt-0.5">${escapeHtml(radioDurationsLabel)}</div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Inserções/semana</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.radioWeeklyInsertions)}</div>
+          </div>
+          <div>
+            <div class="text-[11px] text-ds-textSecondary leading-tight">Duração</div>
+            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${escapeHtml(radioDurationsLabel)}</div>
           </div>
         </div>
       </div>
@@ -7878,9 +7870,15 @@ function renderPdfDocument(m) {
 
   const metricsGridColsClass = modularCardsHtml.length === 1
     ? 'grid-cols-1'
-    : 'grid-cols-2';
-  const firstRowMetricsCards = modularCardsHtml.slice(0, 2);
-  const secondRowMetricsCards = modularCardsHtml.slice(2);
+    : modularCardsHtml.length === 3
+      ? 'grid-cols-3'
+      : 'grid-cols-2';
+  const firstRowMetricsCards = modularCardsHtml.length === 3
+    ? modularCardsHtml
+    : modularCardsHtml.slice(0, 2);
+  const secondRowMetricsCards = modularCardsHtml.length === 3
+    ? []
+    : modularCardsHtml.slice(2);
   const hasTwoMetricsRows = secondRowMetricsCards.length > 0;
 
   // 1. TABELA OOH & CONDOMÍNIOS (Sem cards internos — 100% Tabela com Exibição Diária e Exibições "Fixa" para Mídias Estáticas; Código visível apenas em Visão Admin)
@@ -8337,54 +8335,29 @@ function renderPdfDocument(m) {
     <!-- FOLHA DO DOCUMENTO PDF (A4 HORIZONTAL / PAISAGEM) -->
     <article aria-hidden="true" class="pdf-page-sheet max-w-[1140px] mx-auto bg-white rounded-[20px] shadow-xl border border-slate-200 overflow-hidden text-slate-900">
 
-      <!-- 1. HEADER KV COMPACTO NO GRADIENTE AQUI ADS + LOGO BRANCO + BIG NUMBERS DISCRETOS -->
+      <!-- 1. HEADER KV COMPACTO NO GRADIENTE AQUI ADS + LOGO BRANCO -->
       <header class="pdf-header-kv relative overflow-hidden text-white" style="background: linear-gradient(90deg, #F7980F 0%, #F15A22 38%, #E83C39 100%);">
         <!-- KV do executivo segurando a esfera Globo com tela OOH à esquerda -->
-        <div class="relative min-h-[156px] flex flex-col justify-between">
+        <div class="relative min-h-[116px] flex flex-col justify-center">
           <img
             src="assets/kv-proposta-bg.jpg"
             alt=""
             class="absolute left-0 bottom-0 h-full w-auto max-w-none object-contain object-left-bottom pointer-events-none select-none"
           />
 
-          <!-- Conteúdo alinhado à direita do KV (deixando o personagem + esfera Globo menores e bem enquadrados à esquerda) -->
-          <div class="relative z-10 w-full pl-[26%] pr-5 py-3 flex flex-col justify-between min-h-[156px]">
-            
-            <!-- Topo Limpo: Apenas Logo "Aqui ads" Branco + Título "Proposta Comercial" -->
-            <div class="my-auto">
-              <div>
-                <div class="flex items-center">
-                  <!-- Logo Oficial Aqui ads 100% Branco -->
-                  <svg class="h-6 w-auto" viewBox="0 0 740.84 182.70" role="img" aria-label="Aqui ads">
-                    <path fill="#FFFFFF" d="M 597.46 143.41 C 591.15 138.92 587.05 132.61 585.16 124.47 C 584.98 123.58 585.15 122.86 585.65 122.3 C 586.15 121.74 586.87 121.46 587.81 121.46 L 598.08 121.46 C 599.61 121.46 600.74 122.23 601.44 123.76 C 603.15 127.95 605.6 130.95 608.79 132.74 C 611.97 134.54 616.55 135.44 622.51 135.44 C 627.58 135.44 631.5 134.63 634.28 133.01 C 637.05 131.39 638.44 129.01 638.44 125.88 C 638.44 123.53 637.64 121.61 636.05 120.13 C 634.45 118.66 632.12 117.48 629.05 116.59 C 625.99 115.71 621.98 114.91 617.02 114.2 C 606.46 112.73 598.66 110.1 593.61 106.32 C 588.57 102.55 586.04 97.09 586.04 89.95 C 586.04 85.23 587.39 80.99 590.07 77.21 C 592.76 73.44 596.5 70.48 601.31 68.36 C 606.12 66.24 611.59 65.18 617.73 65.18 C 627.17 65.18 634.97 67.42 641.13 71.9 C 647.3 76.38 651.24 82.52 652.95 90.31 C 653.12 91.25 652.98 91.99 652.51 92.52 C 652.03 93.05 651.3 93.32 650.29 93.32 L 640.38 93.32 C 639.62 93.32 638.98 93.14 638.48 92.79 C 637.98 92.43 637.55 91.84 637.2 91.02 C 635.37 86.95 632.92 84.07 629.85 82.39 C 626.78 80.71 622.51 79.86 617.02 79.86 C 612 79.86 608.21 80.68 605.65 82.3 C 603.08 83.92 601.8 86.3 601.8 89.42 C 601.8 92.32 603.26 94.44 606.18 95.79 C 609.1 97.15 613.24 98.27 618.61 99.16 C 626.58 100.52 633.02 102.02 637.95 103.67 C 642.87 105.32 646.84 107.88 649.85 111.33 C 652.86 114.78 654.36 119.45 654.36 125.36 C 654.36 130.13 653.04 134.41 650.38 138.18 C 647.73 141.96 643.95 144.9 639.06 146.99 C 634.16 149.09 628.52 150.13 622.15 150.13 C 612 150.13 603.77 147.89 597.46 143.41 M 513.04 121.95 C 515.22 126.16 518.21 129.44 522.02 131.77 C 525.82 134.1 530.06 135.27 534.72 135.27 C 539.56 135.27 543.91 134.22 547.77 132.13 C 551.63 130.03 554.67 126.9 556.89 122.74 C 559.1 118.58 560.21 113.55 560.21 107.66 C 560.21 101.7 559.1 96.65 556.89 92.52 C 554.67 88.39 551.65 85.28 547.82 83.18 C 543.98 81.09 539.62 80.04 534.72 80.04 C 530.47 80.04 526.44 81.11 522.64 83.23 C 518.83 85.35 515.74 88.5 513.35 92.65 C 510.96 96.81 509.76 101.81 509.76 107.66 C 509.76 112.96 510.85 117.73 513.04 121.95 M 513.61 144.78 C 507.51 141.21 502.68 136.21 499.14 129.78 C 495.6 123.35 493.83 115.97 493.83 107.66 C 493.83 99.51 495.63 92.21 499.23 85.75 C 502.83 79.29 507.7 74.25 513.83 70.62 C 519.97 66.99 526.69 65.18 534.01 65.18 C 539.73 65.18 544.81 66.18 549.23 68.18 C 553.66 70.19 557.2 72.96 559.85 76.5 L 559.85 35.62 C 559.85 34.73 560.1 34.04 560.6 33.54 C 561.1 33.04 561.8 32.79 562.68 32.79 L 572.95 32.79 C 573.83 32.79 574.53 33.04 575.03 33.54 C 575.53 34.04 575.78 34.73 575.78 35.62 L 575.78 145.88 C 575.78 146.77 575.53 147.46 575.03 147.96 C 574.53 148.46 573.83 148.71 572.95 148.71 L 562.86 148.71 C 561.98 148.71 561.28 148.46 560.78 147.96 C 560.28 147.46 560.03 146.77 560.03 145.88 L 560.03 138.63 C 557.49 142.17 553.95 144.97 549.41 147.04 C 544.86 149.1 539.67 150.13 533.83 150.13 C 526.46 150.13 519.72 148.35 513.61 144.78 M 420.83 121.95 C 423.01 126.16 426 129.44 429.81 131.77 C 433.61 134.1 437.85 135.27 442.51 135.27 C 447.34 135.27 451.7 134.22 455.56 132.13 C 459.42 130.03 462.46 126.9 464.68 122.74 C 466.89 118.58 467.99 113.55 467.99 107.66 C 467.99 101.7 466.89 96.65 464.68 92.52 C 462.46 88.39 459.44 85.28 455.6 83.18 C 451.77 81.09 447.4 80.04 442.51 80.04 C 438.26 80.04 434.23 81.11 430.43 83.23 C 426.62 85.35 423.52 88.5 421.13 92.65 C 418.74 96.81 417.55 101.81 417.55 107.66 C 417.55 112.96 418.64 117.73 420.83 121.95 M 421.71 144.78 C 415.51 141.21 410.62 136.21 407.02 129.78 C 403.42 123.35 401.62 115.97 401.62 107.66 C 401.62 99.51 403.44 92.21 407.06 85.75 C 410.69 79.29 415.63 74.25 421.89 70.62 C 428.14 66.99 435.07 65.18 442.68 65.18 C 448.29 65.18 453.3 66.18 457.73 68.18 C 462.15 70.19 465.69 72.96 468.35 76.5 L 468.35 69.42 C 468.35 68.54 468.6 67.84 469.1 67.34 C 469.6 66.84 470.3 66.59 471.18 66.59 L 481.09 66.59 C 481.98 66.59 482.67 66.84 483.17 67.34 C 483.67 67.84 483.92 68.54 483.92 69.42 L 483.92 145.88 C 483.92 146.77 483.67 147.46 483.17 147.96 C 482.67 148.46 481.98 148.71 481.09 148.71 L 471.18 148.71 C 470.3 148.71 469.6 148.46 469.1 147.96 C 468.6 147.46 468.35 146.77 468.35 145.88 L 468.35 138.1 C 465.75 141.87 462.21 144.82 457.73 146.95 C 453.24 149.07 448.17 150.13 442.51 150.13 C 434.84 150.13 427.9 148.35 421.71 144.78 M 334.72 147.83 C 334.13 147.24 333.83 146.47 333.83 145.53 L 333.83 69.07 C 333.83 68.07 334.13 67.29 334.72 66.72 C 335.31 66.16 336.07 65.88 337.02 65.88 L 355.43 65.88 C 356.43 65.88 357.21 66.16 357.77 66.72 C 358.33 67.29 358.61 68.07 358.61 69.07 L 358.61 145.53 C 358.61 146.47 358.33 147.24 357.77 147.83 C 357.21 148.42 356.43 148.71 355.43 148.71 L 337.02 148.71 C 336.07 148.71 335.31 148.42 334.72 147.83 M 335.38 54.2 C 332.58 51.49 331.18 48 331.18 43.76 C 331.18 40.98 331.81 38.52 333.08 36.37 C 334.35 34.21 336.13 32.52 338.43 31.28 C 340.73 30.04 343.33 29.42 346.22 29.42 C 349.11 29.42 351.71 30.04 354.01 31.28 C 356.31 32.52 358.09 34.21 359.36 36.37 C 360.63 38.52 361.27 40.98 361.27 43.76 C 361.27 48 359.86 51.49 357.06 54.2 C 354.26 56.91 350.65 58.27 346.22 58.27 C 341.8 58.27 338.18 56.91 335.38 54.2 M 250.34 141.15 C 245.23 135.16 242.68 126.59 242.68 115.44 L 242.68 69.07 C 242.68 68.07 242.98 67.29 243.57 66.72 C 244.15 66.16 244.92 65.88 245.87 65.88 L 264.45 65.88 C 265.46 65.88 266.24 66.16 266.8 66.72 C 267.36 67.29 267.64 68.07 267.64 69.07 L 267.64 110.48 C 267.64 115.56 268.67 119.45 270.74 122.17 C 272.8 124.88 275.84 126.24 279.85 126.24 C 284.22 126.24 287.61 124.84 290.03 122.04 C 292.45 119.23 293.66 115.32 293.66 110.31 L 293.66 69.07 C 293.66 68.07 293.95 67.29 294.54 66.72 C 295.13 66.16 295.9 65.88 296.84 65.88 L 315.43 65.88 C 316.43 65.88 317.21 66.16 317.77 66.72 C 318.33 67.29 318.61 68.07 318.61 69.07 L 318.61 145.53 C 318.61 146.47 318.33 147.24 317.77 147.83 C 317.21 148.42 316.43 148.71 315.43 148.71 L 298.26 148.71 C 297.31 148.71 296.55 148.42 295.96 147.83 C 295.37 147.24 295.07 146.47 295.07 145.53 L 295.07 139.34 C 292.59 142.7 289.39 145.34 285.47 147.25 C 281.55 149.17 277.13 150.13 272.24 150.13 C 262.74 150.13 255.44 147.14 250.34 141.15 M 169.89 117.17 C 171.52 120.09 173.68 122.36 176.4 123.98 C 179.11 125.61 182.09 126.41 185.34 126.41 C 188.76 126.41 191.84 125.63 194.58 124.07 C 197.33 122.51 199.48 120.29 201.05 117.43 C 202.61 114.57 203.39 111.2 203.39 107.3 C 203.39 103.46 202.61 100.1 201.05 97.21 C 199.48 94.32 197.33 92.09 194.58 90.53 C 191.84 88.96 188.76 88.18 185.34 88.18 C 182.15 88.18 179.2 88.96 176.49 90.53 C 173.77 92.09 171.59 94.32 169.94 97.21 C 168.29 100.1 167.46 103.46 167.46 107.3 C 167.46 110.96 168.27 114.25 169.89 117.17 M 203.74 181.86 C 203.15 181.3 202.86 180.52 202.86 179.51 L 202.86 141.11 C 200.56 143.88 197.55 146.08 193.83 147.7 C 190.11 149.32 185.75 150.13 180.73 150.13 C 173.65 150.13 167.21 148.27 161.4 144.56 C 155.59 140.84 151.01 135.72 147.68 129.2 C 144.35 122.68 142.68 115.38 142.68 107.3 C 142.68 99.39 144.39 92.17 147.81 85.62 C 151.23 79.07 155.88 73.91 161.75 70.13 C 167.62 66.36 174.07 64.47 181.09 64.47 C 186.22 64.47 190.76 65.43 194.72 67.34 C 198.67 69.26 201.8 71.84 204.1 75.09 L 204.1 69.07 C 204.1 68.07 204.39 67.29 204.98 66.72 C 205.57 66.16 206.34 65.88 207.28 65.88 L 224.63 65.88 C 225.63 65.88 226.41 66.16 226.97 66.72 C 227.53 67.29 227.82 68.07 227.82 69.07 L 227.82 179.51 C 227.82 180.52 227.53 181.3 226.97 181.86 C 226.41 182.42 225.63 182.7 224.63 182.7 L 206.04 182.7 C 205.1 182.7 204.33 182.42 203.74 181.86 M 119.43 13.89 C 118.36 4.75 114.76 0.24 105.41 0.24 L 40.12 0.24 C 40.12 0.24 34.58 0 26.57 0.43 C 18.26 1.41 15.74 5.39 14.75 13.89 L 13.2 26.45 L 0.17 144.43 C 0 145.98 1.22 147.33 2.78 147.33 L 24.21 147.33 C 25.55 147.33 26.67 146.33 26.82 145 L 31.42 103.32 L 31.42 103.32 C 31.52 102.4 34.81 72.63 34.9 71.77 L 39.61 29.13 L 39.62 29.13 C 39.62 28.88 39.65 28.64 39.69 28.4 L 39.7 28.29 C 40.09 26.41 41.76 25 43.77 25 L 90.11 25 C 92.11 25 93.78 26.41 94.16 28.29 L 94.18 28.4 C 94.22 28.64 94.25 28.88 94.25 29.13 L 94.26 29.13 L 98.97 71.77 C 99.06 72.63 98.16 73.33 97.28 73.33 L 50.31 67.03 C 48.76 66.86 47.4 68.07 47.4 69.63 L 45.21 92.33 C 45.21 93.66 46.21 94.79 47.55 94.93 L 100.76 101.67 C 100.77 101.67 100.78 101.68 100.78 101.68 C 101.69 101.79 102.36 102.4 102.45 103.32 L 102.45 103.32 L 107.05 145 C 107.2 146.33 108.32 147.33 109.66 147.33 L 131.4 147.33 C 132.96 147.33 134.18 145.98 134.01 144.43 L 120.98 26.45 Z M 701.02 56.17 C 710.1 56.17 717.11 48.84 717.11 40 C 717.11 31.24 710.1 23.91 701.02 23.91 C 691.94 23.91 684.93 31.24 684.93 40 C 684.93 48.84 691.94 56.17 701.02 56.17 M 728.18 58.79 C 719.5 59.75 710.1 59.99 701.02 59.99 C 691.94 59.99 682.54 59.75 673.78 58.79 C 671.31 58.55 670.04 57.92 669.72 55.29 C 669.24 50.27 669.24 45.18 669.24 40 C 669.24 34.9 669.24 29.8 669.72 24.79 C 670.04 22.16 671.31 21.52 673.78 21.28 C 682.54 20.32 691.94 20.09 701.02 20.09 C 710.1 20.09 719.5 20.32 728.18 21.28 C 730.73 21.52 732 22.16 732.32 24.79 C 732.72 29.8 732.72 34.9 732.72 40 C 732.72 45.18 732.72 50.27 732.32 55.29 C 732 57.92 730.73 58.55 728.18 58.79 M 701.02 0.25 C 679.12 0.25 661.28 18.09 661.28 40 C 661.28 61.98 679.12 79.82 701.02 79.82 C 722.92 79.82 740.84 61.98 740.84 40 C 740.84 18.09 722.92 0.25 701.02 0.25"></path>
-                  </svg>
-                </div>
-                <h1 class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-white mt-1 leading-tight">
-                  Proposta Comercial
-                </h1>
+          <!-- Conteúdo alinhado à direita do KV -->
+          <div class="relative z-10 w-full pl-[24%] pr-6 py-4 flex items-center min-h-[116px]">
+            <div>
+              <div class="flex items-center">
+                <!-- Logo Oficial Aqui ads 100% Branco -->
+                <svg class="h-6 w-auto" viewBox="0 0 740.84 182.70" role="img" aria-label="Aqui ads">
+                  <path fill="#FFFFFF" d="M 597.46 143.41 C 591.15 138.92 587.05 132.61 585.16 124.47 C 584.98 123.58 585.15 122.86 585.65 122.3 C 586.15 121.74 586.87 121.46 587.81 121.46 L 598.08 121.46 C 599.61 121.46 600.74 122.23 601.44 123.76 C 603.15 127.95 605.6 130.95 608.79 132.74 C 611.97 134.54 616.55 135.44 622.51 135.44 C 627.58 135.44 631.5 134.63 634.28 133.01 C 637.05 131.39 638.44 129.01 638.44 125.88 C 638.44 123.53 637.64 121.61 636.05 120.13 C 634.45 118.66 632.12 117.48 629.05 116.59 C 625.99 115.71 621.98 114.91 617.02 114.2 C 606.46 112.73 598.66 110.1 593.61 106.32 C 588.57 102.55 586.04 97.09 586.04 89.95 C 586.04 85.23 587.39 80.99 590.07 77.21 C 592.76 73.44 596.5 70.48 601.31 68.36 C 606.12 66.24 611.59 65.18 617.73 65.18 C 627.17 65.18 634.97 67.42 641.13 71.9 C 647.3 76.38 651.24 82.52 652.95 90.31 C 653.12 91.25 652.98 91.99 652.51 92.52 C 652.03 93.05 651.3 93.32 650.29 93.32 L 640.38 93.32 C 639.62 93.32 638.98 93.14 638.48 92.79 C 637.98 92.43 637.55 91.84 637.2 91.02 C 635.37 86.95 632.92 84.07 629.85 82.39 C 626.78 80.71 622.51 79.86 617.02 79.86 C 612 79.86 608.21 80.68 605.65 82.3 C 603.08 83.92 601.8 86.3 601.8 89.42 C 601.8 92.32 603.26 94.44 606.18 95.79 C 609.1 97.15 613.24 98.27 618.61 99.16 C 626.58 100.52 633.02 102.02 637.95 103.67 C 642.87 105.32 646.84 107.88 649.85 111.33 C 652.86 114.78 654.36 119.45 654.36 125.36 C 654.36 130.13 653.04 134.41 650.38 138.18 C 647.73 141.96 643.95 144.9 639.06 146.99 C 634.16 149.09 628.52 150.13 622.15 150.13 C 612 150.13 603.77 147.89 597.46 143.41 M 513.04 121.95 C 515.22 126.16 518.21 129.44 522.02 131.77 C 525.82 134.1 530.06 135.27 534.72 135.27 C 539.56 135.27 543.91 134.22 547.77 132.13 C 551.63 130.03 554.67 126.9 556.89 122.74 C 559.1 118.58 560.21 113.55 560.21 107.66 C 560.21 101.7 559.1 96.65 556.89 92.52 C 554.67 88.39 551.65 85.28 547.82 83.18 C 543.98 81.09 539.62 80.04 534.72 80.04 C 530.47 80.04 526.44 81.11 522.64 83.23 C 518.83 85.35 515.74 88.5 513.35 92.65 C 510.96 96.81 509.76 101.81 509.76 107.66 C 509.76 112.96 510.85 117.73 513.04 121.95 M 513.61 144.78 C 507.51 141.21 502.68 136.21 499.14 129.78 C 495.6 123.35 493.83 115.97 493.83 107.66 C 493.83 99.51 495.63 92.21 499.23 85.75 C 502.83 79.29 507.7 74.25 513.83 70.62 C 519.97 66.99 526.69 65.18 534.01 65.18 C 539.73 65.18 544.81 66.18 549.23 68.18 C 553.66 70.19 557.2 72.96 559.85 76.5 L 559.85 35.62 C 559.85 34.73 560.1 34.04 560.6 33.54 C 561.1 33.04 561.8 32.79 562.68 32.79 L 572.95 32.79 C 573.83 32.79 574.53 33.04 575.03 33.54 C 575.53 34.04 575.78 34.73 575.78 35.62 L 575.78 145.88 C 575.78 146.77 575.53 147.46 575.03 147.96 C 574.53 148.46 573.83 148.71 572.95 148.71 L 562.86 148.71 C 561.98 148.71 561.28 148.46 560.78 147.96 C 560.28 147.46 560.03 146.77 560.03 145.88 L 560.03 138.63 C 557.49 142.17 553.95 144.97 549.41 147.04 C 544.86 149.1 539.67 150.13 533.83 150.13 C 526.46 150.13 519.72 148.35 513.61 144.78 M 420.83 121.95 C 423.01 126.16 426 129.44 429.81 131.77 C 433.61 134.1 437.85 135.27 442.51 135.27 C 447.34 135.27 451.7 134.22 455.56 132.13 C 459.42 130.03 462.46 126.9 464.68 122.74 C 466.89 118.58 467.99 113.55 467.99 107.66 C 467.99 101.7 466.89 96.65 464.68 92.52 C 462.46 88.39 459.44 85.28 455.6 83.18 C 451.77 81.09 447.4 80.04 442.51 80.04 C 438.26 80.04 434.23 81.11 430.43 83.23 C 426.62 85.35 423.52 88.5 421.13 92.65 C 418.74 96.81 417.55 101.81 417.55 107.66 C 417.55 112.96 418.64 117.73 420.83 121.95 M 421.71 144.78 C 415.51 141.21 410.62 136.21 407.02 129.78 C 403.42 123.35 401.62 115.97 401.62 107.66 C 401.62 99.51 403.44 92.21 407.06 85.75 C 410.69 79.29 415.63 74.25 421.89 70.62 C 428.14 66.99 435.07 65.18 442.68 65.18 C 448.29 65.18 453.3 66.18 457.73 68.18 C 462.15 70.19 465.69 72.96 468.35 76.5 L 468.35 69.42 C 468.35 68.54 468.6 67.84 469.1 67.34 C 469.6 66.84 470.3 66.59 471.18 66.59 L 481.09 66.59 C 481.98 66.59 482.67 66.84 483.17 67.34 C 483.67 67.84 483.92 68.54 483.92 69.42 L 483.92 145.88 C 483.92 146.77 483.67 147.46 483.17 147.96 C 482.67 148.46 481.98 148.71 481.09 148.71 L 471.18 148.71 C 470.3 148.71 469.6 148.46 469.1 147.96 C 468.6 147.46 468.35 146.77 468.35 145.88 L 468.35 138.1 C 465.75 141.87 462.21 144.82 457.73 146.95 C 453.24 149.07 448.17 150.13 442.51 150.13 C 434.84 150.13 427.9 148.35 421.71 144.78 M 334.72 147.83 C 334.13 147.24 333.83 146.47 333.83 145.53 L 333.83 69.07 C 333.83 68.07 334.13 67.29 334.72 66.72 C 335.31 66.16 336.07 65.88 337.02 65.88 L 355.43 65.88 C 356.43 65.88 357.21 66.16 357.77 66.72 C 358.33 67.29 358.61 68.07 358.61 69.07 L 358.61 145.53 C 358.61 146.47 358.33 147.24 357.77 147.83 C 357.21 148.42 356.43 148.71 355.43 148.71 L 337.02 148.71 C 336.07 148.71 335.31 148.42 334.72 147.83 M 335.38 54.2 C 332.58 51.49 331.18 48 331.18 43.76 C 331.18 40.98 331.81 38.52 333.08 36.37 C 334.35 34.21 336.13 32.52 338.43 31.28 C 340.73 30.04 343.33 29.42 346.22 29.42 C 349.11 29.42 351.71 30.04 354.01 31.28 C 356.31 32.52 358.09 34.21 359.36 36.37 C 360.63 38.52 361.27 40.98 361.27 43.76 C 361.27 48 359.86 51.49 357.06 54.2 C 354.26 56.91 350.65 58.27 346.22 58.27 C 341.8 58.27 338.18 56.91 335.38 54.2 M 250.34 141.15 C 245.23 135.16 242.68 126.59 242.68 115.44 L 242.68 69.07 C 242.68 68.07 242.98 67.29 243.57 66.72 C 244.15 66.16 244.92 65.88 245.87 65.88 L 264.45 65.88 C 265.46 65.88 266.24 66.16 266.8 66.72 C 267.36 67.29 267.64 68.07 267.64 69.07 L 267.64 110.48 C 267.64 115.56 268.67 119.45 270.74 122.17 C 272.8 124.88 275.84 126.24 279.85 126.24 C 284.22 126.24 287.61 124.84 290.03 122.04 C 292.45 119.23 293.66 115.32 293.66 110.31 L 293.66 69.07 C 293.66 68.07 293.95 67.29 294.54 66.72 C 295.13 66.16 295.9 65.88 296.84 65.88 L 315.43 65.88 C 316.43 65.88 317.21 66.16 317.77 66.72 C 318.33 67.29 318.61 68.07 318.61 69.07 L 318.61 145.53 C 318.61 146.47 318.33 147.24 317.77 147.83 C 317.21 148.42 316.43 148.71 315.43 148.71 L 298.26 148.71 C 297.31 148.71 296.55 148.42 295.96 147.83 C 295.37 147.24 295.07 146.47 295.07 145.53 L 295.07 139.34 C 292.59 142.7 289.39 145.34 285.47 147.25 C 281.55 149.17 277.13 150.13 272.24 150.13 C 262.74 150.13 255.44 147.14 250.34 141.15 M 169.89 117.17 C 171.52 120.09 173.68 122.36 176.4 123.98 C 179.11 125.61 182.09 126.41 185.34 126.41 C 188.76 126.41 191.84 125.63 194.58 124.07 C 197.33 122.51 199.48 120.29 201.05 117.43 C 202.61 114.57 203.39 111.2 203.39 107.3 C 203.39 103.46 202.61 100.1 201.05 97.21 C 199.48 94.32 197.33 92.09 194.58 90.53 C 191.84 88.96 188.76 88.18 185.34 88.18 C 182.15 88.18 179.2 88.96 176.49 90.53 C 173.77 92.09 171.59 94.32 169.94 97.21 C 168.29 100.1 167.46 103.46 167.46 107.3 C 167.46 110.96 168.27 114.25 169.89 117.17 M 203.74 181.86 C 203.15 181.3 202.86 180.52 202.86 179.51 L 202.86 141.11 C 200.56 143.88 197.55 146.08 193.83 147.7 C 190.11 149.32 185.75 150.13 180.73 150.13 C 173.65 150.13 167.21 148.27 161.4 144.56 C 155.59 140.84 151.01 135.72 147.68 129.2 C 144.35 122.68 142.68 115.38 142.68 107.3 C 142.68 99.39 144.39 92.17 147.81 85.62 C 151.23 79.07 155.88 73.91 161.75 70.13 C 167.62 66.36 174.07 64.47 181.09 64.47 C 186.22 64.47 190.76 65.43 194.72 67.34 C 198.67 69.26 201.8 71.84 204.1 75.09 L 204.1 69.07 C 204.1 68.07 204.39 67.29 204.98 66.72 C 205.57 66.16 206.34 65.88 207.28 65.88 L 224.63 65.88 C 225.63 65.88 226.41 66.16 226.97 66.72 C 227.53 67.29 227.82 68.07 227.82 69.07 L 227.82 179.51 C 227.82 180.52 227.53 181.3 226.97 181.86 C 226.41 182.42 225.63 182.7 224.63 182.7 L 206.04 182.7 C 205.1 182.7 204.33 182.42 203.74 181.86 M 119.43 13.89 C 118.36 4.75 114.76 0.24 105.41 0.24 L 40.12 0.24 C 40.12 0.24 34.58 0 26.57 0.43 C 18.26 1.41 15.74 5.39 14.75 13.89 L 13.2 26.45 L 0.17 144.43 C 0 145.98 1.22 147.33 2.78 147.33 L 24.21 147.33 C 25.55 147.33 26.67 146.33 26.82 145 L 31.42 103.32 L 31.42 103.32 C 31.52 102.4 34.81 72.63 34.9 71.77 L 39.61 29.13 L 39.62 29.13 C 39.62 28.88 39.65 28.64 39.69 28.4 L 39.7 28.29 C 40.09 26.41 41.76 25 43.77 25 L 90.11 25 C 92.11 25 93.78 26.41 94.16 28.29 L 94.18 28.4 C 94.22 28.64 94.25 28.88 94.25 29.13 L 94.26 29.13 L 98.97 71.77 C 99.06 72.63 98.16 73.33 97.28 73.33 L 50.31 67.03 C 48.76 66.86 47.4 68.07 47.4 69.63 L 45.21 92.33 C 45.21 93.66 46.21 94.79 47.55 94.93 L 100.76 101.67 C 100.77 101.67 100.78 101.68 100.78 101.68 C 101.69 101.79 102.36 102.4 102.45 103.32 L 102.45 103.32 L 107.05 145 C 107.2 146.33 108.32 147.33 109.66 147.33 L 131.4 147.33 C 132.96 147.33 134.18 145.98 134.01 144.43 L 120.98 26.45 Z M 701.02 56.17 C 710.1 56.17 717.11 48.84 717.11 40 C 717.11 31.24 710.1 23.91 701.02 23.91 C 691.94 23.91 684.93 31.24 684.93 40 C 684.93 48.84 691.94 56.17 701.02 56.17 M 728.18 58.79 C 719.5 59.75 710.1 59.99 701.02 59.99 C 691.94 59.99 682.54 59.75 673.78 58.79 C 671.31 58.55 670.04 57.92 669.72 55.29 C 669.24 50.27 669.24 45.18 669.24 40 C 669.24 34.9 669.24 29.8 669.72 24.79 C 670.04 22.16 671.31 21.52 673.78 21.28 C 682.54 20.32 691.94 20.09 701.02 20.09 C 710.1 20.09 719.5 20.32 728.18 21.28 C 730.73 21.52 732 22.16 732.32 24.79 C 732.72 29.8 732.72 34.9 732.72 40 C 732.72 45.18 732.72 50.27 732.32 55.29 C 732 57.92 730.73 58.55 728.18 58.79 M 701.02 0.25 C 679.12 0.25 661.28 18.09 661.28 40 C 661.28 61.98 679.12 79.82 701.02 79.82 C 722.92 79.82 740.84 61.98 740.84 40 C 740.84 18.09 722.92 0.25 701.02 0.25"></path>
+                </svg>
               </div>
+              <h1 class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-white mt-1 leading-tight">
+                Proposta Comercial
+              </h1>
             </div>
-
-            <!-- Faixa Inferior: Os 4 Big Numbers (tipografia branca limpa sobre o gradiente, sem fundo de card e sem ícones) -->
-            <div class="mt-2.5 pt-2.5 border-t border-[#F7875B] grid grid-cols-4 divide-x divide-[#F7875B]">
-              <div class="pr-4">
-                <div class="font-display font-extrabold text-base sm:text-lg text-white leading-none tracking-tight">10K+</div>
-                <div class="text-[11px] font-medium text-[#FFF5EE] mt-1 leading-snug whitespace-nowrap">Marcas anunciando pelo Aqui ads</div>
-              </div>
-              <div class="px-4">
-                <div class="font-display font-extrabold text-base sm:text-lg text-white leading-none tracking-tight">100%</div>
-                <div class="text-[11px] font-medium text-[#FFF5EE] mt-1 leading-snug whitespace-nowrap">do território brasileiro coberto</div>
-              </div>
-              <div class="px-4">
-                <div class="font-display font-extrabold text-base sm:text-lg text-white leading-none tracking-tight">123.000+</div>
-                <div class="text-[11px] font-medium text-[#FFF5EE] mt-1 leading-snug whitespace-nowrap">telas de OOH pelo Brasil</div>
-              </div>
-              <div class="pl-4">
-                <div class="font-display font-extrabold text-base sm:text-lg text-white leading-none tracking-tight">136M</div>
-                <div class="text-[11px] font-medium text-[#FFF5EE] mt-1 leading-snug whitespace-nowrap">pessoas que assistem TV Globo</div>
-              </div>
-            </div>
-
           </div>
         </div>
       </header>
@@ -8508,24 +8481,24 @@ function renderPdfDocument(m) {
 
         </div>
 
-        <!-- DETALHAMENTO DE MÉTRICAS (1ª LINHA NA PÁGINA 1; QUANDO HÁ 4 CARDS, QUEBRA EXATAMENTE NO MEIO PARA A PÁGINA 2) -->
-        <div class="mt-2.5 rounded-2xl border border-ds-border bg-white p-3 text-xs pdf-metrics-container ${hasTwoMetricsRows ? '' : 'pdf-avoid-break'}">
+        <!-- ESTIMATIVA DE ENTREGA POR CANAL (SEM CAIXA EXTERNA REDUNDANTE — HIERARQUIA PONTOOH) -->
+        <section class="mt-4 text-xs pdf-metrics-container ${hasTwoMetricsRows ? '' : 'pdf-avoid-break'}">
           <div class="pdf-avoid-break">
-            <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center justify-between gap-2 mb-2.5">
               <h2 class="font-display font-bold text-sm text-ds-textMain">
-                Detalhamento de métricas
+                Estimativa de entrega por canal
               </h2>
             </div>
-            <div class="grid ${metricsGridColsClass} gap-2.5 items-stretch">
+            <div class="grid ${metricsGridColsClass} gap-3 items-stretch">
               ${firstRowMetricsCards.join('')}
             </div>
           </div>
           ${hasTwoMetricsRows ? `
-            <div class="grid ${secondRowMetricsCards.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-2.5 items-stretch mt-2.5 pdf-break-before-print pdf-avoid-break">
+            <div class="grid ${secondRowMetricsCards.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-3 items-stretch mt-3 pdf-break-before-print pdf-avoid-break">
               ${secondRowMetricsCards.join('')}
             </div>
           ` : ''}
-        </div>
+        </section>
 
         <!-- DISCLAIMER DO MAPA INTERATIVO (COMPACTO EM UMA LINHA) -->
         ${hasOoh ? `
