@@ -2950,14 +2950,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
   const mapCol = document.getElementById('mediaPlanMapColumn');
   const listCol = document.getElementById('mediaPlanListColumn');
 
-  // Exibe o mapa lateral apenas no Desktop (>= 1024px) quando o canal selecionado é OOH
-  if (state.channelFilter !== 'ooh' || m.counts.oohPointsCount === 0 || mobile) {
-    mapCol.className = 'sim-hide-mobile hidden';
-    listCol.className = 'lg:col-span-12';
-  } else {
-    mapCol.className = 'sim-hide-mobile hidden lg:block lg:col-span-5 sticky top-20';
-    listCol.className = 'lg:col-span-7';
-  }
+  // Web e Mobile utilizam o alternador Lista | Mapa integrado no cabeçalho OOH
+  mapCol.className = 'sim-hide-mobile hidden';
+  listCol.className = 'lg:col-span-12';
 
   let contentHtml = '';
 
@@ -3512,12 +3507,11 @@ function renderMediaPlanList(m, preserveScroll = false) {
     }).join('');
 
     const subtotalDisplay = fmtBRL(filteredSubtotal);
-    const isMobileMapActive = mobile && state.mobileOohView === 'map';
-    const fp = state.mobileOohFocusedPin;
+    const isOohMapActive = state.mobileOohView === 'map';
 
     contentHtml = `
       <div id="oohChannelCardBox" class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <!-- Cabeçalho da Seção OOH (sem repetição de subtotal no topo) -->
+        <!-- Cabeçalho da Seção OOH com Segmented Switcher Lista ↔ Mapa (Web e Mobile) -->
         <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex flex-wrap items-center justify-between gap-2'}">
           <div class="flex items-center gap-2 min-w-0">
             <h3 class="font-display font-bold text-ds-textMain ${mobile ? 'text-sm' : 'text-sm sm:text-base'} whitespace-nowrap">
@@ -3525,45 +3519,51 @@ function renderMediaPlanList(m, preserveScroll = false) {
             </h3>
           </div>
 
-          ${mobile ? `
-            <!-- Segmented Switcher Inline Lista ↔ Mapa (Zero Modal no Mobile!) -->
-            <div class="p-0.5 rounded-xl bg-ds-bg border border-ds-borderStrong inline-flex items-center shrink-0">
-              <button
-                type="button"
-                onclick="setMobileOohView('list')"
-                class="px-2.5 py-1 rounded-lg font-display font-bold text-xs inline-flex items-center gap-1 transition ${
-                  !isMobileMapActive
-                    ? 'bg-white text-ds-textMain shadow-xs'
-                    : 'text-ds-textSecondary hover:text-ds-textMain'
-                }"
-              >
-                <i class="uil uil-list-ul text-xs"></i>
-                <span>Lista</span>
-              </button>
-              <button
-                type="button"
-                onclick="setMobileOohView('map')"
-                class="px-2.5 py-1 rounded-lg font-display font-bold text-xs inline-flex items-center gap-1 transition ${
-                  isMobileMapActive
-                    ? 'bg-primary text-white shadow-xs'
-                    : 'text-ds-textSecondary hover:text-ds-textMain'
-                }"
-              >
-                <i class="uil uil-map text-xs"></i>
-                <span>Mapa</span>
-              </button>
-            </div>
-          ` : ''}
+          <!-- Segmented Switcher Inline Lista ↔ Mapa (Web e Mobile) -->
+          <div class="p-0.5 rounded-xl bg-ds-bg border border-ds-borderStrong inline-flex items-center shrink-0">
+            <button
+              type="button"
+              onclick="setMobileOohView('list')"
+              class="px-2.5 py-1 rounded-lg font-display font-bold text-xs inline-flex items-center gap-1 transition ${
+                !isOohMapActive
+                  ? 'bg-white text-ds-textMain shadow-xs'
+                  : 'text-ds-textSecondary hover:text-ds-textMain'
+              }"
+            >
+              <i class="uil uil-list-ul text-xs"></i>
+              <span>Lista</span>
+            </button>
+            <button
+              type="button"
+              onclick="setMobileOohView('map')"
+              class="px-2.5 py-1 rounded-lg font-display font-bold text-xs inline-flex items-center gap-1 transition ${
+                isOohMapActive
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'text-ds-textSecondary hover:text-ds-textMain'
+              }"
+            >
+              <i class="uil uil-map text-xs"></i>
+              <span>Mapa</span>
+            </button>
+          </div>
         </div>
 
-        ${isMobileMapActive ? `
-          <!-- MAPA INTERATIVO 100% INLINE NO MOBILE -->
-          <div class="space-y-2.5 bg-white">
+        ${isOohMapActive ? `
+          <!-- MAPA INTERATIVO INLINE (WEB E MOBILE) -->
+          <div class="${mobile ? 'space-y-2.5 bg-white' : 'p-3.5 sm:p-4 space-y-3 bg-white'}">
             <div class="flex items-center justify-between gap-2 text-xs text-ds-textSecondary px-0.5">
-              <span>Toque no pino para ver o card do ponto</span>
+              <span>${mobile ? 'Toque no pino para ver o card do ponto' : 'Clique no pino para ver os detalhes do ponto'}</span>
+              <button
+                type="button"
+                onclick="resetMobileInlineMapBounds()"
+                class="font-display font-bold text-xs text-ds-textSecondary hover:text-ds-textMain inline-flex items-center gap-1 transition"
+              >
+                <i class="uil uil-compress-arrows text-xs"></i>
+                <span>Ver todos os pinos</span>
+              </button>
             </div>
 
-            <div id="mobileInlineLeafletMap" class="w-full h-[360px] rounded-xl border border-ds-borderStrong overflow-hidden z-10"></div>
+            <div id="mobileInlineLeafletMap" class="w-full ${mobile ? 'h-[360px]' : 'h-[500px]'} rounded-xl border border-ds-borderStrong overflow-hidden z-10"></div>
 
             <button
               type="button"
@@ -3573,6 +3573,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <i class="uil uil-arrow-left text-sm"></i>
               <span>Voltar para a lista (${filteredPointsCount})</span>
             </button>
+          </div>
+          <div class="${mobile ? 'mt-3 pt-3 border-t border-ds-border flex items-center justify-between text-xs' : 'px-4 py-3 bg-white border-t border-ds-border flex items-center justify-between text-xs'}">
+            <span class="font-medium text-ds-textSecondary">Total consolidado do grupo OOH (${filteredPointsCount} pontos)</span>
+            <strong class="font-display font-extrabold text-sm text-ds-textMain">${subtotalDisplay}</strong>
           </div>
         ` : `
           <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredOoh.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
@@ -4176,8 +4180,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
   document.getElementById('mediaPlanListColumn').innerHTML = contentHtml;
 
-  // Se estiver no modo Mapa Inline no mobile, inicializa/atualiza o Leaflet inline imediatamente
-  if (mobile && state.channelFilter === 'ooh' && state.mobileOohView === 'map') {
+  // Se estiver no modo Mapa Inline (Web ou Mobile), inicializa/atualiza o Leaflet inline imediatamente
+  if (state.channelFilter === 'ooh' && state.mobileOohView === 'map') {
     setTimeout(() => updateMobileInlineMap(m), 40);
   }
 
@@ -7180,8 +7184,8 @@ function updateLeafletMap(m) {
 }
 
 function resetMapBounds() {
-  if (isMobileView() && state.mobileOohView === 'map') {
-    updateMobileInlineMap(getCurrentModel());
+  if (state.mobileOohView === 'map') {
+    resetMobileInlineMapBounds();
     return;
   }
   updateLeafletMap(getCurrentModel());
@@ -7209,33 +7213,20 @@ function resetMobileInlineMapBounds() {
 }
 
 function focusMapPin(lat, lng, title, address, price, category) {
-  if (isMobileView()) {
-    const scrollBox = document.getElementById('mediaPlanScrollBox');
-    if (scrollBox) {
-      state.mobileOohSavedScrollTop = scrollBox.scrollTop;
-    }
-    state.mobileOohFocusedPin = {
-      lat,
-      lng,
-      title: title || 'Ponto OOH',
-      address: address || '',
-      price: price || '',
-      category: category || 'OOH'
-    };
-    state.mobileOohView = 'map';
-    renderMediaPlanList(getCurrentModel(), false);
-    return;
+  const scrollBox = document.getElementById('mediaPlanScrollBox');
+  if (scrollBox) {
+    state.mobileOohSavedScrollTop = scrollBox.scrollTop;
   }
-  if (desktopMap && lat && lng) {
-    desktopMap.setView([lat, lng], 16, { animate: true });
-    desktopMarkers.forEach((mk) => {
-      const pos = mk.getLatLng && mk.getLatLng();
-      if (pos && Math.abs(pos.lat - lat) < 0.0001 && Math.abs(pos.lng - lng) < 0.0001) {
-        mk.openPopup();
-      }
-    });
-    showToast(`Localizando no mapa: ${title}`);
-  }
+  state.mobileOohFocusedPin = {
+    lat,
+    lng,
+    title: title || 'Ponto OOH',
+    address: address || '',
+    price: price || '',
+    category: category || 'OOH'
+  };
+  state.mobileOohView = 'map';
+  renderMediaPlanList(getCurrentModel(), false);
 }
 
 function updateMobileInlineMap(m) {
