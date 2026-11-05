@@ -276,7 +276,7 @@ const ART_FORMATS_CATALOG = {
     isStatic: false,
     category: 'digital',
     mediaType: 'digital',
-    badgeLabel: 'display',
+    badgeLabel: 'Display',
     badgeIcon: 'uil-window-grid',
     previewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-billboard-example.png`,
     modalPreviewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-billboard-example.png`,
@@ -295,7 +295,7 @@ const ART_FORMATS_CATALOG = {
     isStatic: false,
     category: 'digital',
     mediaType: 'digital',
-    badgeLabel: 'display',
+    badgeLabel: 'Display',
     badgeIcon: 'uil-window-grid',
     previewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-billboard-example.png`,
     modalPreviewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-maxiboard-example.png`,
@@ -314,7 +314,7 @@ const ART_FORMATS_CATALOG = {
     isStatic: false,
     category: 'digital',
     mediaType: 'digital',
-    badgeLabel: 'display',
+    badgeLabel: 'Display',
     badgeIcon: 'uil-window-grid',
     previewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-billboard-example.png`,
     modalPreviewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-retangulo-medio.png`,
@@ -333,7 +333,7 @@ const ART_FORMATS_CATALOG = {
     isStatic: false,
     category: 'digital',
     mediaType: 'digital',
-    badgeLabel: 'display',
+    badgeLabel: 'Display',
     badgeIcon: 'uil-window-grid',
     previewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-billboard-example.png`,
     modalPreviewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-half-page-example.png`,
@@ -352,7 +352,7 @@ const ART_FORMATS_CATALOG = {
     isStatic: false,
     category: 'digital',
     mediaType: 'digital',
-    badgeLabel: 'display',
+    badgeLabel: 'Display',
     badgeIcon: 'uil-window-grid',
     previewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-billboard-example.png`,
     modalPreviewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-billboard-example.png`,
@@ -371,7 +371,7 @@ const ART_FORMATS_CATALOG = {
     isStatic: false,
     category: 'digital',
     mediaType: 'digital',
-    badgeLabel: 'display',
+    badgeLabel: 'Display',
     badgeIcon: 'uil-window-grid',
     previewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-billboard-example.png`,
     modalPreviewUrl: `${GLOBO_PREVIEW_CDN}/envio-criativo-billboard-example.png`,
@@ -707,7 +707,7 @@ function buildCampaignArtFormats(campaign, oohRaw, portaisItems, revistasItems) 
     return {
       id: key,
       title: primaryAmbiente,
-      badgeLabel: isGlobo ? (meta.badgeLabel || 'display') : primaryAmbiente,
+      badgeLabel: isGlobo ? (meta.badgeLabel || 'Display') : primaryAmbiente,
       badgeIcon: meta.badgeIcon || (isGlobo ? 'uil-window-grid' : 'uil-location-point'),
       dimensionsLabel: `(L)${width} x (A)${height}`,
       rawDimensions: `${width}x${height}`,
@@ -1954,7 +1954,7 @@ function renderHeroSection(m) {
 
   const shortPeriodLabel = formatHeroShortPeriod(m.startDate, m.endDate);
   const durationLabel = formatHeroDurationLabel(m.durationDays);
-  const thirdMetricLabel = c.oohPointsCount > 0 ? 'PONTOS' : 'PRODUTOS';
+  const thirdMetricLabel = c.oohPointsCount > 0 ? 'Pontos' : 'Produtos';
   const thirdMetricValue = c.oohPointsCount > 0 ? fmtInt(c.oohPointsCount) : fmtInt(c.totalItems);
 
   const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
@@ -2079,7 +2079,7 @@ function renderHeroSection(m) {
         <!-- Topo Mobile Organizado: Status + Nome da campanha (se houver) -->
         <div class="space-y-2">
           <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">Plano de mídia</span>
+            <span class="text-xs font-semibold text-ds-textSecondary">Plano de mídia</span>
             <button
               type="button"
               onclick="cycleProposalStatus()"
@@ -2172,8 +2172,8 @@ function renderHeroSection(m) {
         <div class="lg:col-span-5 lg:border-l lg:border-ds-border lg:pl-8 space-y-4">
           <div class="flex items-center">
             <div class="pr-5 sm:pr-6 border-r border-ds-border">
-              <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
-                PERÍODO
+              <div class="text-xs font-medium text-ds-textSecondary">
+                Período
               </div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)} a ${escapeHtml(m.endDate)}">
                 ${shortPeriodLabel}
@@ -2181,8 +2181,8 @@ function renderHeroSection(m) {
             </div>
 
             <div class="px-5 sm:px-6 border-r border-ds-border">
-              <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
-                DURAÇÃO
+              <div class="text-xs font-medium text-ds-textSecondary">
+                Duração
               </div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
                 ${durationLabel}
@@ -2190,7 +2190,7 @@ function renderHeroSection(m) {
             </div>
 
             <div class="pl-5 sm:pl-6">
-              <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
+              <div class="text-xs font-medium text-ds-textSecondary">
                 ${thirdMetricLabel}
               </div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
@@ -2250,7 +2250,7 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey) {
       <div
         id="metricPopover-${popKey}"
         class="metric-items-popover invisible opacity-0 pointer-events-none group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto absolute left-0 bottom-full mb-2 w-56 p-3 rounded-xl bg-white border border-ds-border shadow-xl z-30 transition-all duration-150 text-left">
-        <div class="text-xs font-bold uppercase tracking-wider text-ds-textMuted mb-2">
+        <div class="text-xs font-bold text-ds-textMuted mb-2">
           ${popoverTitle} (${list.length})
         </div>
         <div class="flex flex-wrap gap-1.5">
@@ -2301,7 +2301,7 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
   return `
     <div class="bg-white rounded-2xl border border-ds-borderStrong shadow-card hover:border-[#B8AEA2] transition flex flex-col justify-between self-start w-full">
       <div class="${padClass}">
-        <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">
+        <div class="text-xs font-semibold text-ds-textSecondary">
           ${channelTitle}
         </div>
         <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5 whitespace-nowrap">
@@ -2318,9 +2318,9 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
           onclick="toggleSummaryCardMetrics('${cardKey}')"
           class="flex items-center justify-between gap-2 cursor-pointer select-none group"
         >
-          <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary group-hover:text-ds-textMain transition flex items-center gap-1.5">
+          <span class="text-xs font-medium text-ds-textSecondary group-hover:text-ds-textMain transition flex items-center gap-1.5">
             <i class="uil uil-chart-bar text-sm text-ds-textSecondary group-hover:text-ds-textMain transition"></i>
-            <span>DETALHAMENTO</span>
+            <span>Detalhamento</span>
           </span>
           <button
             type="button"
@@ -2386,42 +2386,42 @@ function renderModularMetrics(m) {
     cards = [
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Pontos</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Pontos</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohPointsCount)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Locais selecionados</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Telas</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Telas</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohScreensCount)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Ativas na campanha</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Exibições</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Exibições</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${oohDigitalPts > 0 ? fmtInt(c.oohTotalInsertions) : 'Fixa'}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Total no período</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Alcance</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Alcance</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohReach || c.oohImpacts)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Pessoas únicas</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Impacto</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Impacto</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohImpacts)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Impacto estimado</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Frequência</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Frequência</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtFreq(c.oohFrequency || 1.88)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Média por pessoa</div>
         </div>
@@ -2438,21 +2438,21 @@ function renderModularMetrics(m) {
     cards = [
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Impressões</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Impressões</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.portaisImpressions)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Impressões contratadas</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Portais</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Portais</div>
           <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${portaisVehiclesList.length} veículos</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-single')}</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">CPM médio</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">CPM médio</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtBRL(avgCpm)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Custo por mil impressões</div>
         </div>
@@ -2469,21 +2469,21 @@ function renderModularMetrics(m) {
     cards = [
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Impressões</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Impressões</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.revistasImpressions)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Impressões contratadas</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Títulos</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Títulos</div>
           <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-single')}</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">CPM médio</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">CPM médio</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtBRL(avgCpm)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Custo por mil impressões</div>
         </div>
@@ -2500,28 +2500,28 @@ function renderModularMetrics(m) {
     cards = [
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Inserções</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Inserções</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioTotalInsertions)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Inserções no período</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Rádio / programa</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Rádio / programa</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioCount)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Grade selecionada</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Inserções / semana</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Inserções / semana</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioWeeklyInsertions)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Ritmo semanal</div>
         </div>
       `,
       `
         <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Duração</div>
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Duração</div>
           <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${radioDurationsLabel}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Formato comercial</div>
         </div>
@@ -2563,7 +2563,7 @@ function renderModularMetrics(m) {
 
       cards.push(buildExpandableSummaryChannelCard({
         cardKey: 'portais',
-        channelTitle: 'PORTAIS E GLOBOPLAY',
+        channelTitle: 'Portais e Globoplay',
         primaryLabel: 'Impressões contratadas',
         primaryValue: fmtInt(c.portaisImpressions),
         mobile,
@@ -2584,7 +2584,7 @@ function renderModularMetrics(m) {
 
       cards.push(buildExpandableSummaryChannelCard({
         cardKey: 'revistas',
-        channelTitle: 'REVISTAS E JORNAIS',
+        channelTitle: 'Revistas e Jornais',
         primaryLabel: 'Impressões contratadas',
         primaryValue: fmtInt(c.revistasImpressions),
         mobile,
@@ -2603,7 +2603,7 @@ function renderModularMetrics(m) {
 
       cards.push(buildExpandableSummaryChannelCard({
         cardKey: 'radio',
-        channelTitle: 'RÁDIO CBN',
+        channelTitle: 'Rádio CBN',
         primaryLabel: 'Inserções no período',
         primaryValue: fmtInt(c.radioTotalInsertions),
         mobile,
@@ -3254,7 +3254,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
         : 'bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]';
 
       // Impacto estimado com número cheio (sem "mil" e sem "no período")
-      const rightImpactLabel = 'IMPACTO ESTIMADO';
+      const rightImpactLabel = 'Impacto estimado';
       const rightImpactValue = fmtInt(g.impacts);
 
       // Métricas detalhadas sob demanda (Hover no Web / Clique expansível no Mobile estilo "Torres")
@@ -3270,9 +3270,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const metricsDrawerHtml = isMetricsOpen ? `
         <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+            <span class="text-xs font-medium text-ds-textSecondary flex items-center gap-1.5">
               <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
-              <span>DETALHAMENTO</span>
+              <span>Detalhamento</span>
             </span>
             <button type="button" onclick="toggleCardMetrics('${g.code}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
@@ -3320,8 +3320,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <!-- Linha 1: Badge + Torres (+ ID apenas Admin) à esquerda | Impacto Estimado à direita -->
                   <div class="flex items-center justify-between gap-2 mb-2">
                     <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
-                        ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold ${formatBadgeClass}">
+                        ${isStaticOoh ? 'Impresso' : 'Digital'}
                       </span>
                       ${state.isAdminView ? `
                         <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -3410,8 +3410,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 <div class="flex items-start justify-between gap-4">
                   <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                     <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
-                        ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold ${formatBadgeClass}">
+                        ${isStaticOoh ? 'Impresso' : 'Digital'}
                       </span>
                       ${state.isAdminView ? `
                         <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -3447,7 +3447,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
                   <!-- LADO DIREITO PADRONIZADO: IMPACTO ESTIMADO (número cheio, sem "no período") -->
                   <div class="text-right shrink-0 self-center">
-                    <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
+                    <div class="text-xs font-normal text-ds-textSecondary">
                       ${rightImpactLabel}
                     </div>
                     <div class="font-display font-extrabold text-base sm:text-[19px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
@@ -3548,8 +3548,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 <!-- Linha 1: Badge (+ ID apenas Admin) à esquerda | Impacto Estimado à direita -->
                 <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
-                      ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold ${formatBadgeClass}">
+                      ${isStaticOoh ? 'Impresso' : 'Digital'}
                     </span>
                     ${state.isAdminView ? `
                       <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -3625,8 +3625,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
-                      ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold ${formatBadgeClass}">
+                      ${isStaticOoh ? 'Impresso' : 'Digital'}
                     </span>
                     ${state.isAdminView ? `
                       <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -3659,7 +3659,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
                 <!-- LADO DIREITO PADRONIZADO: IMPACTO ESTIMADO (número cheio, sem "no período") -->
                 <div class="text-right shrink-0 self-center">
-                  <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
+                  <div class="text-xs font-normal text-ds-textSecondary">
                     ${rightImpactLabel}
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-[#1E293B] leading-tight mt-0.5 whitespace-nowrap">
@@ -3835,9 +3835,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const revMetricsDrawerHtml = isMetricsOpen ? `
         <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+            <span class="text-xs font-medium text-ds-textSecondary flex items-center gap-1.5">
               <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
-              <span>DETALHAMENTO</span>
+              <span>Detalhamento</span>
             </span>
             <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
@@ -3864,8 +3864,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div>
                 <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
-                      DISPLAY
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
+                      Display
                     </span>
                     ${state.isAdminView ? `
                       <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -3912,8 +3912,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
-                      DISPLAY
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
+                      Display
                     </span>
                     ${state.isAdminView ? `
                       <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -3933,8 +3933,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
-                  <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
-                    IMPRESSÕES ESTIMADAS
+                  <div class="text-xs font-normal text-ds-textSecondary">
+                    Impressões estimadas
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
                     ${fmtInt(r.impressions)}
@@ -4022,9 +4022,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const digMetricsDrawerHtml = isMetricsOpen ? `
         <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+            <span class="text-xs font-medium text-ds-textSecondary flex items-center gap-1.5">
               <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
-              <span>DETALHAMENTO</span>
+              <span>Detalhamento</span>
             </span>
             <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
@@ -4051,8 +4051,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div>
                 <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
-                      ${p.mediaTypeLabel.toUpperCase()}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
+                      ${p.mediaTypeLabel}
                     </span>
                     ${state.isAdminView ? `
                       <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -4099,8 +4099,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
-                      ${p.mediaTypeLabel.toUpperCase()}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
+                      ${p.mediaTypeLabel}
                     </span>
                     ${state.isAdminView ? `
                       <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -4120,8 +4120,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
-                  <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
-                    IMPRESSÕES ESTIMADAS
+                  <div class="text-xs font-normal text-ds-textSecondary">
+                    Impressões estimadas
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
                     ${fmtInt(p.impressions)}
@@ -4210,9 +4210,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const radMetricsDrawerHtml = isMetricsOpen ? `
         <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+            <span class="text-xs font-medium text-ds-textSecondary flex items-center gap-1.5">
               <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
-              <span>DETALHAMENTO</span>
+              <span>Detalhamento</span>
             </span>
             <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
@@ -4243,8 +4243,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div>
                 <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
-                      SPOT ${rd.spotDuration}S
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
+                      Spot ${rd.spotDuration}s
                     </span>
                     ${state.isAdminView ? `
                       <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -4294,8 +4294,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
-                      SPOT ${rd.spotDuration}S
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
+                      Spot ${rd.spotDuration}s
                     </span>
                     ${state.isAdminView ? `
                       <span class="text-xs font-mono font-semibold text-ds-textSecondary">
@@ -4315,8 +4315,8 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
-                  <div class="text-xs font-normal uppercase tracking-wider text-ds-textSecondary">
-                    INSERÇÕES
+                  <div class="text-xs font-normal text-ds-textSecondary">
+                    Inserções
                   </div>
                   <div class="font-display font-extrabold text-base sm:text-[19px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
                     ${fmtInt(rd.totalInsertions)}
@@ -4686,8 +4686,8 @@ function renderArtTab(m) {
           <h3 class="font-display font-bold ${mobile ? 'text-sm' : 'text-lg'} text-ds-textMain">Locução para Rádio</h3>
           <p class="text-xs text-ds-textSecondary">Formatos aceitos para veiculação nas ${m.counts.radioCount} emissoras da sua proposta.</p>
         </div>
-        <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A] whitespace-nowrap">
-          SPOT 30S
+        <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A] whitespace-nowrap">
+          Spot 30s
         </span>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 sim-grid-1 gap-3">
@@ -4702,14 +4702,14 @@ function renderArtTab(m) {
             </p>
           </div>
           <div class="flex flex-wrap gap-1.5">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#F3ECE4] text-[#56514B]">
-              ATÉ 30S
+            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
+              Até 30s
             </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#F3ECE4] text-[#56514B]">
-              65 A 75 PALAVRAS
+            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
+              65 a 75 palavras
             </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#F3ECE4] text-[#56514B]">
-              TOM NATURAL
+            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
+              Tom natural
             </span>
           </div>
         </div>
@@ -4724,14 +4724,14 @@ function renderArtTab(m) {
             </p>
           </div>
           <div class="flex flex-wrap gap-1.5">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#F3ECE4] text-[#56514B]">
-              ATÉ 30S
+            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
+              Até 30s
             </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#F3ECE4] text-[#56514B]">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
               MP3
             </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#F3ECE4] text-[#56514B]">
-              320 KBPS
+            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
+              320 kbps
             </span>
           </div>
         </div>
@@ -4762,7 +4762,7 @@ function renderArtTab(m) {
             // Tag de topo no mesmo padrão visual do Plano de Mídia (sem ícones redundantes)
             const badgeText = fmt.isGlobo
               ? fmt.badgeLabel
-              : (fmt.isStatic ? 'IMPRESSO' : 'DIGITAL');
+              : (fmt.isStatic ? 'Impresso' : 'Digital');
             const formatTagClass = fmt.isStatic
               ? 'bg-[#F3E8FF] text-[#6D28D9] border border-[#DDD6FE]'
               : 'bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]';
@@ -4772,7 +4772,7 @@ function renderArtTab(m) {
               <div onclick="openArtFormatModal('${fmt.id}')" class="group rounded-xl border p-3.5 flex flex-col justify-between transition-all cursor-pointer ${isSelected ? 'border-primary bg-[#FFF9F5] shadow-sm' : 'border-[#E2E5E9] bg-white hover:border-ds-borderStrong hover:shadow-card'}">
                 <!-- Topo do Card: Tag de Canal/Mídia à esquerda + Checkbox à direita -->
                 <div class="flex items-start justify-between gap-2">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatTagClass}">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold ${formatTagClass}">
                     ${badgeText}
                   </span>
                   <button
@@ -5065,7 +5065,7 @@ function renderArtTab(m) {
           ${state.mobileArtFiltersOpen ? `
             <div class="pt-2.5 border-t border-ds-border space-y-2 animate-fadeIn">
               <div class="flex items-center justify-between text-[11px] text-ds-textSecondary px-0.5">
-                <span class="font-normal uppercase tracking-wider text-[10px]">Refinar visualização</span>
+                <span class="font-medium text-xs">Refinar visualização</span>
                 ${hasSecondaryArtFilters ? `
                   <button type="button" onclick="resetArtFilters()" class="font-bold text-rose-700 hover:underline">
                     Limpar filtros
@@ -5211,7 +5211,7 @@ function renderArtTab(m) {
           ${state.mobileArtFiltersOpen ? `
             <div class="p-3 rounded-xl bg-ds-surface/70 border border-ds-border space-y-2 animate-fadeIn">
               <div class="flex items-center justify-between text-xs text-ds-textSecondary px-0.5">
-                <span class="font-normal uppercase tracking-wider text-[10px]">Refinar visualização</span>
+                <span class="font-medium text-xs">Refinar visualização</span>
                 ${hasSecondaryArtFilters ? `
                   <button type="button" onclick="resetArtFilters()" class="font-bold text-rose-700 hover:underline text-xs">
                     Limpar filtros
@@ -5356,7 +5356,7 @@ function renderArtDetailsModalHtml(m) {
   const visibleTitle = getVisibleFormatAmbienteTitle(fmt);
   const badgeText = fmt.isGlobo
     ? fmt.badgeLabel
-    : (fmt.isStatic ? 'IMPRESSO' : 'DIGITAL');
+    : (fmt.isStatic ? 'Impresso' : 'Digital');
   const formatTagClass = fmt.isStatic
     ? 'bg-[#F3E8FF] text-[#6D28D9] border border-[#DDD6FE]'
     : 'bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]';
@@ -5375,7 +5375,7 @@ function renderArtDetailsModalHtml(m) {
         <!-- Header do Modal -->
         <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-ds-border flex items-center justify-between gap-3">
           <div class="flex items-center gap-2 min-w-0">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatTagClass} shrink-0">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold ${formatTagClass} shrink-0">
               ${badgeText}
             </span>
             <h3 class="font-display font-bold text-sm sm:text-lg text-ds-textMain truncate">
@@ -6495,7 +6495,7 @@ function renderPaymentTab(m) {
                 <div class="rounded-[14px] border-2 border-primary/40 bg-ds-surface p-3.5 space-y-3.5 shadow-sm">
                   <div class="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+                      <span class="inline-flex items-center gap-1 text-xs font-semibold text-primary">
                         <i class="uil ${mobile ? 'uil-copy' : 'uil-qrcode-scan'} text-xs"></i> Pix gerado · Aguardando pagamento
                       </span>
                       <h4 class="font-display font-bold text-sm text-ds-textMain mt-0.5">${mobile ? 'Copie o código Pix Copia e Cola' : 'Escaneie o QR Code ou copie o código'}</h4>
@@ -6607,7 +6607,7 @@ function renderPaymentTab(m) {
                 <div class="rounded-[14px] border-2 border-primary/40 bg-ds-surface p-3.5 space-y-3 shadow-sm">
                   <div class="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+                      <span class="inline-flex items-center gap-1 text-xs font-semibold text-primary">
                         <i class="uil uil-bill text-xs"></i> Boleto gerado · Aguardando pagamento
                       </span>
                       <h4 class="font-display font-bold text-sm text-ds-textMain mt-0.5">Linha digitável do Boleto</h4>
@@ -7162,19 +7162,19 @@ function buildOohMapPinPopupHtml(g, m) {
     <div style="padding:15px 17px;font-family:'Atkinson Hyperlegible','Rethink Sans',sans-serif;">
       <!-- Topo do Card do Mapa (Espelha exatamente as tags do Card Lateral, com espaço livre para o botão ×) -->
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-right:26px;">
-        <span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;${badgeStyle}">
-          ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
+        <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:600;${badgeStyle}">
+          ${isStaticOoh ? 'Impresso' : 'Digital'}
         </span>
         ${state.isAdminView ? `
-          <span style="font-family:monospace;font-size:11px;font-weight:600;color:#56514B;">
+          <span style="font-family:monospace;font-size:12px;font-weight:600;color:#56514B;">
             ID: #${g.displayCode}
           </span>
         ` : ''}
-        <span style="padding:2px 6px;border-radius:5px;font-size:11px;font-weight:600;background:#F9F6F2;color:#56514B;border:1px solid #ECE6DF;">
+        <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:600;background:#F3ECE4;color:#56514B;border:1px solid #DFD7CE;">
           ${dailyExhText}
         </span>
         ${g.kind === 'condo_group' ? `
-          <span style="padding:2px 6px;border-radius:5px;font-size:11px;font-weight:600;background:#F3ECE4;color:#56514B;">
+          <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:600;background:#F3ECE4;color:#56514B;border:1px solid #DFD7CE;">
             ${g.towersCount} torres
           </span>
         ` : ''}
@@ -7673,7 +7673,7 @@ function renderPdfDocument(m) {
     modularCardsHtml.push(`
       <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">OOH</div>
+          <div class="text-xs font-semibold text-ds-textSecondary">OOH</div>
           <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.oohImpacts)}</div>
           <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impacto estimado</div>
         </div>
@@ -7731,7 +7731,7 @@ function renderPdfDocument(m) {
     modularCardsHtml.push(`
       <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">Portais e Globoplay</div>
+          <div class="text-xs font-semibold text-ds-textSecondary">Portais e Globoplay</div>
           <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.portaisImpressions)}</div>
           <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impressões contratadas</div>
         </div>
@@ -7763,7 +7763,7 @@ function renderPdfDocument(m) {
     modularCardsHtml.push(`
       <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">Revistas e Jornais</div>
+          <div class="text-xs font-semibold text-ds-textSecondary">Revistas e Jornais</div>
           <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.revistasImpressions)}</div>
           <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impressões contratadas</div>
         </div>
@@ -7792,7 +7792,7 @@ function renderPdfDocument(m) {
     modularCardsHtml.push(`
       <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">Rádio CBN</div>
+          <div class="text-xs font-semibold text-ds-textSecondary">Rádio CBN</div>
           <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.radioTotalInsertions)}</div>
           <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Inserções no período</div>
         </div>
@@ -8392,8 +8392,8 @@ function renderPdfDocument(m) {
             <div class="col-span-5 border-l border-ds-border pl-8 space-y-4">
               <div class="flex items-center">
                 <div class="pr-5 sm:pr-6 border-r border-ds-border">
-                  <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
-                    PERÍODO
+                  <div class="text-xs font-medium text-ds-textSecondary">
+                    Período
                   </div>
                   <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
                     ${formatHeroShortPeriod(m.startDate, m.endDate)}
@@ -8401,8 +8401,8 @@ function renderPdfDocument(m) {
                 </div>
 
                 <div class="px-5 sm:px-6 border-r border-ds-border">
-                  <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
-                    DURAÇÃO
+                  <div class="text-xs font-medium text-ds-textSecondary">
+                    Duração
                   </div>
                   <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
                     ${formatHeroDurationLabel(m.durationDays)}
@@ -8410,8 +8410,8 @@ function renderPdfDocument(m) {
                 </div>
 
                 <div class="pl-5 sm:pl-6">
-                  <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
-                    ${c.oohPointsCount > 0 ? 'PONTOS' : 'PRODUTOS'}
+                  <div class="text-xs font-medium text-ds-textSecondary">
+                    ${c.oohPointsCount > 0 ? 'Pontos' : 'Produtos'}
                   </div>
                   <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
                     ${c.oohPointsCount > 0 ? fmtInt(c.oohPointsCount) : fmtInt(c.totalItems)}
