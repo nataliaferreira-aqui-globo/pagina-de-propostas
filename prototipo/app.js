@@ -7645,52 +7645,30 @@ function renderPdfDocument(m) {
   const oohCities = Array.isArray(c.oohCitiesList) && c.oohCitiesList.length > 0 ? c.oohCitiesList : ['São Paulo'];
   const oohCitiesCount = c.oohCitiesCount || oohCities.length;
 
-  if (hasOoh) {
-    const oohDailyExhibitionsVal = oohDigitalPts > 0
-      ? fmtInt(c.oohDailyInsertions)
-      : 'Fixa';
-    const oohTotalExhibitionsVal = oohDigitalPts > 0
-      ? fmtInt(c.oohTotalInsertions)
-      : 'Fixa';
+  let pdfMetricsTitle = 'Estimativa de entrega por canal';
 
-    modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
-        <div>
-          <div class="text-xs font-semibold text-ds-textSecondary">OOH</div>
-          <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohImpacts)}</div>
-          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Impacto estimado</div>
+  if (isSingleChannel && hasOoh) {
+    pdfMetricsTitle = 'Estimativa de entrega — OOH';
+    const oohTotalExhibitionsVal = oohDigitalPts > 0 ? fmtInt(c.oohTotalInsertions) : 'Fixa';
+    const singleOohMetrics = [
+      { label: 'Pontos', value: fmtInt(c.oohPointsCount), sub: 'Locais selecionados' },
+      { label: 'Telas', value: fmtInt(c.oohScreensCount), sub: 'Ativas na campanha' },
+      { label: 'Exibições', value: oohTotalExhibitionsVal, sub: 'Total no período' },
+      { label: 'Alcance', value: fmtInt(c.oohReach || c.oohImpacts), sub: 'Pessoas únicas' },
+      { label: 'Impacto', value: fmtInt(c.oohImpacts), sub: 'Impacto estimado' },
+      { label: 'Frequência', value: fmtFreq(c.oohFrequency || 1.88), sub: 'Média por pessoa' }
+    ];
+    singleOohMetrics.forEach((sm) => {
+      modularCardsHtml.push(`
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between h-full pdf-avoid-break">
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">${sm.label}</div>
+          <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${sm.value}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${sm.sub}</div>
         </div>
-        <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-3 gap-x-6 gap-y-4">
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Alcance único</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.oohReach || c.oohImpacts)}</div>
-          </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Pontos</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.oohPointsCount)}</div>
-          </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Telas</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.oohScreensCount)}</div>
-          </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Exibição diária</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${oohDailyExhibitionsVal}</div>
-          </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Exibições</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${oohTotalExhibitionsVal}</div>
-          </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Frequência</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtFreq(c.oohFrequency || 1.88)}</div>
-          </div>
-        </div>
-      </div>
-    `);
-  }
-
-  if (hasPortais) {
+      `);
+    });
+  } else if (isSingleChannel && hasPortais) {
+    pdfMetricsTitle = 'Estimativa de entrega — Portais e Globoplay';
     const portaisVehiclesSet = new Set();
     (m.portaisItems || []).forEach((it) => {
       (it.vehicles || []).forEach((v) => {
@@ -7705,111 +7683,223 @@ function renderPdfDocument(m) {
         portaisVehiclesSet.add(cleanV);
       });
     });
-    const portaisListLabel = Array.from(portaisVehiclesSet).join(', ') || 'Portais Globo e Globoplay';
-    const portaisCpms = Array.from(new Set((m.portaisItems || []).map((it) => it.cpm).filter((v) => v > 0)));
-    const portaisAvgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : (portaisCpms[0] || 0);
-    const portaisCpmLabel = portaisCpms.length === 1 ? fmtBRL(portaisCpms[0]) : fmtBRL(portaisAvgCpm);
-    const portaisEstReach = Math.round(c.portaisImpressions * 0.62);
-
-    modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
-        <div>
-          <div class="text-xs font-semibold text-ds-textSecondary">Portais e Globoplay</div>
-          <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.portaisImpressions)}</div>
-          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Impressões contratadas</div>
+    const portaisListLabel = Array.from(portaisVehiclesSet).join(', ') || 'G1, GE, Gshow, Globoplay, Receitas, Globo.com';
+    const portaisAvgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : 31.6;
+    const singlePortaisMetrics = [
+      { label: 'Impressões', value: fmtInt(c.portaisImpressions), sub: 'Impressões contratadas' },
+      { label: 'Portais', value: `${portaisVehiclesSet.size || 6} veículos`, sub: escapeHtml(portaisListLabel) },
+      { label: 'CPM médio', value: fmtBRL(portaisAvgCpm), sub: 'Custo por mil impressões' }
+    ];
+    singlePortaisMetrics.forEach((sm) => {
+      modularCardsHtml.push(`
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between h-full pdf-avoid-break">
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">${sm.label}</div>
+          <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${sm.value}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${sm.sub}</div>
         </div>
-        <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-4">
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Alcance estimado</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(portaisEstReach)}</div>
-          </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">CPM médio</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${portaisCpmLabel}</div>
-          </div>
-          <div class="col-span-2">
-            <div class="text-xs text-ds-textSecondary leading-tight">Veículos</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(portaisListLabel)}</div>
-          </div>
-        </div>
-      </div>
-    `);
-  }
-
-  if (hasRevistas) {
+      `);
+    });
+  } else if (isSingleChannel && hasRevistas) {
+    pdfMetricsTitle = 'Estimativa de entrega — Revistas Digitais';
     const revistasListLabel = revistasTitleNames.join(', ') || 'Revistas Digitais';
-    const revistasCpms = Array.from(new Set((m.revistasItems || []).map((it) => it.cpm).filter((v) => v > 0)));
-    const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : (revistasCpms[0] || 0);
-    const revistasCpmLabel = revistasCpms.length === 1 ? fmtBRL(revistasCpms[0]) : fmtBRL(revistasAvgCpm);
-    const revistasEstReach = Math.round(c.revistasImpressions * 0.62);
-
-    modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
-        <div>
-          <div class="text-xs font-semibold text-ds-textSecondary">Revistas Digitais</div>
-          <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.revistasImpressions)}</div>
-          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Impressões contratadas</div>
+    const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : 9.6;
+    const singleRevistasMetrics = [
+      { label: 'Impressões', value: fmtInt(c.revistasImpressions), sub: 'Impressões contratadas' },
+      { label: 'Títulos', value: `${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}`, sub: escapeHtml(revistasListLabel) },
+      { label: 'CPM médio', value: fmtBRL(revistasAvgCpm), sub: 'Custo por mil impressões' }
+    ];
+    singleRevistasMetrics.forEach((sm) => {
+      modularCardsHtml.push(`
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between h-full pdf-avoid-break">
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">${sm.label}</div>
+          <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${sm.value}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${sm.sub}</div>
         </div>
-        <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-4">
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Alcance estimado</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(revistasEstReach)}</div>
-          </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">CPM médio</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${revistasCpmLabel}</div>
-          </div>
-          <div class="col-span-2">
-            <div class="text-xs text-ds-textSecondary leading-tight">Títulos editoriais</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(revistasListLabel)}</div>
-          </div>
-        </div>
-      </div>
-    `);
-  }
-
-  if (hasRadio) {
+      `);
+    });
+  } else if (isSingleChannel && hasRadio) {
+    pdfMetricsTitle = 'Estimativa de entrega — Rádio';
     const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
-    const radioEstReach = Math.round(c.radioTotalInsertions * 18500 * 0.58);
+    const singleRadioMetrics = [
+      { label: 'Inserções', value: fmtInt(c.radioTotalInsertions), sub: 'Inserções no período' },
+      { label: 'Rádio / programa', value: fmtInt(c.radioCount), sub: 'Grade selecionada' },
+      { label: 'Inserções / semana', value: fmtInt(c.radioWeeklyInsertions), sub: 'Ritmo semanal' },
+      { label: 'Duração', value: escapeHtml(radioDurationsLabel), sub: 'Formato comercial' }
+    ];
+    singleRadioMetrics.forEach((sm) => {
+      modularCardsHtml.push(`
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between h-full pdf-avoid-break">
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">${sm.label}</div>
+          <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${sm.value}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${sm.sub}</div>
+        </div>
+      `);
+    });
+  } else {
+    if (hasOoh) {
+      const oohDailyExhibitionsVal = oohDigitalPts > 0
+        ? fmtInt(c.oohDailyInsertions)
+        : 'Fixa';
+      const oohTotalExhibitionsVal = oohDigitalPts > 0
+        ? fmtInt(c.oohTotalInsertions)
+        : 'Fixa';
 
-    modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
-        <div>
-          <div class="text-xs font-semibold text-ds-textSecondary">Rádio</div>
-          <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioTotalInsertions)}</div>
-          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Inserções no período</div>
+      modularCardsHtml.push(`
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
+          <div>
+            <div class="text-xs font-semibold text-ds-textSecondary">OOH</div>
+            <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohImpacts)}</div>
+            <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Impacto estimado</div>
+          </div>
+          <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-3 gap-x-6 gap-y-4">
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Alcance único</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.oohReach || c.oohImpacts)}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Pontos</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.oohPointsCount)}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Telas</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.oohScreensCount)}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Exibição diária</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${oohDailyExhibitionsVal}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Exibições</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${oohTotalExhibitionsVal}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Frequência</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtFreq(c.oohFrequency || 1.88)}</div>
+            </div>
+          </div>
         </div>
-        <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-4">
+      `);
+    }
+
+    if (hasPortais) {
+      const portaisVehiclesSet = new Set();
+      (m.portaisItems || []).forEach((it) => {
+        (it.vehicles || []).forEach((v) => {
+          if (v === 'cartola') return;
+          const cleanV = v === 'g1' ? 'G1'
+            : v === 'ge' ? 'GE'
+            : v === 'gshow' ? 'Gshow'
+            : v === 'receitas' ? 'Receitas'
+            : v === 'globo.com' ? 'Globo.com'
+            : v === 'globoplay' ? 'Globoplay'
+            : v;
+          portaisVehiclesSet.add(cleanV);
+        });
+      });
+      const portaisListLabel = Array.from(portaisVehiclesSet).join(', ') || 'Portais Globo e Globoplay';
+      const portaisCpms = Array.from(new Set((m.portaisItems || []).map((it) => it.cpm).filter((v) => v > 0)));
+      const portaisAvgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : (portaisCpms[0] || 0);
+      const portaisCpmLabel = portaisCpms.length === 1 ? fmtBRL(portaisCpms[0]) : fmtBRL(portaisAvgCpm);
+      const portaisEstReach = Math.round(c.portaisImpressions * 0.62);
+
+      modularCardsHtml.push(`
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
           <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Alcance estimado</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(radioEstReach)}</div>
+            <div class="text-xs font-semibold text-ds-textSecondary">Portais e Globoplay</div>
+            <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.portaisImpressions)}</div>
+            <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Impressões contratadas</div>
           </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Rádio/programa</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.radioCount)}</div>
-          </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Inserções/semana</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.radioWeeklyInsertions)}</div>
-          </div>
-          <div>
-            <div class="text-xs text-ds-textSecondary leading-tight">Duração</div>
-            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${escapeHtml(radioDurationsLabel)}</div>
+          <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-4">
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Alcance estimado</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(portaisEstReach)}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">CPM médio</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${portaisCpmLabel}</div>
+            </div>
+            <div class="col-span-2">
+              <div class="text-xs text-ds-textSecondary leading-tight">Veículos</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(portaisListLabel)}</div>
+            </div>
           </div>
         </div>
-      </div>
-    `);
+      `);
+    }
+
+    if (hasRevistas) {
+      const revistasListLabel = revistasTitleNames.join(', ') || 'Revistas Digitais';
+      const revistasCpms = Array.from(new Set((m.revistasItems || []).map((it) => it.cpm).filter((v) => v > 0)));
+      const revistasAvgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : (revistasCpms[0] || 0);
+      const revistasCpmLabel = revistasCpms.length === 1 ? fmtBRL(revistasCpms[0]) : fmtBRL(revistasAvgCpm);
+      const revistasEstReach = Math.round(c.revistasImpressions * 0.62);
+
+      modularCardsHtml.push(`
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
+          <div>
+            <div class="text-xs font-semibold text-ds-textSecondary">Revistas Digitais</div>
+            <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.revistasImpressions)}</div>
+            <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Impressões contratadas</div>
+          </div>
+          <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-4">
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Alcance estimado</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(revistasEstReach)}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">CPM médio</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${revistasCpmLabel}</div>
+            </div>
+            <div class="col-span-2">
+              <div class="text-xs text-ds-textSecondary leading-tight">Títulos editoriais</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(revistasListLabel)}</div>
+            </div>
+          </div>
+        </div>
+      `);
+    }
+
+    if (hasRadio) {
+      const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
+      const radioEstReach = Math.round(c.radioTotalInsertions * 18500 * 0.58);
+
+      modularCardsHtml.push(`
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
+          <div>
+            <div class="text-xs font-semibold text-ds-textSecondary">Rádio</div>
+            <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioTotalInsertions)}</div>
+            <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Inserções no período</div>
+          </div>
+          <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-4">
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Alcance estimado</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(radioEstReach)}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Rádio/programa</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.radioCount)}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Inserções/semana</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.radioWeeklyInsertions)}</div>
+            </div>
+            <div>
+              <div class="text-xs text-ds-textSecondary leading-tight">Duração</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${escapeHtml(radioDurationsLabel)}</div>
+            </div>
+          </div>
+        </div>
+      `);
+    }
   }
 
-  const metricsGridColsClass = modularCardsHtml.length === 1
-    ? 'grid-cols-1'
-    : modularCardsHtml.length === 3
-      ? 'grid-cols-3'
-      : 'grid-cols-2';
-  const firstRowMetricsCards = modularCardsHtml.length === 3
+  const metricsGridColsClass = isSingleChannel
+    ? (modularCardsHtml.length === 6 ? 'grid-cols-6' : modularCardsHtml.length === 4 ? 'grid-cols-4' : 'grid-cols-3')
+    : (modularCardsHtml.length === 1 ? 'grid-cols-1' : modularCardsHtml.length === 3 ? 'grid-cols-3' : 'grid-cols-2');
+  const firstRowMetricsCards = (isSingleChannel || modularCardsHtml.length === 3)
     ? modularCardsHtml
     : modularCardsHtml.slice(0, 2);
-  const secondRowMetricsCards = modularCardsHtml.length === 3
+  const secondRowMetricsCards = (isSingleChannel || modularCardsHtml.length === 3)
     ? []
     : modularCardsHtml.slice(2);
   const hasTwoMetricsRows = secondRowMetricsCards.length > 0;
@@ -8414,13 +8504,13 @@ function renderPdfDocument(m) {
           <div class="pdf-avoid-break">
             <div class="flex items-center justify-between gap-2 mb-3.5">
               <h2 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
-                Estimativa de entrega por canal
+                ${pdfMetricsTitle}
               </h2>
               <span class="text-xs text-ds-textSecondary">
                 Projeção para ${m.durationDays} dias de campanha
               </span>
             </div>
-            <div class="grid ${metricsGridColsClass} gap-4 sm:gap-5 items-stretch">
+            <div class="grid ${metricsGridColsClass} ${isSingleChannel ? 'gap-3.5 sm:gap-4' : 'gap-4 sm:gap-5'} items-stretch">
               ${firstRowMetricsCards.join('')}
             </div>
           </div>
