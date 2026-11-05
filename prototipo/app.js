@@ -10752,7 +10752,7 @@ function exportFullCsv() {
       [],
       [
         'Código',
-        'Ponto / Condomínio (Torre Individual)',
+        'Ponto',
         'Endereço e Praça',
         'Categoria',
         'Formato',
