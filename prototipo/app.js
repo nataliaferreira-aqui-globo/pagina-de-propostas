@@ -7654,36 +7654,36 @@ function renderPdfDocument(m) {
       : 'Fixa';
 
     modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
+      <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
           <div class="text-xs font-semibold text-ds-textSecondary">OOH</div>
-          <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.oohImpacts)}</div>
-          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impacto estimado</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohImpacts)}</div>
+          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Impacto estimado</div>
         </div>
-        <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-3 gap-x-3 gap-y-2.5">
+        <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-3 gap-x-6 gap-y-4">
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Alcance único</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.oohReach || c.oohImpacts)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Alcance único</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.oohReach || c.oohImpacts)}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Pontos</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.oohPointsCount)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Pontos</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.oohPointsCount)}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Telas</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.oohScreensCount)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Telas</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.oohScreensCount)}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Exibição diária</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${oohDailyExhibitionsVal}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Exibição diária</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${oohDailyExhibitionsVal}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Exibições</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${oohTotalExhibitionsVal}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Exibições</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${oohTotalExhibitionsVal}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Frequência</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtFreq(c.oohFrequency || 1.88)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Frequência</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtFreq(c.oohFrequency || 1.88)}</div>
           </div>
         </div>
       </div>
@@ -7712,24 +7712,24 @@ function renderPdfDocument(m) {
     const portaisEstReach = Math.round(c.portaisImpressions * 0.62);
 
     modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
+      <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
           <div class="text-xs font-semibold text-ds-textSecondary">Portais e Globoplay</div>
-          <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.portaisImpressions)}</div>
-          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impressões contratadas</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.portaisImpressions)}</div>
+          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Impressões contratadas</div>
         </div>
-        <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-2 gap-x-4 gap-y-2.5">
+        <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-4">
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Alcance estimado</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(portaisEstReach)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Alcance estimado</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(portaisEstReach)}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">CPM médio</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${portaisCpmLabel}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">CPM médio</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${portaisCpmLabel}</div>
           </div>
           <div class="col-span-2">
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Veículos</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 leading-snug">${escapeHtml(portaisListLabel)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Veículos</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(portaisListLabel)}</div>
           </div>
         </div>
       </div>
@@ -7744,24 +7744,24 @@ function renderPdfDocument(m) {
     const revistasEstReach = Math.round(c.revistasImpressions * 0.62);
 
     modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
+      <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
           <div class="text-xs font-semibold text-ds-textSecondary">Revistas Digitais</div>
-          <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.revistasImpressions)}</div>
-          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impressões contratadas</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.revistasImpressions)}</div>
+          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Impressões contratadas</div>
         </div>
-        <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-2 gap-x-4 gap-y-2.5">
+        <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-4">
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Alcance estimado</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(revistasEstReach)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Alcance estimado</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(revistasEstReach)}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">CPM médio</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${revistasCpmLabel}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">CPM médio</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${revistasCpmLabel}</div>
           </div>
           <div class="col-span-2">
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Títulos editoriais</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 leading-snug">${escapeHtml(revistasListLabel)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Títulos editoriais</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(revistasListLabel)}</div>
           </div>
         </div>
       </div>
@@ -7773,28 +7773,28 @@ function renderPdfDocument(m) {
     const radioEstReach = Math.round(c.radioTotalInsertions * 18500 * 0.58);
 
     modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
+      <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
           <div class="text-xs font-semibold text-ds-textSecondary">Rádio</div>
-          <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.radioTotalInsertions)}</div>
-          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Inserções no período</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioTotalInsertions)}</div>
+          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-2">Inserções no período</div>
         </div>
-        <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-2 gap-x-4 gap-y-2.5">
+        <div class="mt-5 pt-4 border-t border-ds-border grid grid-cols-2 gap-x-6 gap-y-4">
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Alcance estimado</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(radioEstReach)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Alcance estimado</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(radioEstReach)}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Rádio/programa</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.radioCount)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Rádio/programa</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.radioCount)}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Inserções/semana</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${fmtInt(c.radioWeeklyInsertions)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Inserções/semana</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${fmtInt(c.radioWeeklyInsertions)}</div>
           </div>
           <div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight">Duração</div>
-            <div class="font-display font-bold text-xs text-ds-textMain mt-0.5">${escapeHtml(radioDurationsLabel)}</div>
+            <div class="text-xs text-ds-textSecondary leading-tight">Duração</div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1">${escapeHtml(radioDurationsLabel)}</div>
           </div>
         </div>
       </div>
@@ -8410,9 +8410,9 @@ function renderPdfDocument(m) {
         </div>
 
         <!-- ESTIMATIVA DE ENTREGA POR CANAL (SEM CAIXA EXTERNA REDUNDANTE — HIERARQUIA PONTOOH) -->
-        <section class="mt-4 text-xs pdf-metrics-container ${hasTwoMetricsRows ? '' : 'pdf-avoid-break'}">
+        <section class="mt-5 text-xs pdf-metrics-container ${hasTwoMetricsRows ? '' : 'pdf-avoid-break'}">
           <div class="pdf-avoid-break">
-            <div class="flex items-center justify-between gap-2 mb-2.5">
+            <div class="flex items-center justify-between gap-2 mb-3.5">
               <h2 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
                 Estimativa de entrega por canal
               </h2>
@@ -8420,12 +8420,12 @@ function renderPdfDocument(m) {
                 Projeção para ${m.durationDays} dias de campanha
               </span>
             </div>
-            <div class="grid ${metricsGridColsClass} gap-3 items-stretch">
+            <div class="grid ${metricsGridColsClass} gap-4 sm:gap-5 items-stretch">
               ${firstRowMetricsCards.join('')}
             </div>
           </div>
           ${hasTwoMetricsRows ? `
-            <div class="grid ${secondRowMetricsCards.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-3 items-stretch mt-3 pdf-break-before-print pdf-avoid-break">
+            <div class="grid ${secondRowMetricsCards.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-4 sm:gap-5 items-stretch mt-4 sm:mt-5 pdf-break-before-print pdf-avoid-break">
               ${secondRowMetricsCards.join('')}
             </div>
           ` : ''}
@@ -8433,7 +8433,7 @@ function renderPdfDocument(m) {
 
         <!-- DISCLAIMER DO MAPA INTERATIVO (COMPACTO EM UMA LINHA) -->
         ${hasOoh ? `
-          <div class="mt-2.5 rounded-lg border border-orange-200 bg-[#FFF7ED] px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px] pdf-avoid-break">
+          <div class="mt-4 rounded-lg border border-orange-200 bg-[#FFF7ED] px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 text-[11px] pdf-avoid-break">
             <div class="flex items-center gap-1.5 text-slate-700">
               <i class="uil uil-map-marker-info text-primary text-xs shrink-0"></i>
               <span class="font-semibold text-slate-800">Para ver o ponto no mapa, acesse essa proposta online.</span>
