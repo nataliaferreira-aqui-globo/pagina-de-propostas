@@ -1434,11 +1434,7 @@ function initApp() {
     const statusSel = document.getElementById('proposalStatusSelect');
     if (statusSel) statusSel.value = urlStatus;
   }
-  if (params.get('coupon') === '1') {
-    state.simulateCoupon = true;
-    const couponChk = document.getElementById('toggleCoupon');
-    if (couponChk) couponChk.checked = true;
-  }
+  state.simulateCoupon = false;
   if (params.get('unlogged') === '1') {
     applyJourneySimulationMode('unlogged', false);
   } else {
@@ -1470,11 +1466,6 @@ function initApp() {
     state.artCategory = 'all';
     state.artSelectedIds = [];
     state.activeArtModalFormatId = null;
-    renderAll();
-  });
-
-  document.getElementById('toggleCoupon').addEventListener('change', (e) => {
-    state.simulateCoupon = e.target.checked;
     renderAll();
   });
 
@@ -1930,159 +1921,33 @@ function goToJourneyStep(stepNum) {
  *   3) Proposta concluída (seção reduzida + item "Renovar campanha")
  * ============================================================================
  */
+function formatHeroShortPeriod(startDateStr, endDateStr) {
+  const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const parsePtDate = (str) => {
+    const parts = String(str || '').trim().split('/');
+    if (parts.length < 2) return str;
+    const day = parts[0].padStart(2, '0');
+    const monthIdx = parseInt(parts[1], 10) - 1;
+    const monthName = months[monthIdx] || parts[1];
+    return `${day} ${monthName}`;
+  };
+  return `${parsePtDate(startDateStr)} – ${parsePtDate(endDateStr)}`;
+}
+
+function formatHeroDurationLabel(durationDays) {
+  const days = Number(durationDays) || 14;
+  if (days >= 7 && days % 7 === 0) {
+    const weeks = days / 7;
+    return `${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`;
+  }
+  return `${days} ${days === 1 ? 'dia' : 'dias'}`;
+}
+
 function renderHeroSection(m) {
   const f = m.financials;
   const c = m.counts;
-  const hasRadio = c.radioCount > 0;
   const hasDiscounts = f.totalDiscounts > 0;
   const mobile = isMobileView();
-
-  const channelRows = [];
-
-  if (c.oohPointsCount > 0) {
-    channelRows.push(`
-      <button
-        type="button"
-        onclick="jumpToChannelFromHero('ooh')"
-        class="w-full text-left flex items-center justify-between gap-2 ${mobile ? 'py-2.5 px-3' : 'py-3 px-4'} hover:bg-ds-bg/60 transition group"
-      >
-        ${mobile ? `
-          <div class="min-w-0">
-            <div class="font-display font-bold text-xs text-ds-textMain group-hover:text-primary transition truncate leading-tight">OOH</div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight mt-0.5">${c.oohPointsCount} ${c.oohPointsCount > 1 ? 'pontos' : 'ponto'}</div>
-          </div>
-        ` : `
-          <div class="flex items-baseline gap-1.5 min-w-0 truncate">
-            <span class="font-display font-bold text-xs sm:text-sm text-ds-textMain group-hover:text-primary transition truncate">OOH</span>
-            <span class="text-[11px] text-ds-textSecondary shrink-0">· ${c.oohPointsCount} ${c.oohPointsCount > 1 ? 'pontos' : 'ponto'}</span>
-          </div>
-        `}
-        <div class="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-          <span class="font-display font-bold text-xs sm:text-sm text-ds-textMain">${fmtBRL(f.oohNet)}</span>
-          <i class="uil uil-angle-right text-sm text-ds-textMuted group-hover:text-primary transition"></i>
-        </div>
-      </button>
-    `);
-  }
-
-  if (c.portaisCount > 0) {
-    channelRows.push(`
-      <button
-        type="button"
-        onclick="jumpToChannelFromHero('portais')"
-        class="w-full text-left flex items-center justify-between gap-2 ${mobile ? 'py-2.5 px-3' : 'py-3 px-4'} hover:bg-ds-bg/60 transition group"
-      >
-        ${mobile ? `
-          <div class="min-w-0">
-            <div class="font-display font-bold text-xs text-ds-textMain group-hover:text-primary transition truncate leading-tight">Portais e Globoplay</div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight mt-0.5">${c.portaisCount} ${c.portaisCount > 1 ? 'produtos' : 'produto'}</div>
-          </div>
-        ` : `
-          <div class="flex items-baseline gap-1.5 min-w-0 truncate">
-            <span class="font-display font-bold text-xs sm:text-sm text-ds-textMain group-hover:text-primary transition truncate">Portais e Globoplay</span>
-            <span class="text-[11px] text-ds-textSecondary shrink-0">· ${c.portaisCount} ${c.portaisCount > 1 ? 'produtos' : 'produto'}</span>
-          </div>
-        `}
-        <div class="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-          <span class="font-display font-bold text-xs sm:text-sm text-ds-textMain">${fmtBRL(f.portaisNet)}</span>
-          <i class="uil uil-angle-right text-sm text-ds-textMuted group-hover:text-primary transition"></i>
-        </div>
-      </button>
-    `);
-  }
-
-  if (c.revistasCount > 0) {
-    channelRows.push(`
-      <button
-        type="button"
-        onclick="jumpToChannelFromHero('revistas')"
-        class="w-full text-left flex items-center justify-between gap-2 ${mobile ? 'py-2.5 px-3' : 'py-3 px-4'} hover:bg-ds-bg/60 transition group"
-      >
-        ${mobile ? `
-          <div class="min-w-0">
-            <div class="font-display font-bold text-xs text-ds-textMain group-hover:text-primary transition truncate leading-tight">Revistas e Jornais</div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight mt-0.5">${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}</div>
-          </div>
-        ` : `
-          <div class="flex items-baseline gap-1.5 min-w-0 truncate">
-            <span class="font-display font-bold text-xs sm:text-sm text-ds-textMain group-hover:text-primary transition truncate">Revistas e Jornais</span>
-            <span class="text-[11px] text-ds-textSecondary shrink-0">· ${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}</span>
-          </div>
-        `}
-        <div class="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-          <span class="font-display font-bold text-xs sm:text-sm text-ds-textMain">${fmtBRL(f.revistasNet)}</span>
-          <i class="uil uil-angle-right text-sm text-ds-textMuted group-hover:text-primary transition"></i>
-        </div>
-      </button>
-    `);
-  }
-
-  if (hasRadio) {
-    channelRows.push(`
-      <button
-        type="button"
-        onclick="jumpToChannelFromHero('radio')"
-        class="w-full text-left flex items-center justify-between gap-2 ${mobile ? 'py-2.5 px-3' : 'py-3 px-4'} hover:bg-ds-bg/60 transition group"
-      >
-        ${mobile ? `
-          <div class="min-w-0">
-            <div class="font-display font-bold text-xs text-ds-textMain group-hover:text-primary transition truncate leading-tight">Rádio CBN</div>
-            <div class="text-[11px] text-ds-textSecondary leading-tight mt-0.5">${c.radioCount} ${c.radioCount > 1 ? 'programas' : 'programa'}</div>
-          </div>
-        ` : `
-          <div class="flex items-baseline gap-1.5 min-w-0 truncate">
-            <span class="font-display font-bold text-xs sm:text-sm text-ds-textMain group-hover:text-primary transition truncate">Rádio CBN</span>
-            <span class="text-[11px] text-ds-textSecondary shrink-0">· ${c.radioCount} ${c.radioCount > 1 ? 'programas' : 'programa'}</span>
-          </div>
-        `}
-        <div class="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-          <span class="font-display font-bold text-xs sm:text-sm text-ds-textMain">${fmtBRL(f.radioNet)}</span>
-          <i class="uil uil-angle-right text-sm text-ds-textMuted group-hover:text-primary transition"></i>
-        </div>
-      </button>
-    `);
-  }
-
-  // Rodapé fluido de Cupom de Desconto (exibido apenas enquanto Aguardando pagamento)
-  const heroCouponFooterHtml = state.simulateCoupon ? `
-    <div class="pt-1 flex items-center justify-between gap-2 text-xs">
-      <span class="inline-flex items-center gap-1.5 text-emerald-800 font-bold truncate">
-        <i class="uil uil-ticket text-emerald-700 text-base"></i>
-        Cupom ${state.couponCode} (-${fmtBRL(f.couponDiscount)})
-      </span>
-      <button onclick="toggleCouponSimulation(false)" class="text-[11px] font-bold text-ds-textSecondary hover:text-rose-700 underline shrink-0">
-        remover
-      </button>
-    </div>
-  ` : `
-    <div class="pt-1 space-y-2">
-      <div class="flex items-center justify-between gap-2 text-xs">
-        <span class="inline-flex items-center gap-1.5 text-ds-textSecondary font-medium">
-          <i class="uil uil-ticket text-primary text-base"></i>
-          <span>Tem um cupom?</span>
-        </span>
-        <button onclick="toggleHeroCouponDrawer()" class="font-display font-bold text-ds-textMain hover:text-primary transition whitespace-nowrap">
-          ${state.heroCouponOpen ? 'cancelar' : '+ digitar cupom'}
-        </button>
-      </div>
-      ${state.heroCouponOpen ? `
-        <div class="flex items-center gap-2">
-          <input
-            id="heroCouponInput"
-            type="text"
-            value="${state.couponCode}"
-            oninput="state.couponCode = this.value.toUpperCase()"
-            placeholder="Ex: AQUIADS10"
-            class="flex-1 min-w-0 px-3 py-1.5 rounded-lg border border-ds-borderStrong bg-ds-surface text-xs font-bold text-ds-textMain uppercase focus:outline-none focus:bg-white focus:border-primary"
-          />
-          <button onclick="applyHeroCoupon()" class="px-3.5 py-1.5 rounded-lg bg-primary text-white font-display font-bold text-xs hover:opacity-95 transition shrink-0">
-            aplicar
-          </button>
-        </div>
-      ` : ''}
-    </div>
-  `;
-
   const displayProposalId = state.clonedScenariosCount > 0 ? `${m.id}-R${state.clonedScenariosCount}` : m.id;
 
   const statusMeta = state.proposalStatus === 'completed'
@@ -2103,183 +1968,68 @@ function renderHeroSection(m) {
         dotClass: 'bg-amber-500'
       };
 
-  const paymentMethodSummaryLabel = state.paymentMethod === 'pix'
-    ? 'PIX à vista'
-    : state.paymentMethod === 'boleto'
-    ? 'Boleto bancário'
-    : `Cartão de crédito (${state.selectedInstallments}x s/ juros)`;
+  const shortPeriodLabel = formatHeroShortPeriod(m.startDate, m.endDate);
+  const durationLabel = formatHeroDurationLabel(m.durationDays);
+  const thirdMetricLabel = c.oohPointsCount > 0 ? 'PONTOS' : 'PRODUTOS';
+  const thirdMetricValue = c.oohPointsCount > 0 ? fmtInt(c.oohPointsCount) : fmtInt(c.totalItems);
 
-  // Coluna direita do Hero: reduzida visualmente quando paga ('processing') ou concluída ('completed')
-  let heroRightColumnHtml = '';
-  if (state.proposalStatus === 'processing') {
-    heroRightColumnHtml = `
-      <div class="${mobile ? '' : 'lg:col-span-5'} h-full bg-white rounded-[14px] border border-ds-borderStrong ${mobile ? 'p-3.5 space-y-3' : 'p-5 space-y-3.5'} flex flex-col justify-between shadow-xs">
-        <div class="space-y-3">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-[11px] sm:text-xs font-normal text-ds-textSecondary">Investimento total</span>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 text-[11px] font-bold">
-              <span class="w-1.5 h-1.5 rounded-full bg-sky-600"></span>
-              Campanha ativa
-            </span>
-          </div>
-
-          <div class="flex items-center justify-between gap-3">
-            <div class="min-w-0">
-              <div class="font-display font-extrabold ${mobile ? 'text-2xl' : 'text-[28px]'} text-ds-textMain tracking-tight leading-none">${fmtBRL(f.trueProposalTotal)}</div>
-              <div class="text-[11px] text-ds-textSecondary mt-1">Valor pago · ${paymentMethodSummaryLabel}</div>
-            </div>
-            <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
-              <i class="uil uil-check-circle text-base"></i>
-            </span>
-          </div>
-        </div>
-
-        <div class="pt-1">
-          <button type="button" onclick="goToPaymentAnchor()" class="inline-flex items-center gap-1 text-xs font-display font-bold text-ds-textMain hover:text-primary transition">
-            <span>ver detalhes do pagamento</span>
-            <i class="uil uil-angle-right text-sm text-primary"></i>
-          </button>
-        </div>
-      </div>
-    `;
-  } else if (state.proposalStatus === 'completed') {
-    heroRightColumnHtml = `
-      <div class="${mobile ? '' : 'lg:col-span-5'} h-full bg-white rounded-[14px] border border-ds-borderStrong ${mobile ? 'p-3.5 space-y-3' : 'p-5 space-y-3.5'} flex flex-col justify-between shadow-xs">
-        <div class="space-y-3">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-[11px] sm:text-xs font-normal text-ds-textSecondary">Investimento total</span>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold">
-              <i class="uil uil-check-circle text-xs"></i>
-              Campanha concluída
-            </span>
-          </div>
-
-          <div class="flex items-center justify-between gap-3">
-            <div class="min-w-0">
-              <div class="font-display font-extrabold ${mobile ? 'text-2xl' : 'text-[28px]'} text-ds-textMain tracking-tight leading-none">${fmtBRL(f.trueProposalTotal)}</div>
-              <div class="text-[11px] text-ds-textSecondary mt-1">Valor pago · ${paymentMethodSummaryLabel}</div>
-            </div>
-            <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
-              <i class="uil uil-check-circle text-base"></i>
-            </span>
-          </div>
-        </div>
-
-        <div class="p-3 rounded-xl bg-primary-light/50 border border-primary/20 space-y-2">
-          <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <div class="font-display font-bold text-xs text-ds-textMain">Quer veicular novamente?</div>
-              <div class="text-[11px] text-ds-textSecondary leading-tight">Reative os mesmos canais para um novo período.</div>
-            </div>
-          </div>
-          <button
-            type="button"
-            onclick="renewCampaignProposal('${displayProposalId}')"
-            data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-            class="w-full py-2.5 px-4 rounded-xl bg-aqui-grad text-white font-display font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-xs hover:opacity-95 transition"
-          >
-            <i class="uil uil-redo text-sm"></i>
-            <span>renovar campanha</span>
-          </button>
-        </div>
-      </div>
-    `;
-  } else {
-    heroRightColumnHtml = `
-      <div class="${mobile ? '' : 'lg:col-span-5'} h-full bg-white rounded-[14px] border border-ds-borderStrong ${mobile ? 'p-3.5 space-y-3' : 'p-5 space-y-4'} flex flex-col justify-between shadow-xs">
-        
-        <div class="space-y-3">
-          <!-- Bloco Principal: Investimento total -->
-          <div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-[11px] sm:text-xs font-normal text-ds-textSecondary">
-                Investimento total
-              </span>
-              ${hasDiscounts ? `
-                <span class="text-[11px] font-semibold text-[#199958] whitespace-nowrap">
-                  Desc. -${fmtBRL(f.totalDiscounts)}
-                </span>
-              ` : ''}
-            </div>
-
-            ${hasDiscounts ? `
-              <div class="text-[11px] text-ds-textMuted line-through leading-none mt-1">
-                ${fmtBRL(f.totalGrossProposal)}
-              </div>
-            ` : ''}
-
-            <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mt-1">
-              <span class="font-display font-extrabold ${mobile ? 'text-2xl' : 'text-[28px]'} text-ds-textMain tracking-tight leading-none">
-                ${fmtBRL(f.trueProposalTotal)}
-              </span>
-              ${!hasRadio ? `
-                <span class="text-[11px] text-ds-textSecondary">em até 6x de <strong class="text-ds-textMain">${fmtBRL(f.onlinePayableNow / 6)}</strong> s/ juros</span>
-              ` : ''}
-            </div>
-          </div>
-
-          <!-- Divisão de Etapas de Pagamento (Agrupada em box suave apenas quando há Rádio) -->
-          ${hasRadio && f.onlinePayableNow > 0 ? `
-            <div class="rounded-xl bg-ds-surface border border-ds-border p-2.5 space-y-2">
-              <div class="flex items-center justify-between gap-2">
-                <div class="min-w-0">
-                  <div class="text-xs font-bold text-ds-textMain leading-tight">Checkout imediato</div>
-                  <div class="text-[10px] text-ds-textSecondary leading-tight mt-0.5">Até 6x s/ juros, Pix ou Boleto</div>
-                </div>
-                <strong class="font-display font-extrabold text-sm text-[#199958] whitespace-nowrap shrink-0">${fmtBRL(f.onlinePayableNow)}</strong>
-              </div>
-
-              <div class="border-t border-ds-border pt-2 flex items-center justify-between gap-2">
-                <div class="min-w-0">
-                  <div class="text-xs font-semibold text-ds-textSecondary leading-tight">Pós-reserva (Rádio)</div>
-                  <div class="text-[10px] text-ds-textMuted leading-tight mt-0.5">Boleto após confirmar grade</div>
-                </div>
-                <strong class="font-display font-bold text-xs sm:text-sm text-ds-textMain whitespace-nowrap shrink-0">${fmtBRL(f.radioNet)}</strong>
-              </div>
-            </div>
-          ` : hasRadio ? `
-            <div class="rounded-xl bg-ds-surface border border-ds-border p-3 space-y-1">
-              <div class="flex items-center gap-1.5 text-xs font-bold text-ds-textMain leading-tight">
-                <i class="uil uil-info-circle text-primary text-sm shrink-0"></i>
-                <span>Faturamento à parte</span>
-              </div>
-              <p class="text-[11px] text-ds-textSecondary leading-snug">
-                Rádio tem um processo de faturamento à parte, nosso time de especialistas vai entrar em contato para combinar o pagamento.
-              </p>
-            </div>
-          ` : ''}
-
-          <!-- Cupom de desconto -->
-          ${heroCouponFooterHtml}
-        </div>
-
-        <div class="space-y-2 pt-0.5">
-          <!-- Botão CTA Primário -->
-          <button onclick="goToPaymentAnchor()" class="w-full py-3 px-4 rounded-xl bg-aqui-grad text-white font-display font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs">
-            <span>efetuar pagamento</span>
-          </button>
-
-          <!-- Selo informativo enxuto -->
-          <div class="flex items-center justify-center gap-1 text-[10px] sm:text-[11px] text-ds-textSecondary select-none cursor-default">
-            <i class="uil uil-padlock text-xs text-ds-textMuted"></i>
-            <span>Pagamento seguro · Homologado pela</span>
-            <span class="font-display font-extrabold text-[11px] text-[#00A868] tracking-tight">stone</span>
-          </div>
-        </div>
-
-      </div>
-    `;
-  }
+  const actionButtonsHtml = state.proposalStatus === 'completed' ? `
+    <button
+      type="button"
+      onclick="goToPaymentAnchor()"
+      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap"
+    >
+      Ver pagamento
+    </button>
+    <button
+      type="button"
+      onclick="renewCampaignProposal('${displayProposalId}')"
+      data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
+      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap"
+    >
+      Renovar campanha
+    </button>
+  ` : state.proposalStatus === 'processing' ? `
+    <button
+      type="button"
+      onclick="goToPaymentAnchor()"
+      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap"
+    >
+      Detalhes do pagamento
+    </button>
+    <button
+      type="button"
+      onclick="goToAdDetailingStep('${displayProposalId}')"
+      data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
+      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap"
+    >
+      Enviar criativos
+    </button>
+  ` : `
+    <button
+      type="button"
+      onclick="showToast('Modo de edição do plano acionado')"
+      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl border border-ds-textMain/80 bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition whitespace-nowrap"
+    >
+      Alterar proposta
+    </button>
+    <button
+      type="button"
+      onclick="goToPaymentAnchor()"
+      class="${mobile ? 'flex-1' : ''} px-5 py-2.5 sm:py-3 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-xs whitespace-nowrap"
+    >
+      Efetuar pagamento
+    </button>
+  `;
 
   const html = `
-    <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card ${mobile ? 'p-3.5 space-y-3' : 'p-6 sm:p-7 space-y-5'}">
-      
-      <!-- TOPO DA PROPOSTA (Enxuto, apenas Proposta #... em tom suave + Status + Botão alinhado à direita) -->
-      <div class="flex items-center justify-between gap-2 w-full">
-        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
-          <h1 class="font-display font-bold ${mobile ? 'text-base' : 'text-2xl sm:text-3xl'} text-ds-textMain truncate">
-            Proposta <span class="text-ds-textMuted font-medium">#${displayProposalId}</span>
-          </h1>
+    <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card ${mobile ? 'p-4 space-y-4' : 'px-7 sm:px-9 py-6 sm:py-7 space-y-5'}">
+      <!-- Topo Discreto + Valor Principal da Proposta (Referência Imagem 2, sem destaque para o nº da proposta) -->
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs text-ds-textSecondary font-medium truncate">
+            Plano de mídia · ${escapeHtml(m.campaignName)}
+          </span>
           <button
             type="button"
             onclick="cycleProposalStatus()"
@@ -2289,160 +2039,53 @@ function renderHeroSection(m) {
             <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
             <span>${statusMeta.label}</span>
           </button>
-          ${state.clonedScenariosCount > 0 ? `
-            <span class="px-2 py-0.5 rounded-full bg-primary-light text-primary text-[10px] font-bold whitespace-nowrap shrink-0">
-              Renovada
-            </span>
+        </div>
+
+        <div class="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <div class="font-display font-extrabold ${mobile ? 'text-2xl' : 'text-3xl sm:text-[38px]'} text-ds-textMain tracking-tight leading-none">
+            ${fmtBRL(f.trueProposalTotal)}
+          </div>
+          ${hasDiscounts ? `
+            <span class="text-xs text-ds-textMuted line-through">${fmtBRL(f.totalGrossProposal)}</span>
+            <span class="text-xs font-semibold text-[#199958]">Desc. condo. -${fmtBRL(f.totalDiscounts)}</span>
           ` : ''}
         </div>
-
-        ${mobile ? `
-          <div class="flex items-center gap-1 shrink-0 ml-auto">
-            ${state.proposalStatus === 'completed' ? `
-              <button
-                type="button"
-                onclick="renewCampaignProposal('${displayProposalId}')"
-                data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-                class="px-2.5 h-7 rounded-lg bg-primary text-white font-display font-bold text-[11px] inline-flex items-center gap-1"
-                title="Renovar campanha"
-              >
-                <i class="uil uil-redo text-xs"></i>
-                <span>Renovar</span>
-              </button>
-            ` : `
-              <button onclick="showToast('Modo de edição do plano acionado')" class="w-7 h-7 rounded-lg border border-ds-borderStrong bg-ds-surface text-ds-textSecondary hover:text-ds-textMain inline-flex items-center justify-center" title="Alterar proposta">
-                <i class="uil uil-pen text-xs"></i>
-              </button>
-            `}
-          </div>
-        ` : `
-          <div class="flex items-center gap-2 shrink-0 ml-auto">
-            ${state.proposalStatus === 'completed' ? `
-              <button
-                type="button"
-                onclick="renewCampaignProposal('${displayProposalId}')"
-                data-route="/campanhas/${displayProposalId}/detalhamento-anuncio"
-                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-primary text-white hover:opacity-95 font-display font-bold text-xs transition shadow-2xs"
-              >
-                <i class="uil uil-redo text-sm"></i>
-                <span>renovar campanha</span>
-              </button>
-            ` : `
-              <button onclick="showToast('Modo de edição do plano acionado')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-ds-borderStrong bg-ds-surface hover:bg-ds-bg text-ds-textMain font-bold text-xs transition">
-                <i class="uil uil-pen text-sm text-primary"></i>
-                <span>alterar proposta</span>
-              </button>
-            `}
-          </div>
-        `}
       </div>
 
-      <!-- CORPO DO RESUMO: 2 COLUNAS COM SEMÂNTICA DISTINTA E LEVEZA VISUAL -->
-      <div class="grid ${mobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 lg:grid-cols-12 gap-6'} items-stretch sim-grid-1">
-        
-        <!-- Coluna Esquerda (7 cols): 2 Cards separados (Dados de campanha + Dados de faturamento) -->
-        <div class="${mobile ? '' : 'lg:col-span-7'} flex flex-col ${mobile ? 'gap-3' : 'gap-4'} h-full">
-          <!-- Card 1: Dados de campanha -->
-          <div class="bg-white rounded-[14px] border border-ds-borderStrong ${mobile ? 'p-3.5' : 'p-5'} shadow-xs flex-1 flex flex-col justify-between">
-            <div class="flex items-center justify-between gap-2 pb-2.5 mb-3 border-b border-ds-border">
-              <h2 class="font-display font-bold text-xs sm:text-sm text-ds-textMain">
-                Dados de campanha
-              </h2>
-              <span class="text-[11px] font-medium text-ds-textSecondary bg-ds-surface border border-ds-border px-2.5 py-0.5 rounded-lg whitespace-nowrap">
-                Mix: ${c.totalItems} ${c.totalItems === 1 ? 'produto contratado' : 'produtos contratados'}
-              </span>
+      <!-- Linha Inferior: Período | Duração | Pontos à esquerda + Ações à direita -->
+      <div class="flex ${mobile ? 'flex-col items-stretch gap-4' : 'flex-col sm:flex-row sm:items-end justify-between gap-4'} pt-1">
+        <div class="flex items-center">
+          <div class="${mobile ? 'pr-4' : 'pr-5 sm:pr-7'} border-r border-ds-border">
+            <div class="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-ds-textSecondary">
+              PERÍODO
             </div>
-
-            <!-- Linha 1: Código da proposta e Nome da campanha (um em cima do outro no mobile) -->
-            <div class="grid ${mobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5'} sim-grid-1 text-xs">
-              <div>
-                <div class="text-[11px] text-ds-textSecondary">Código da proposta</div>
-                <div class="font-display font-bold text-sm text-ds-textMain mt-0.5">#${displayProposalId}</div>
-              </div>
-              <div class="min-w-0">
-                <div class="text-[11px] text-ds-textSecondary">Nome da campanha</div>
-                <div class="font-bold text-ds-textMain mt-0.5 ${mobile ? 'break-words' : 'truncate'}" title="${escapeHtml(m.campaignName)}">${escapeHtml(m.campaignName)}</div>
-              </div>
-            </div>
-
-            <!-- Linha 2: Duração da campanha e Período de veiculação (um em cima do outro no mobile) -->
-            <div class="mt-3 pt-3 border-t border-ds-border grid ${mobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5'} sim-grid-1 text-xs">
-              <div>
-                <div class="text-[11px] text-ds-textSecondary">Duração da campanha</div>
-                <div class="font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${m.durationDays} dias corridos</div>
-              </div>
-              <div>
-                <div class="text-[11px] text-ds-textSecondary">Período de veiculação</div>
-                <div class="font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${m.startDate} a ${m.endDate}</div>
-              </div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)} a ${escapeHtml(m.endDate)}">
+              ${shortPeriodLabel}
             </div>
           </div>
 
-          <!-- Card 2: Dados de faturamento (Sincronizado com Proteção LGPD) -->
-          ${(() => {
-            const heroBilling = getProtectedBillingInfo();
-            const isBillingPending = isUserUnlogged() || (state.simulateUnlogged && !state.billingUnlockedInline);
-            return `
-              <div class="bg-white rounded-[14px] border border-ds-borderStrong ${mobile ? 'p-3.5' : 'p-5'} shadow-xs flex flex-col justify-between">
-                <div class="pb-2.5 mb-3 border-b border-ds-border flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-2 min-w-0 flex-wrap">
-                    <h2 class="font-display font-bold text-xs sm:text-sm text-ds-textMain">
-                      Dados de faturamento
-                    </h2>
-                    ${!isBillingPending && heroBilling.isProtectedLgpd ? `
-                      <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800 whitespace-nowrap">
-                        Protegido · LGPD
-                      </span>
-                    ` : ''}
-                  </div>
-                  ${isUserUnlogged() ? `
-                    <button type="button" onclick="openAuthModal('login')" class="text-[11px] font-display font-bold text-primary hover:underline">
-                      Entrar / Cadastrar →
-                    </button>
-                  ` : state.simulateUnlogged && !state.billingUnlockedInline ? `
-                    <button type="button" onclick="openAndreiaBillingChat()" class="text-[11px] font-display font-bold text-primary hover:underline inline-flex items-center gap-1">
-                      <i class="uil uil-comment-alt-dots text-xs"></i>
-                      <span>Cadastrar</span>
-                    </button>
-                  ` : state.simulateUnlogged && state.billingCnpjRestricted ? `
-                    <span class="px-2 py-0.5 rounded-full bg-ds-surface border border-ds-borderStrong text-ds-textSecondary font-display font-bold text-[10px]">
-                      Aguardando especialista
-                    </span>
-                  ` : ''}
-                </div>
-                ${isUserUnlogged() ? `
-                  <div class="text-xs text-ds-textSecondary py-0.5 flex flex-wrap items-center justify-between gap-2">
-                    <span>Faça login ou crie sua conta para vincular o perfil de faturamento.</span>
-                  </div>
-                ` : state.simulateUnlogged && !state.billingUnlockedInline ? `
-                  <div class="text-xs text-ds-textSecondary py-0.5 flex flex-wrap items-center justify-between gap-2">
-                    <span>Cadastre o perfil de faturamento para prosseguir com o pagamento.</span>
-                  </div>
-                ` : `
-                  <div class="grid ${mobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5'} sim-grid-1 text-xs">
-                    <div class="min-w-0">
-                      <div class="text-[11px] text-ds-textSecondary">${escapeHtml(heroBilling.holderLabel)}</div>
-                      <div class="font-bold text-ds-textMain mt-0.5 ${mobile ? 'break-words' : 'truncate'}">${escapeHtml(heroBilling.displayName)}</div>
-                    </div>
-                    <div>
-                      <div class="text-[11px] text-ds-textSecondary">${escapeHtml(heroBilling.docTypeLabel)}</div>
-                      <div class="font-mono font-bold text-ds-textMain mt-0.5 whitespace-nowrap">${escapeHtml(heroBilling.displayDoc)}</div>
-                    </div>
-                  </div>
-                  ${state.simulateUnlogged && state.billingCnpjRestricted ? `
-                    <div class="mt-2.5 pt-2 border-t border-ds-border text-[11px] text-ds-textSecondary flex items-center justify-between gap-2">
-                      <span>Proposta enviada para um especialista. Aguarde o retorno.</span>
-                    </div>
-                  ` : ''}
-                `}
-              </div>
-            `;
-          })()}
+          <div class="${mobile ? 'px-4' : 'px-5 sm:px-7'} border-r border-ds-border">
+            <div class="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-ds-textSecondary">
+              DURAÇÃO
+            </div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+              ${durationLabel}
+            </div>
+          </div>
+
+          <div class="${mobile ? 'pl-4' : 'pl-5 sm:pl-7'}">
+            <div class="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-ds-textSecondary">
+              ${thirdMetricLabel}
+            </div>
+            <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+              ${thirdMetricValue}
+            </div>
+          </div>
         </div>
 
-        <!-- Coluna Direita (5 cols): Resumo Financeiro e Status de Pagamento -->
-        ${heroRightColumnHtml}
-
+        <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          ${actionButtonsHtml}
+        </div>
       </div>
     </div>
   `;
@@ -3634,30 +3277,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
         const isOpen = !!state.expandedCondos[g.condoId];
 
         return `
-          <div id="condoCard-${g.condoId}" data-ooh-card="${g.code}" class="rounded-[16px] border ${
-            isSelectedForBulk
-              ? 'border-primary bg-[#FFF9F5] ring-1 ring-primary/20'
-              : 'border-ds-borderStrong bg-white hover:border-[#B8AEA2]'
-          } transition shadow-xs">
+          <div id="condoCard-${g.condoId}" data-ooh-card="${g.code}" class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] transition shadow-xs">
             <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
               ${mobile ? `
                 <!-- ================= LAYOUT MOBILE (sm — 640px: Header com Impacto inline + Título e Endereço 100% full-width sem truncar) ================= -->
                 <div>
-                  <!-- Linha 1: Checkbox + Badge + ID + Torres à esquerda | Impacto Estimado à direita -->
+                  <!-- Linha 1: Badge + ID + Torres à esquerda | Impacto Estimado à direita -->
                   <div class="flex items-center justify-between gap-1.5 mb-1.5">
                     <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                      <button
-                        type="button"
-                        onclick="toggleSelectCardForRemoval('${g.code}')"
-                        class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                          isSelectedForBulk
-                            ? 'bg-primary border-primary text-white'
-                            : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                        }"
-                        title="Selecionar para exclusão em massa"
-                      >
-                        <i class="uil uil-check text-[11px] leading-none"></i>
-                      </button>
                       <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatBadgeClass}">
                         ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
                       </span>
@@ -3745,18 +3372,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 <div class="flex items-start justify-between gap-4">
                   <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                     <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                      <button
-                        type="button"
-                        onclick="toggleSelectCardForRemoval('${g.code}')"
-                        class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                          isSelectedForBulk
-                            ? 'bg-primary border-primary text-white'
-                            : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                        }"
-                        title="Selecionar para exclusão em massa"
-                      >
-                        <i class="uil uil-check text-[11px] leading-none"></i>
-                      </button>
                       <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatBadgeClass}">
                         ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
                       </span>
@@ -3766,11 +3381,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       <span class="px-2 py-0.5 rounded-[5px] text-[10px] font-semibold bg-[#F3ECE4] text-[#56514B]">
                         ${g.towersCount} torres
                       </span>
-                      ${isSelectedForBulk ? `
-                        <span class="px-2 py-0.5 rounded-[5px] text-[10px] font-bold bg-primary-light text-primary border border-primary/30">
-                          Selecionado
-                        </span>
-                      ` : ''}
                     </div>
 
                     <h4
@@ -3889,30 +3499,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
       }
 
       return `
-        <div data-ooh-card="${g.code}" class="rounded-[16px] border ${
-          isSelectedForBulk
-            ? 'border-primary bg-[#FFF9F5] ring-1 ring-primary/20'
-            : 'border-ds-borderStrong bg-white hover:border-[#B8AEA2]'
-        } shadow-xs transition">
+        <div data-ooh-card="${g.code}" class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] shadow-xs transition">
           <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
             ${mobile ? `
               <!-- ================= LAYOUT MOBILE (sm — 640px: Header com Impacto inline + Título e Endereço 100% full-width sem truncar) ================= -->
               <div>
-                <!-- Linha 1: Checkbox + Badge + ID à esquerda | Impacto Estimado à direita -->
+                <!-- Linha 1: Badge + ID à esquerda | Impacto Estimado à direita -->
                 <div class="flex items-center justify-between gap-1.5 mb-1.5">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <button
-                      type="button"
-                      onclick="toggleSelectCardForRemoval('${g.code}')"
-                      class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                        isSelectedForBulk
-                          ? 'bg-primary border-primary text-white'
-                          : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                      }"
-                      title="Selecionar para exclusão em massa"
-                    >
-                      <i class="uil uil-check text-[11px] leading-none"></i>
-                    </button>
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatBadgeClass}">
                       ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
                     </span>
@@ -3989,29 +3583,12 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <button
-                      type="button"
-                      onclick="toggleSelectCardForRemoval('${g.code}')"
-                      class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                        isSelectedForBulk
-                          ? 'bg-primary border-primary text-white'
-                          : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                      }"
-                      title="Selecionar para exclusão em massa"
-                    >
-                      <i class="uil uil-check text-[11px] leading-none"></i>
-                    </button>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider ${formatBadgeClass}">
                       ${isStaticOoh ? 'IMPRESSO' : 'DIGITAL'}
                     </span>
                     <span class="text-[11px] font-mono font-semibold text-ds-textSecondary">
                       ID: #${g.displayCode}
                     </span>
-                    ${isSelectedForBulk ? `
-                      <span class="px-2 py-0.5 rounded-[5px] text-[10px] font-bold bg-primary-light text-primary border border-primary/30">
-                        Selecionado
-                      </span>
-                    ` : ''}
                   </div>
 
                   <h4
@@ -4110,62 +3687,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
     contentHtml = `
       <div id="oohChannelCardBox" class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <!-- Cabeçalho da Seção OOH: no Mobile fica em 1 linha única (Selecionar todos + Switcher Lista|Mapa) sem caixa extra aninhada -->
+        <!-- Cabeçalho da Seção OOH -->
         <div class="${mobile ? 'pb-2.5 mb-2.5 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex flex-wrap items-center justify-between gap-2'}">
-          ${mobile ? `
-            <div class="flex items-center gap-2 min-w-0">
-              ${selectedOohGroups.length === 0 ? `
-                <button
-                  type="button"
-                  onclick="selectAllVisibleOohForRemoval()"
-                  class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-[11px] inline-flex items-center justify-center gap-1.5 transition whitespace-nowrap"
-                >
-                  <span class="w-3.5 h-3.5 rounded-[4px] border border-ds-borderStrong bg-white inline-flex items-center justify-center shrink-0"></span>
-                  <span>Selecionar todos (${filteredPointsCount})</span>
-                </button>
-              ` : `
-                <span class="font-display font-bold text-ds-textMain text-xs whitespace-nowrap">
-                  OOH (${filteredPointsCount} pontos)
-                </span>
-              `}
-              ${removedKeysCount > 0 ? `
-                <button
-                  type="button"
-                  onclick="restoreAllRemovedPlanItems()"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition whitespace-nowrap"
-                >
-                  <i class="uil uil-history text-xs"></i>
-                  <span>Restaurar (${removedKeysCount})</span>
-                </button>
-              ` : ''}
-            </div>
-          ` : `
-            <div class="flex items-center gap-2.5 flex-wrap min-w-0">
-              <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base whitespace-nowrap">
-                OOH (${filteredPointsCount} pontos)
-              </h3>
-              ${selectedOohGroups.length === 0 ? `
-                <button
-                  type="button"
-                  onclick="selectAllVisibleOohForRemoval()"
-                  class="h-8 px-2.5 rounded-[8px] border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-[11px] inline-flex items-center justify-center gap-1.5 transition whitespace-nowrap"
-                >
-                  <span class="w-3.5 h-3.5 rounded-[4px] border border-ds-borderStrong bg-white inline-flex items-center justify-center shrink-0"></span>
-                  <span>Selecionar todos os pontos</span>
-                </button>
-              ` : ''}
-              ${removedKeysCount > 0 ? `
-                <button
-                  type="button"
-                  onclick="restoreAllRemovedPlanItems()"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition"
-                >
-                  <i class="uil uil-history text-xs"></i>
-                  <span>Restaurar ${removedKeysCount} ${removedKeysCount > 1 ? 'excluídos' : 'excluído'}</span>
-                </button>
-              ` : ''}
-            </div>
-          `}
+          <div class="flex items-center gap-2 min-w-0">
+            <h3 class="font-display font-bold text-ds-textMain ${mobile ? 'text-xs' : 'text-sm sm:text-base'} whitespace-nowrap">
+              OOH (${filteredPointsCount} pontos)
+            </h3>
+          </div>
 
           ${mobile ? `
             <!-- Segmented Switcher Inline Lista ↔ Mapa (Zero Modal no Mobile!) -->
@@ -4201,43 +3729,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
             </span>
           `}
         </div>
-
-        <!-- BARRA VISUAL DE EXCLUSÃO EM MASSA (Aparece automaticamente quando 1 ou mais cards são selecionados) -->
-        ${selectedOohGroups.length > 0 ? `
-          <div class="${mobile ? 'px-3 py-2 mb-2.5 rounded-xl border border-primary/30' : 'px-3 sm:px-4 py-2.5 border-b border-primary/30'} bg-[#FFF4ED] flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-xs font-display font-bold text-ds-textMain">
-                ${selectedPointsCount} ${selectedPointsCount > 1 ? 'pontos selecionados' : 'ponto selecionado'} (${fmtBRL(selectedSubtotalValue)})
-              </span>
-              ${!allFilteredSelected ? `
-                <button
-                  type="button"
-                  onclick="selectAllVisibleOohForRemoval()"
-                  class="text-[11px] font-semibold text-primary hover:underline ml-1"
-                >
-                  Selecionar todos (${filteredPointsCount})
-                </button>
-              ` : `
-                <button
-                  type="button"
-                  onclick="clearBulkSelection()"
-                  class="text-[11px] font-semibold text-ds-textSecondary hover:text-ds-textMain underline ml-1"
-                >
-                  Desmarcar todos
-                </button>
-              `}
-            </div>
-
-            <button
-              type="button"
-              onclick="confirmBulkRemoveSelectedItems()"
-              class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition"
-            >
-              <i class="uil uil-trash-alt text-sm"></i>
-              <span>Excluir selecionados da proposta</span>
-            </button>
-          </div>
-        ` : ''}
 
         ${isMobileMapActive ? `
           <!-- MAPA INTERATIVO 100% INLINE NO MOBILE -->
@@ -4332,28 +3823,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
       ` : '';
 
       return `
-        <div class="rounded-[16px] border ${
-          isSelectedForBulk
-            ? 'border-primary bg-[#FFF9F5] ring-1 ring-primary/20'
-            : 'border-ds-borderStrong bg-white hover:border-[#B8AEA2]'
-        } shadow-xs transition">
+        <div class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] shadow-xs transition">
           <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
             ${mobile ? `
               <!-- ================= LAYOUT MOBILE (sm — 640px) ================= -->
               <div>
                 <div class="flex items-center justify-between gap-1.5 mb-1.5">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <button
-                      type="button"
-                      onclick="toggleSelectCardForRemoval('${itemKey}')"
-                      class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                        isSelectedForBulk
-                          ? 'bg-primary border-primary text-white'
-                          : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                      }"
-                    >
-                      <i class="uil uil-check text-[11px] leading-none"></i>
-                    </button>
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
                       DISPLAY
                     </span>
@@ -4400,17 +3876,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <button
-                      type="button"
-                      onclick="toggleSelectCardForRemoval('${itemKey}')"
-                      class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                        isSelectedForBulk
-                          ? 'bg-primary border-primary text-white'
-                          : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                      }"
-                    >
-                      <i class="uil uil-check text-[11px] leading-none"></i>
-                    </button>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
                       DISPLAY
                     </span>
@@ -4485,23 +3950,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
           <span class="text-xs font-normal text-ds-textSecondary whitespace-nowrap">${mobile ? `<strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.revistasNet)}</strong>` : `Subtotal: <strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.revistasNet)}</strong>`}</span>
         </div>
 
-        ${selectedRevistas.length > 0 ? `
-          <div class="${mobile ? 'px-3 py-2 mb-2.5 rounded-xl border border-primary/30' : 'px-3 sm:px-4 py-2.5 border-b border-primary/30'} bg-[#FFF4ED] flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-xs font-display font-bold text-ds-textMain">${selectedRevistas.length} ${selectedRevistas.length > 1 ? 'selecionados' : 'selecionado'} (${fmtBRL(selectedRevistasSubtotal)})</span>
-              ${selectedRevistas.length < filteredRevistas.length ? `
-                <button type="button" onclick="selectAllVisibleChannelItems('revistas')" class="text-[11px] font-semibold text-primary hover:underline ml-1">Selecionar todos (${filteredRevistas.length})</button>
-              ` : `
-                <button type="button" onclick="clearBulkSelection()" class="text-[11px] font-semibold text-ds-textSecondary hover:text-ds-textMain underline ml-1">Desmarcar todos</button>
-              `}
-            </div>
-            <button type="button" onclick="confirmBulkRemoveSelectedItems()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition">
-              <i class="uil uil-trash-alt text-sm"></i>
-              <span>Excluir selecionados da proposta</span>
-            </button>
-          </div>
-        ` : ''}
-
         <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRevistas.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${revistasCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum título encontrado para os filtros selecionados.</div>`}
           ${revistasMobilePaginationHtml}
@@ -4521,14 +3969,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
       return okSearch && okAmbiente && okCategoria;
     });
 
-    const selectedPortais = filteredPortais.filter((p) => !!state.selectedForRemoval[p.itemKey]);
-    const selectedPortaisSubtotal = selectedPortais.reduce((acc, p) => acc + p.totalPrice, 0);
-
     const { visibleItems: visiblePortais, paginationHtml: portaisMobilePaginationHtml } = paginateMobileList(filteredPortais, 'formato', 'formatos');
 
     const portaisCardsHtml = visiblePortais.map((p, idx) => {
       const itemKey = p.itemKey || `dig_${idx}`;
-      const isSelectedForBulk = !!state.selectedForRemoval[itemKey];
       const estReach = Math.round(p.impressions * 0.62);
       const digSubtitle = `${p.channelTypeLabel} • ${p.interventionLabel || 'Clicável'} • ${p.vehicles.join(', ')}`;
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
@@ -4577,28 +4021,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
       ` : '';
 
       return `
-        <div class="rounded-[16px] border ${
-          isSelectedForBulk
-            ? 'border-primary bg-[#FFF9F5] ring-1 ring-primary/20'
-            : 'border-ds-borderStrong bg-white hover:border-[#B8AEA2]'
-        } shadow-xs transition">
+        <div class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] shadow-xs transition">
           <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
             ${mobile ? `
               <!-- ================= LAYOUT MOBILE (sm — 640px) ================= -->
               <div>
                 <div class="flex items-center justify-between gap-1.5 mb-1.5">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <button
-                      type="button"
-                      onclick="toggleSelectCardForRemoval('${itemKey}')"
-                      class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                        isSelectedForBulk
-                          ? 'bg-primary border-primary text-white'
-                          : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                      }"
-                    >
-                      <i class="uil uil-check text-[11px] leading-none"></i>
-                    </button>
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
                       ${p.mediaTypeLabel.toUpperCase()}
                     </span>
@@ -4645,17 +4074,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <button
-                      type="button"
-                      onclick="toggleSelectCardForRemoval('${itemKey}')"
-                      class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                        isSelectedForBulk
-                          ? 'bg-primary border-primary text-white'
-                          : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                      }"
-                    >
-                      <i class="uil uil-check text-[11px] leading-none"></i>
-                    </button>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#EBF3FE] text-[#1D4ED8] border border-[#BFDBFE]">
                       ${p.mediaTypeLabel.toUpperCase()}
                     </span>
@@ -4730,23 +4148,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
           <span class="text-xs font-normal text-ds-textSecondary whitespace-nowrap">${mobile ? `<strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.portaisNet)}</strong>` : `Subtotal: <strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.portaisNet)}</strong>`}</span>
         </div>
 
-        ${selectedPortais.length > 0 ? `
-          <div class="${mobile ? 'px-3 py-2 mb-2.5 rounded-xl border border-primary/30' : 'px-3 sm:px-4 py-2.5 border-b border-primary/30'} bg-[#FFF4ED] flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-xs font-display font-bold text-ds-textMain">${selectedPortais.length} ${selectedPortais.length > 1 ? 'selecionados' : 'selecionado'} (${fmtBRL(selectedPortaisSubtotal)})</span>
-              ${selectedPortais.length < filteredPortais.length ? `
-                <button type="button" onclick="selectAllVisibleChannelItems('portais')" class="text-[11px] font-semibold text-primary hover:underline ml-1">Selecionar todos (${filteredPortais.length})</button>
-              ` : `
-                <button type="button" onclick="clearBulkSelection()" class="text-[11px] font-semibold text-ds-textSecondary hover:text-ds-textMain underline ml-1">Desmarcar todos</button>
-              `}
-            </div>
-            <button type="button" onclick="confirmBulkRemoveSelectedItems()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition">
-              <i class="uil uil-trash-alt text-sm"></i>
-              <span>Excluir selecionados da proposta</span>
-            </button>
-          </div>
-        ` : ''}
-
         <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredPortais.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${portaisCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhum produto encontrado para os filtros selecionados.</div>`}
           ${portaisMobilePaginationHtml}
@@ -4766,14 +4167,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
       return okSearch && okAmbiente && okCategoria;
     });
 
-    const selectedRadio = filteredRadio.filter((rd) => !!state.selectedForRemoval[rd.itemKey]);
-    const selectedRadioSubtotal = selectedRadio.reduce((acc, rd) => acc + rd.totalPrice, 0);
-
     const { visibleItems: visibleRadio, paginationHtml: radioMobilePaginationHtml } = paginateMobileList(filteredRadio, 'praça', 'praças');
 
     const radioCardsHtml = visibleRadio.map((rd, idx) => {
       const itemKey = rd.itemKey || `rad_${idx}`;
-      const isSelectedForBulk = !!state.selectedForRemoval[itemKey];
       const estImpacts = rd.totalInsertions * 18500;
       const estReach = Math.round(estImpacts * 0.58);
       const radSubtitle = `${rd.stationName} • ${rd.city}, ${rd.state} • Faixa ${rd.timeWindow}`;
@@ -4831,28 +4228,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
       ` : '';
 
       return `
-        <div class="rounded-[16px] border ${
-          isSelectedForBulk
-            ? 'border-primary bg-[#FFF9F5] ring-1 ring-primary/20'
-            : 'border-ds-borderStrong bg-white hover:border-[#B8AEA2]'
-        } shadow-xs transition">
+        <div class="rounded-[16px] border border-ds-borderStrong bg-white hover:border-[#B8AEA2] shadow-xs transition">
           <div class="${mobile ? 'p-3' : 'p-4 sm:p-5'}">
             ${mobile ? `
               <!-- ================= LAYOUT MOBILE (sm — 640px) ================= -->
               <div>
                 <div class="flex items-center justify-between gap-1.5 mb-1.5">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-                    <button
-                      type="button"
-                      onclick="toggleSelectCardForRemoval('${itemKey}')"
-                      class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                        isSelectedForBulk
-                          ? 'bg-primary border-primary text-white'
-                          : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                      }"
-                    >
-                      <i class="uil uil-check text-[11px] leading-none"></i>
-                    </button>
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
                       SPOT ${rd.spotDuration}S
                     </span>
@@ -4902,17 +4284,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 max-w-[360px] xl:max-w-[410px] group/addr relative">
                   <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                    <button
-                      type="button"
-                      onclick="toggleSelectCardForRemoval('${itemKey}')"
-                      class="w-4 h-4 rounded flex items-center justify-center border transition shrink-0 ${
-                        isSelectedForBulk
-                          ? 'bg-primary border-primary text-white'
-                          : 'bg-white border-ds-borderStrong text-transparent hover:border-primary'
-                      }"
-                    >
-                      <i class="uil uil-check text-[11px] leading-none"></i>
-                    </button>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]">
                       SPOT ${rd.spotDuration}S
                     </span>
@@ -4994,23 +4365,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
           </div>
           <span class="text-xs font-normal text-ds-textSecondary whitespace-nowrap">${mobile ? `<strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.radioNet)}</strong>` : `Subtotal: <strong class="font-bold text-ds-textMain">${fmtBRL(m.financials.radioNet)}</strong>`}</span>
         </div>
-
-        ${selectedRadio.length > 0 ? `
-          <div class="${mobile ? 'px-3 py-2 mb-2.5 rounded-xl border border-primary/30' : 'px-3 sm:px-4 py-2.5 border-b border-primary/30'} bg-[#FFF4ED] flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-xs font-display font-bold text-ds-textMain">${selectedRadio.length} ${selectedRadio.length > 1 ? 'selecionados' : 'selecionado'} (${fmtBRL(selectedRadioSubtotal)})</span>
-              ${selectedRadio.length < filteredRadio.length ? `
-                <button type="button" onclick="selectAllVisibleChannelItems('radio')" class="text-[11px] font-semibold text-primary hover:underline ml-1">Selecionar todos (${filteredRadio.length})</button>
-              ` : `
-                <button type="button" onclick="clearBulkSelection()" class="text-[11px] font-semibold text-ds-textSecondary hover:text-ds-textMain underline ml-1">Desmarcar todos</button>
-              `}
-            </div>
-            <button type="button" onclick="confirmBulkRemoveSelectedItems()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shadow-xs transition">
-              <i class="uil uil-trash-alt text-sm"></i>
-              <span>Excluir selecionados da proposta</span>
-            </button>
-          </div>
-        ` : ''}
 
         <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRadio.length})` : ''}" class="${mobile ? 'space-y-2.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
           ${radioCardsHtml || `<div class="p-6 text-center text-xs text-ds-textSecondary">Nenhuma praça de rádio encontrada para os filtros selecionados.</div>`}
@@ -6480,7 +5834,7 @@ function renderPaymentTab(m) {
             <!-- Cabeçalho no mesmo padrão visual dos demais títulos da proposta -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-ds-border pb-3.5">
               <h3 class="font-display font-bold ${mobile ? 'text-base' : 'text-lg'} text-ds-textMain">
-                Pagamento da proposta <span class="text-ds-textMuted font-medium">#${displayProposalId}</span>
+                Pagamento da proposta
               </h3>
 
               <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${
@@ -7001,41 +6355,6 @@ function renderPaymentTab(m) {
     </div>
   `;
 
-  // Bloco de Cupom no Resumo
-  const paymentCouponBlockHtml = state.simulateCoupon ? `
-    <div class="flex items-center justify-between gap-2 text-xs">
-      <div class="inline-flex items-center gap-1.5 min-w-0">
-        <i class="uil uil-ticket text-primary text-sm shrink-0"></i>
-        <span class="text-ds-textSecondary truncate">Cupom <strong class="text-ds-textMain">${state.couponCode || 'AQUIADS10'}</strong></span>
-        <button onclick="toggleCouponSimulation(false)" class="text-[11px] text-ds-textMuted hover:text-rose-700 underline shrink-0 ml-1">
-          remover
-        </button>
-      </div>
-      <span class="font-display font-bold text-emerald-700 whitespace-nowrap">- ${fmtBRL(f.couponDiscount)}</span>
-    </div>
-  ` : `
-    <div class="space-y-2">
-      <div class="flex items-center justify-between gap-2 text-xs">
-        <span class="inline-flex items-center gap-1.5 text-ds-textSecondary font-medium">
-          <i class="uil uil-ticket text-primary text-sm"></i>
-          <span>Tem um cupom?</span>
-        </span>
-        <button onclick="toggleCouponDrawer()" class="font-display font-bold text-primary hover:underline transition whitespace-nowrap">
-          ${state.couponDrawerOpen ? 'cancelar' : '+ digitar cupom'}
-        </button>
-      </div>
-
-      ${state.couponDrawerOpen ? `
-        <div class="flex items-center gap-2">
-          <input id="inlineCouponInput" type="text" value="${state.couponCode || 'AQUIADS10'}" oninput="state.couponCode = this.value.toUpperCase()" placeholder="Código do cupom" class="flex-1 min-w-0 px-3 py-1.5 rounded-lg border border-ds-borderStrong bg-ds-surface text-xs font-bold uppercase focus:bg-white focus:border-primary focus:outline-none" />
-          <button onclick="toggleCouponSimulation(true)" class="px-3.5 py-1.5 rounded-lg bg-primary text-white font-display font-bold text-xs shrink-0">
-            aplicar
-          </button>
-        </div>
-      ` : ''}
-    </div>
-  `;
-
   // ==========================================================================
   // COLUNA DIREITA: RESUMO DA CAMPANHA — HIERARQUIA VISUAL LIMPA
   // ==========================================================================
@@ -7050,14 +6369,9 @@ function renderPaymentTab(m) {
       <div class="space-y-4">
         <!-- Bloco 1: Cabeçalho + Verticais -->
         <div class="space-y-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <h3 class="font-display font-bold ${mobile ? 'text-base' : 'text-lg'} text-ds-textMain">Resumo da campanha</h3>
-              <p class="text-[11px] sm:text-xs text-ds-textSecondary">${m.startDate} a ${m.endDate} (${m.durationDays} dias)</p>
-            </div>
-            <span class="px-2.5 py-0.5 rounded-full bg-ds-bg border border-ds-borderStrong font-display font-bold text-xs text-ds-textSecondary shrink-0">
-              #${displayProposalId}
-            </span>
+          <div>
+            <h3 class="font-display font-bold ${mobile ? 'text-base' : 'text-lg'} text-ds-textMain">Resumo da campanha</h3>
+            <p class="text-[11px] sm:text-xs text-ds-textSecondary">${m.startDate} a ${m.endDate} (${m.durationDays} dias)</p>
           </div>
 
           <!-- Verticais do checkout online -->
@@ -7118,10 +6432,8 @@ function renderPaymentTab(m) {
         </div>
       </div>
 
-      <!-- Bloco 3: Cupom + Fechamento de Checkout com Ponto Focal Único -->
+      <!-- Bloco 3: Fechamento de Checkout com Ponto Focal Único -->
       <div class="space-y-3.5">
-        ${paymentCouponBlockHtml}
-
         <!-- 4.1 Protagonista: Total a pagar agora -->
         <div class="p-3.5 rounded-2xl bg-ds-surface/70 border border-ds-border space-y-1">
           <div class="text-xs font-semibold text-ds-textSecondary">
@@ -7391,15 +6703,6 @@ function renderFaqSection() {
       `
     },
     {
-      q: 'Como sei se posso aplicar um cupom promocional na minha proposta?',
-      a: `
-        <div class="space-y-1.5">
-          <p>Basta clicar em <strong>"+ digitar cupom"</strong> no Resumo da Campanha (aba de pagamento) para atualizar o valor na hora.</p>
-          <p>E uma ótima notícia: como o <strong>Desconto Condômino</strong> é um desconto cadastral, ele <strong>acumula</strong> com o seu cupom promocional — o cupom é aplicado em cima!</p>
-        </div>
-      `
-    },
-    {
       q: 'Quando e como envio as artes e vídeos da minha campanha?',
       a: `
         <div class="space-y-1.5">
@@ -7421,6 +6724,9 @@ function renderFaqSection() {
 
   const container = document.getElementById('faqSection');
   if (!container) return;
+
+  const m = getCurrentModel();
+  const displayProposalId = getDisplayProposalId(m);
 
   container.innerHTML = `
     <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-6 sm:px-10 py-8 sm:py-12">
@@ -7452,6 +6758,9 @@ function renderFaqSection() {
           }).join('')}
         </div>
       </div>
+    </div>
+    <div id="proposalFooterMeta" class="mt-4 text-center text-[11px] text-ds-textMuted font-normal">
+      Proposta comercial #${displayProposalId} · Aqui ads
     </div>
   `;
   syncMobileHoverElimination();
