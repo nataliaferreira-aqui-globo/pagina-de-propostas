@@ -5767,8 +5767,15 @@ function renderPaymentTab(m) {
   const c = m.counts;
   const mobile = isMobileView();
   const hasRadio = c.radioCount > 0;
+  const hasOnlineOoh = c.oohPointsCount > 0;
+  const hasOnlineDigital = (c.portaisCount + c.revistasCount) > 0;
+  const isRadioOnly = hasRadio && !hasOnlineOoh && !hasOnlineDigital;
   const hasDiscounts = f.totalDiscounts > 0;
-  const onlineChannelsLabel = c.portaisCount + c.revistasCount > 0 ? 'OOH + Digital' : 'OOH';
+  const onlineChannelsLabel = hasOnlineOoh && hasOnlineDigital
+    ? 'OOH + Digital'
+    : hasOnlineDigital
+    ? 'Digital'
+    : 'OOH';
   const needsBillingWarning = state.simulateUnlogged && !state.billingUnlockedInline;
   const displayProposalId = state.clonedScenariosCount > 0 ? `${m.id}-R${state.clonedScenariosCount}` : m.id;
 
@@ -5872,6 +5879,13 @@ function renderPaymentTab(m) {
       </div>
     </div>
   ` : '';
+
+  // Quando a proposta for exclusivamente de Rádio, substitui toda a região de checkout online pelo card de Rádio CBN
+  if (isRadioOnly) {
+    document.getElementById('tabContent-pagamento').innerHTML = radioDedicatedCardHtml;
+    syncMobileHoverElimination();
+    return;
+  }
 
   // ==========================================================================
   // SEÇÃO REDUZIDA QUANDO A PROPOSTA ESTÁ PAGA ("EM PROCESSAMENTO") OU "PROPOSTA CONCLUÍDA"
