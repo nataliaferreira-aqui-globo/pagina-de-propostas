@@ -9723,15 +9723,19 @@ function applyStyledWorksheet(ws, cfg) {
     const activeCols = rMeta.maxCol || colCount;
 
     if (rType === 'orange_title') {
-      rowHeights[r] = { hpt: 32 };
-    } else if (rType === 'orange_subtitle' || rType === 'orange_section') {
+      rowHeights[r] = { hpt: 30 };
+    } else if (rType === 'hero_banner_main') {
+      rowHeights[r] = { hpt: 38 };
+    } else if (rType === 'orange_subtitle') {
+      rowHeights[r] = { hpt: 22 };
+    } else if (rType === 'orange_section') {
       rowHeights[r] = { hpt: 24 };
     } else if (rType === 'cta_link' || rType === 'cta_button') {
-      rowHeights[r] = { hpt: 28 };
+      rowHeights[r] = { hpt: 26 };
     } else if (rType === 'table_header' || rType === 'green_header') {
       rowHeights[r] = { hpt: 26 };
-    } else if (rType === 'total' || rType === 'highlight_total' || rType === 'black_total') {
-      rowHeights[r] = { hpt: 24 };
+    } else if (rType === 'subtotal' || rType === 'total' || rType === 'highlight_total' || rType === 'black_total') {
+      rowHeights[r] = { hpt: 25 };
     } else if (rType === 'spacer') {
       rowHeights[r] = { hpt: 12 };
     } else {
@@ -9780,23 +9784,65 @@ function applyStyledWorksheet(ws, cfg) {
       let horiz = 'left';
       if (isNum) {
         horiz = centerColsSet.has(c) && !isCurrency ? 'center' : 'right';
-      } else if (centerColsSet.has(c) && rType !== 'orange_title' && rType !== 'orange_subtitle' && rType !== 'orange_section' && rType !== 'cta_link') {
+      } else if (centerColsSet.has(c) && rType !== 'orange_title' && rType !== 'orange_subtitle' && rType !== 'orange_section' && rType !== 'cta_link' && rType !== 'hero_banner_main') {
         horiz = 'center';
       } else if ((rType === 'table_header' || rType === 'green_header') && (currencyColsSet.has(c) || integerColsSet.has(c) || (Array.isArray(rMeta.rightHeaderCols) && rMeta.rightHeaderCols.includes(c)))) {
         horiz = centerColsSet.has(c) ? 'center' : 'right';
       }
 
+      const isItalicCol = Boolean(
+        (Array.isArray(cfg.italicCols) && cfg.italicCols.includes(c)) ||
+        (Array.isArray(rMeta.italicCols) && rMeta.italicCols.includes(c)) ||
+        rMeta.italicValue && c > 0
+      );
+
       if (rType === 'orange_title') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 13, bold: true, color: { rgb: 'FFFFFF' } },
+          font: { name: 'Century Gothic', sz: 12, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderOrange
         };
+      } else if (rType === 'hero_banner_main') {
+        if (c === 2) {
+          // Botão Primário Branco ("Efetuar pagamento ->") dentro do banner laranja (igual à imagem do PDF)
+          cell.s = {
+            fill: { patternType: 'solid', fgColor: { rgb: 'FFFFFF' } },
+            font: { name: 'Century Gothic', sz: 10, bold: true, underline: true, color: { rgb: '121212' } },
+            alignment: { vertical: 'center', horizontal: 'center' },
+            border: {
+              top: { style: 'medium', color: { rgb: 'F15A22' } },
+              bottom: { style: 'medium', color: { rgb: 'F15A22' } },
+              left: { style: 'medium', color: { rgb: 'F15A22' } },
+              right: { style: 'medium', color: { rgb: 'F15A22' } }
+            }
+          };
+        } else if (c === 3) {
+          // Botão Secundário Laranja com Borda ("Falar com especialista") dentro do banner laranja
+          cell.s = {
+            fill: { patternType: 'solid', fgColor: { rgb: 'D94A16' } },
+            font: { name: 'Century Gothic', sz: 10, bold: true, underline: true, color: { rgb: 'FFFFFF' } },
+            alignment: { vertical: 'center', horizontal: 'center' },
+            border: {
+              top: { style: 'thin', color: { rgb: 'FFF5EE' } },
+              bottom: { style: 'thin', color: { rgb: 'FFF5EE' } },
+              left: { style: 'thin', color: { rgb: 'FFF5EE' } },
+              right: { style: 'thin', color: { rgb: 'FFF5EE' } }
+            }
+          };
+        } else {
+          // Headline "Sua marca no lugar certo."
+          cell.s = {
+            fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
+            font: { name: 'Century Gothic', sz: 16, bold: true, color: { rgb: 'FFFFFF' } },
+            alignment: { vertical: 'center', horizontal: 'left' },
+            border: borderOrange
+          };
+        }
       } else if (rType === 'orange_subtitle') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 10.5, bold: true, color: { rgb: 'FFFFFF' } },
+          font: { name: 'Century Gothic', sz: 9.5, italic: true, color: { rgb: 'FFF5EE' } },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderOrange
         };
@@ -9810,63 +9856,38 @@ function applyStyledWorksheet(ws, cfg) {
       } else if (rType === 'cta_button') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Century Gothic', sz: 11, bold: true, underline: true, color: { rgb: 'FFFFFF' } },
+          font: { name: 'Century Gothic', sz: 10, bold: true, underline: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'center' },
           border: borderOrange
         };
       } else if (rType === 'cta_link') {
-        const isLinkCell = c === 1;
+        const isLinkCell = c >= 1;
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: isLinkCell ? 'FFF3EA' : 'FBF8F4' } },
+          fill: { patternType: 'solid', fgColor: { rgb: isLinkCell ? 'FFF3EA' : 'E8E0D5' } },
           font: {
             name: 'Century Gothic',
-            sz: 10,
-            bold: true,
+            sz: 9.5,
+            bold: !isLinkCell,
+            italic: isLinkCell,
             underline: isLinkCell,
             color: { rgb: isLinkCell ? 'F15A22' : '121212' }
           },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderHeader
         };
-      } else if (rType === 'green_header') {
-        cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: '70AD47' } },
-          font: { name: 'Century Gothic', sz: 9.5, bold: true, color: { rgb: 'FFFFFF' } },
-          alignment: { vertical: 'center', horizontal: horiz, wrapText: true },
-          border: borderHeader
-        };
-      } else if (rType === 'table_header') {
+      } else if (rType === 'table_header' || rType === 'green_header') {
+        // Todos os headers de coluna padronizados na cor bege/areia #E8E0D5 (sem verde!)
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'E8E0D5' } },
           font: { name: 'Century Gothic', sz: 9.5, bold: true, color: { rgb: '121212' } },
           alignment: { vertical: 'center', horizontal: horiz, wrapText: true },
           border: borderHeader
         };
-      } else if (rType === 'coupon') {
-        cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: 'ECFDF5' } },
-          font: { name: 'Century Gothic', sz: 9.5, bold: true, color: { rgb: '047857' } },
-          alignment: { vertical: 'center', horizontal: horiz },
-          border: borderThin,
-          ...(numFmt ? { numFmt } : {})
-        };
-      } else if (rType === 'black_total') {
-        cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: '121212' } },
-          font: {
-            name: 'Century Gothic',
-            sz: 10,
-            bold: true,
-            color: { rgb: 'FFFFFF' }
-          },
-          alignment: { vertical: 'center', horizontal: horiz },
-          border: borderTotal,
-          ...(numFmt ? { numFmt } : {})
-        };
-      } else if (rType === 'total' || rType === 'highlight_total') {
+      } else if (rType === 'subtotal' || rType === 'total' || rType === 'highlight_total' || rType === 'black_total') {
+        // Subtotal / Total padronizado em todas as abas (#FFF3EA com destaque laranja na última coluna monetária)
         const isFinalNetCol = c === activeCols - 1 && isCurrency;
         cell.s = {
-          fill: { patternType: 'solid', fgColor: { rgb: rType === 'highlight_total' ? 'FFF3EA' : 'F3ECE4' } },
+          fill: { patternType: 'solid', fgColor: { rgb: 'FFF3EA' } },
           font: {
             name: 'Century Gothic',
             sz: 10,
@@ -9879,13 +9900,16 @@ function applyStyledWorksheet(ws, cfg) {
         };
       } else if (rType === 'kv_row') {
         const isKeyCol = c === 0;
+        const isLinkVal = Boolean(rMeta.hyperlinks && rMeta.hyperlinks[c]);
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: isKeyCol ? 'FBF8F4' : 'FFFFFF' } },
           font: {
             name: 'Century Gothic',
             sz: 9.5,
             bold: Boolean(isKeyCol || rMeta.boldValue),
-            color: { rgb: '121212' }
+            italic: Boolean(!isKeyCol && (isItalicCol || isLinkVal)),
+            underline: isLinkVal,
+            color: { rgb: isLinkVal ? 'F15A22' : (!isKeyCol && isItalicCol ? '5C564F' : '121212') }
           },
           alignment: { vertical: 'center', horizontal: horiz },
           border: borderThin,
@@ -9903,7 +9927,8 @@ function applyStyledWorksheet(ws, cfg) {
             name: 'Century Gothic',
             sz: 9.5,
             bold: isBoldCol,
-            color: { rgb: '121212' }
+            italic: isItalicCol,
+            color: { rgb: isItalicCol && !isBoldCol ? '5C564F' : '121212' }
           },
           alignment: { vertical: 'center', horizontal: horiz },
           border: borderThin,
@@ -9973,11 +9998,19 @@ function exportFullCsv() {
   const sheetsData = [];
 
   // ==========================================================================
-  // 1. CAPA INSTITUCIONAL DE ABERTURA: "ACESSAR O PLANO NO ADS" (Padrão Eletromidia SMB)
+  // 1. CAPA INSTITUCIONAL DE ABERTURA: "ACESSAR O PLANO NO ADS" (Banner Visual Aqui Ads)
   // ==========================================================================
   const coverRows = [];
   const coverMeta = {};
   const coverMerges = [];
+  const whatsappSpecialistUrl = 'https://wa.me/5511999999999?text=' + encodeURIComponent(`Olá! Gostaria de falar com um especialista sobre a proposta ${proposalDisplayId} no Aqui Ads.`);
+  const activeChannelsList = [
+    hasOoh ? 'OOH (Telas Digitais e Estáticas)' : null,
+    hasPortais ? 'Portais e Globoplay' : null,
+    hasRevistas ? 'Revistas e Jornais' : null,
+    hasRadio ? 'Rádio CBN' : null
+  ].filter(Boolean).join(' · ');
+
   const pushCoverRow = (arr, meta) => {
     const idx = coverRows.length;
     coverRows.push(arr);
@@ -9985,41 +10018,75 @@ function exportFullCsv() {
     return idx;
   };
 
-  const cTitleIdx = pushCoverRow(['AQUI ADS (GLOBO & ELETROMIDIA) — PLANO DE MÍDIA INTERATIVO'], { type: 'orange_title', maxCol: 4 });
+  // Bloco Visual do Banner Aqui Ads ("Sua marca no lugar certo." + CTAs lado a lado)
+  const cTitleIdx = pushCoverRow(['AQUI ADS (GLOBO & ELETROMIDIA) — PLANO DE MÍDIA INTERATIVO', '', '', ''], { type: 'orange_title', maxCol: 4 });
   coverMerges.push({ s: { r: cTitleIdx, c: 0 }, e: { r: cTitleIdx, c: 3 } });
 
+  const cHeroIdx = pushCoverRow([
+    'Sua marca no lugar certo.',
+    '',
+    'Efetuar pagamento ➔',
+    'Falar com especialista'
+  ], {
+    type: 'hero_banner_main',
+    maxCol: 4,
+    hyperlinks: {
+      2: onlineProposalUrl,
+      3: whatsappSpecialistUrl
+    }
+  });
+  coverMerges.push({ s: { r: cHeroIdx, c: 0 }, e: { r: cHeroIdx, c: 1 } });
+
   const cSubIdx = pushCoverRow([
-    'Este plano de mídia foi criado no Aqui Ads. Você pode visualizar todos os detalhes, mapa interativo e concluir a contratação diretamente na plataforma.'
+    'Revise o plano completo online, veja os pontos no mapa interativo, envie as artes e acompanhe tudo no seu painel.',
+    '',
+    '',
+    ''
   ], { type: 'orange_subtitle', maxCol: 4 });
   coverMerges.push({ s: { r: cSubIdx, c: 0 }, e: { r: cSubIdx, c: 3 } });
 
-  pushCoverRow([], { type: 'spacer' });
-
-  const cBtnIdx = pushCoverRow(['ACESSAR A PROPOSTA ONLINE'], {
-    type: 'cta_button',
-    maxCol: 2,
-    hyperlinks: { 0: onlineProposalUrl, 1: onlineProposalUrl }
-  });
-  coverMerges.push({ s: { r: cBtnIdx, c: 0 }, e: { r: cBtnIdx, c: 1 } });
-
-  pushCoverRow(['Link direto:', onlineProposalUrl], {
+  const cLinkIdx = pushCoverRow(['Link direto da proposta online', onlineProposalUrl, '', ''], {
     type: 'cta_link',
-    maxCol: 2,
-    hyperlinks: { 1: onlineProposalUrl }
+    maxCol: 4,
+    hyperlinks: { 1: onlineProposalUrl, 2: onlineProposalUrl, 3: onlineProposalUrl }
   });
+  coverMerges.push({ s: { r: cLinkIdx, c: 1 }, e: { r: cLinkIdx, c: 3 } });
 
   pushCoverRow([], { type: 'spacer' });
 
-  const cSecIdx = pushCoverRow(['RESUMO EXECUTIVO DA PROPOSTA COMERCIAL'], { type: 'orange_section', maxCol: 2 });
-  coverMerges.push({ s: { r: cSecIdx, c: 0 }, e: { r: cSecIdx, c: 1 } });
-  pushCoverRow(['Código da proposta', proposalDisplayId], { type: 'kv_row', maxCol: 2, boldValue: true });
+  // Bloco Resumo Executivo padronizado na mesma largura (4 colunas A:D)
+  const cSecIdx = pushCoverRow(['RESUMO EXECUTIVO DA PROPOSTA COMERCIAL', '', '', ''], { type: 'orange_section', maxCol: 4 });
+  coverMerges.push({ s: { r: cSecIdx, c: 0 }, e: { r: cSecIdx, c: 3 } });
+
+  const cHdrIdx = pushCoverRow(['Campo', 'Detalhamento da Proposta', '', ''], { type: 'table_header', maxCol: 4 });
+  coverMerges.push({ s: { r: cHdrIdx, c: 1 }, e: { r: cHdrIdx, c: 3 } });
+
+  const pushCoverKv = (label, val, opts = {}) => {
+    const rIdx = pushCoverRow([label, val, '', ''], {
+      type: 'kv_row',
+      maxCol: 4,
+      boldValue: Boolean(opts.boldValue),
+      italicValue: Boolean(opts.italicValue),
+      hyperlinks: opts.hyperlink ? { 1: opts.hyperlink } : undefined
+    });
+    coverMerges.push({ s: { r: rIdx, c: 1 }, e: { r: rIdx, c: 3 } });
+  };
+
+  pushCoverKv('Código da proposta', proposalDisplayId, { boldValue: true });
   if (hasCampaignName) {
-    pushCoverRow(['Campanha', m.campaignName], { type: 'kv_row', maxCol: 2 });
+    pushCoverKv('Campanha', m.campaignName);
   }
-  pushCoverRow([billingHolderLabel, billingCompany], { type: 'kv_row', maxCol: 2 });
-  pushCoverRow([billingDocTypeLabel, billingCnpj], { type: 'kv_row', maxCol: 2 });
-  pushCoverRow(['Período de veiculação', `${m.startDate} a ${m.endDate} (${m.durationDays} dias)`], { type: 'kv_row', maxCol: 2 });
-  pushCoverRow(['Investimento total líquido', Number(f.trueProposalTotal.toFixed(2))], { type: 'highlight_total', maxCol: 2, currencyCols: [1] });
+  pushCoverKv(billingHolderLabel, billingCompany);
+  pushCoverKv(billingDocTypeLabel, billingCnpj);
+  pushCoverKv('Período de veiculação', `${m.startDate} a ${m.endDate} (${m.durationDays} dias corridos)`);
+  pushCoverKv('Canais contemplados', activeChannelsList, { italicValue: true });
+
+  const cTotIdx = pushCoverRow(['Investimento total líquido', '', '', Number(f.trueProposalTotal.toFixed(2))], {
+    type: 'subtotal',
+    maxCol: 4,
+    currencyCols: [3]
+  });
+  coverMerges.push({ s: { r: cTotIdx, c: 0 }, e: { r: cTotIdx, c: 2 } });
 
   sheetsData.push({
     name: 'ACESSAR O PLANO NO ADS',
@@ -10028,15 +10095,15 @@ function exportFullCsv() {
     merges: coverMerges,
     rowMeta: coverMeta,
     customCols: [
+      { wch: 34 },
       { wch: 36 },
-      { wch: 56 },
-      { wch: 24 },
-      { wch: 24 }
+      { wch: 28 },
+      { wch: 28 }
     ]
   });
 
   // ==========================================================================
-  // 2. ABA RESUMO PROPOSTA (Padrão Executivo Eletromidia Ads)
+  // 2. ABA RESUMO PROPOSTA
   // ==========================================================================
   const resumoColsCount = 6;
   const resumoRows = [];
@@ -10050,7 +10117,7 @@ function exportFullCsv() {
     return idx;
   };
 
-  const rTitleIdx = pushResumoRow(['AQUI ADS — RESUMO DA PROPOSTA COMERCIAL'], { type: 'orange_title', maxCol: resumoColsCount });
+  const rTitleIdx = pushResumoRow(['AQUI ADS (GLOBO & ELETROMIDIA) — RESUMO DA PROPOSTA COMERCIAL'], { type: 'orange_title', maxCol: resumoColsCount });
   resumoMerges.push({ s: { r: rTitleIdx, c: 0 }, e: { r: rTitleIdx, c: resumoColsCount - 1 } });
 
   const subtitleCoverText = `${hasCampaignName ? `${m.campaignName} · ` : ''}Proposta ${proposalDisplayId} · Período de veiculação: ${m.startDate} a ${m.endDate} (${m.durationDays} dias corridos)`;
@@ -10077,7 +10144,7 @@ function exportFullCsv() {
     pushResumoRow(['Nome da campanha', m.campaignName], { type: 'kv_row', maxCol: 2 });
   }
   pushResumoRow(['Período de veiculação', `${m.startDate} a ${m.endDate} (${m.durationDays} dias)`], { type: 'kv_row', maxCol: 2 });
-  pushResumoRow([billingHolderLabel, billingCompany], { type: 'kv_row', maxCol: 2, boldValue: true });
+  pushResumoRow([billingHolderLabel, billingCompany], { type: 'kv_row', maxCol: 2 });
   pushResumoRow([billingDocTypeLabel, billingCnpj], { type: 'kv_row', maxCol: 2 });
   pushResumoRow(['Link da proposta online', onlineProposalUrl], { type: 'kv_row', maxCol: 2, hyperlinks: { 1: onlineProposalUrl } });
 
@@ -10105,7 +10172,7 @@ function exportFullCsv() {
       Number((f.oohGross || 0).toFixed(2)),
       Number((-(f.oohResidentDiscount || 0)).toFixed(2)),
       Number((f.oohNet || 0).toFixed(2))
-    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5] });
+    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5], italicCols: [1] });
   }
   if (hasPortais) {
     pushResumoRow([
@@ -10115,7 +10182,7 @@ function exportFullCsv() {
       Number(f.portaisNet.toFixed(2)),
       0,
       Number(f.portaisNet.toFixed(2))
-    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5] });
+    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5], italicCols: [1] });
   }
   if (hasRevistas) {
     pushResumoRow([
@@ -10125,7 +10192,7 @@ function exportFullCsv() {
       Number(f.revistasNet.toFixed(2)),
       0,
       Number(f.revistasNet.toFixed(2))
-    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5] });
+    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5], italicCols: [1] });
   }
   if (hasRadio) {
     pushResumoRow([
@@ -10135,29 +10202,29 @@ function exportFullCsv() {
       Number(f.radioNet.toFixed(2)),
       0,
       Number(f.radioNet.toFixed(2))
-    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5] });
+    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5], italicCols: [1] });
   }
 
   const lastInvDataIdx = resumoRows.length - 1;
   pushResumoRow([
-    'TOTAL GERAL DA PROPOSTA',
+    'SUBTOTAL / TOTAL DA PROPOSTA',
     `${c.totalItems} ativos contratados`,
     `${m.durationDays} dias`,
     Number(f.totalGrossProposal.toFixed(2)),
     Number((-f.totalDiscounts).toFixed(2)),
     Number(f.trueProposalTotal.toFixed(2))
-  ], { type: 'black_total', maxCol: resumoColsCount, currencyCols: [3, 4, 5] });
+  ], { type: 'subtotal', maxCol: resumoColsCount, currencyCols: [3, 4, 5] });
 
   pushResumoRow([], { type: 'spacer' });
 
-  // Bloco 3: Observações Comerciais (Padrão Eletromidia SMB)
+  // Bloco 3: Observações Comerciais
   const secObsIdx = pushResumoRow(['OBSERVAÇÕES E CONDIÇÕES COMERCIAIS'], { type: 'orange_section', maxCol: 2 });
   resumoMerges.push({ s: { r: secObsIdx, c: 0 }, e: { r: secObsIdx, c: 1 } });
-  pushResumoRow(['Condições de pagamento (Online)', 'Cartão de Crédito em até 6x sem juros, Pix ou Boleto Bancário para OOH, Portais e Revistas.'], { type: 'kv_row', maxCol: 2 });
+  pushResumoRow(['Condições de pagamento (Online)', 'Cartão de Crédito em até 6x sem juros, Pix ou Boleto Bancário para OOH, Portais e Revistas.'], { type: 'kv_row', maxCol: 2, italicValue: true });
   if (hasRadio) {
-    pushResumoRow(['Faturamento Rádio CBN', 'Faturado separadamente via boleto bancário mediante confirmação de grade junto à emissora.'], { type: 'kv_row', maxCol: 2 });
+    pushResumoRow(['Faturamento Rádio CBN', 'Faturado separadamente via boleto bancário mediante confirmação de grade junto à emissora.'], { type: 'kv_row', maxCol: 2, italicValue: true });
   }
-  pushResumoRow(['Disponibilidade de inventário', 'Sujeita a confirmação no momento do fechamento do pedido na plataforma Aqui Ads.'], { type: 'kv_row', maxCol: 2 });
+  pushResumoRow(['Disponibilidade de inventário', 'Sujeita a confirmação no momento do fechamento do pedido na plataforma Aqui Ads.'], { type: 'kv_row', maxCol: 2, italicValue: true });
 
   sheetsData.push({
     name: 'RESUMO PROPOSTA',
@@ -10179,11 +10246,12 @@ function exportFullCsv() {
   });
 
   // ==========================================================================
-  // 3. ABA MÉTRICAS NO PERÍODO (Padrão Verde #70AD47 do Eletromidia SMB)
+  // 3. ABA MÉTRICAS NO PERÍODO
   // ==========================================================================
   const metPeriodCols = 8;
   const metPeriodRows = [
-    ['MÉTRICAS CONSOLIDADAS NO PERÍODO POR CANAL'],
+    ['AQUI ADS (GLOBO & ELETROMIDIA) — MÉTRICAS CONSOLIDADAS NO PERÍODO'],
+    ['Estimativa consolidada de entrega, alcance e impactos por canal selecionado na proposta'],
     [],
     [
       'Canal / Produto',
@@ -10198,13 +10266,16 @@ function exportFullCsv() {
   ];
   const metPeriodMeta = {
     0: { type: 'orange_title', maxCol: metPeriodCols },
-    1: { type: 'spacer' },
-    2: { type: 'green_header', maxCol: metPeriodCols, rightHeaderCols: [3, 4, 5, 6, 7] }
+    1: { type: 'orange_subtitle', maxCol: metPeriodCols },
+    2: { type: 'spacer' },
+    3: { type: 'table_header', maxCol: metPeriodCols, rightHeaderCols: [3, 4, 5, 6, 7] }
   };
 
   let mpIdx = 0;
+  let totalPeriodPrimaryDeliveries = 0;
   if (hasOoh) {
     const rIdx = metPeriodRows.length;
+    totalPeriodPrimaryDeliveries += (c.oohImpacts || 0);
     metPeriodRows.push([
       'OOH — Telas Digitais e Estáticas',
       'Praças selecionadas no plano',
@@ -10215,10 +10286,11 @@ function exportFullCsv() {
       c.oohReach || c.oohImpacts,
       c.oohImpacts
     ]);
-    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 4, 5, 6, 7], boldCols: [0, 6, 7] };
+    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 4, 5, 6, 7], boldCols: [0, 7], italicCols: [1] };
   }
   if (hasPortais) {
     const rIdx = metPeriodRows.length;
+    totalPeriodPrimaryDeliveries += (c.portaisImpressions || 0);
     metPeriodRows.push([
       `Portais e Globoplay (${portaisListLabel})`,
       'Nacional / Segmentado',
@@ -10229,10 +10301,11 @@ function exportFullCsv() {
       Math.round(c.portaisImpressions * 0.62),
       c.portaisImpressions
     ]);
-    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 5, 6, 7], boldCols: [0, 6, 7] };
+    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 5, 6, 7], boldCols: [0, 7], italicCols: [1] };
   }
   if (hasRevistas) {
     const rIdx = metPeriodRows.length;
+    totalPeriodPrimaryDeliveries += (c.revistasImpressions || 0);
     metPeriodRows.push([
       `Revistas e Jornais (${revistasListLabel})`,
       'Nacional / BR',
@@ -10243,10 +10316,11 @@ function exportFullCsv() {
       Math.round(c.revistasImpressions * 0.62),
       c.revistasImpressions
     ]);
-    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 5, 6, 7], boldCols: [0, 6, 7] };
+    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 5, 6, 7], boldCols: [0, 7], italicCols: [1] };
   }
   if (hasRadio) {
     const rIdx = metPeriodRows.length;
+    totalPeriodPrimaryDeliveries += (c.radioTotalInsertions || 0);
     metPeriodRows.push([
       `Rádio CBN (${radioDurationsLabel})`,
       'Praças selecionadas',
@@ -10257,14 +10331,30 @@ function exportFullCsv() {
       Math.round(c.radioTotalInsertions * 18500 * 0.58),
       c.radioTotalInsertions
     ]);
-    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 5, 6, 7], boldCols: [0, 6, 7] };
+    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 5, 6, 7], boldCols: [0, 7], italicCols: [1] };
   }
+
+  const mpTotIdx = metPeriodRows.length;
+  metPeriodRows.push([
+    'SUBTOTAL / CONSOLIDADO NO PERÍODO',
+    `${mpIdx} ${mpIdx === 1 ? 'canal ativo' : 'canais ativos'}`,
+    `${m.durationDays} dias`,
+    c.totalItems,
+    hasOoh ? c.oohScreensCount : '—',
+    '—',
+    '—',
+    totalPeriodPrimaryDeliveries
+  ]);
+  metPeriodMeta[mpTotIdx] = { type: 'subtotal', maxCol: metPeriodCols, integerCols: [3, 4, 7] };
 
   sheetsData.push({
     name: 'MÉTRICAS NO PERÍODO',
     rows: metPeriodRows,
     colCount: metPeriodCols,
-    merges: [{ s: { r: 0, c: 0 }, e: { r: 0, c: metPeriodCols - 1 } }],
+    merges: [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: metPeriodCols - 1 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: metPeriodCols - 1 } }
+    ],
     rowMeta: metPeriodMeta,
     integerCols: [3, 4, 5, 6, 7],
     centerCols: [2]
@@ -10276,7 +10366,8 @@ function exportFullCsv() {
   if (hasOoh) {
     const oohColCount = 14;
     const oohRows = [
-      [`MÉTRICAS POR PRODUTO (OOH) — INVENTÁRIO DETALHADO (${fmtInt(c.oohPointsCount)} PONTOS / TORRES INDIVIDUAIS)`],
+      [`AQUI ADS (GLOBO & ELETROMIDIA) — INVENTÁRIO DETALHADO OOH (${fmtInt(c.oohPointsCount)} PONTOS)`],
+      ['Relação detalhada de pontos, condomínios, telas e estimativas individuais de entrega no período'],
       [],
       [
         'Código',
@@ -10297,8 +10388,9 @@ function exportFullCsv() {
     ];
     const oohMeta = {
       0: { type: 'orange_title', maxCol: oohColCount },
-      1: { type: 'spacer' },
-      2: { type: 'green_header', maxCol: oohColCount }
+      1: { type: 'orange_subtitle', maxCol: oohColCount },
+      2: { type: 'spacer' },
+      3: { type: 'table_header', maxCol: oohColCount }
     };
 
     const periodText = `${m.startDate} a ${m.endDate} (${m.durationDays}d)`;
@@ -10370,7 +10462,7 @@ function exportFullCsv() {
 
     const totOohIdx = oohRows.length;
     oohRows.push([
-      'TOTAL CONSOLIDADO OOH',
+      'SUBTOTAL OOH',
       `${c.oohPointsCount} ${c.oohPointsCount === 1 ? 'ponto listado' : 'pontos/torres listados individualmente'}`,
       '',
       '',
@@ -10385,21 +10477,23 @@ function exportFullCsv() {
       Number((f.oohResidentDiscount || 0).toFixed(2)),
       Number((f.oohNet || 0).toFixed(2))
     ]);
-    oohMeta[totOohIdx] = { type: 'black_total', maxCol: oohColCount };
+    oohMeta[totOohIdx] = { type: 'subtotal', maxCol: oohColCount };
 
     sheetsData.push({
       name: 'MÉTRICAS POR PRODUTO (OOH)',
       rows: oohRows,
       colCount: oohColCount,
       merges: [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: oohColCount - 1 } }
+        { s: { r: 0, c: 0 }, e: { r: 0, c: oohColCount - 1 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: oohColCount - 1 } }
       ],
       rowMeta: oohMeta,
       integerCols: [6, 7, 8, 9, 10],
       currencyCols: [11, 12, 13],
       centerCols: [0, 5, 6],
-      boldCols: [0, 1, 13],
-      autofilterRef: `A3:N${lastOohItemRow1Based}`
+      boldCols: [0, 13],
+      italicCols: [2, 4],
+      autofilterRef: `A4:N${lastOohItemRow1Based}`
     });
   }
 
@@ -10409,7 +10503,8 @@ function exportFullCsv() {
   if (hasPortais) {
     const portaisColCount = 12;
     const portaisRows = [
-      ['Portais e Globoplay — Vídeo e Display'],
+      ['AQUI ADS (GLOBO & ELETROMIDIA) — PORTAIS E GLOBOPLAY'],
+      ['Formatos de vídeo e display contratados nos portais editoriais Globo e Globoplay'],
       [],
       [
         'Código',
@@ -10428,8 +10523,9 @@ function exportFullCsv() {
     ];
     const portaisMeta = {
       0: { type: 'orange_title', maxCol: portaisColCount },
-      1: { type: 'spacer' },
-      2: { type: 'green_header', maxCol: portaisColCount }
+      1: { type: 'orange_subtitle', maxCol: portaisColCount },
+      2: { type: 'spacer' },
+      3: { type: 'table_header', maxCol: portaisColCount }
     };
 
     m.portaisItems.forEach((p, idx) => {
@@ -10454,7 +10550,7 @@ function exportFullCsv() {
     const lastPortaisItemRow1Based = portaisRows.length;
     const totPortaisIdx = portaisRows.length;
     portaisRows.push([
-      'TOTAL PORTAIS E GLOBOPLAY',
+      'SUBTOTAL PORTAIS E GLOBOPLAY',
       `${m.portaisItems.length} ${m.portaisItems.length === 1 ? 'formato' : 'formatos'}`,
       '',
       '',
@@ -10467,21 +10563,23 @@ function exportFullCsv() {
       Number(portaisAvgCpm.toFixed(2)),
       Number(f.portaisNet.toFixed(2))
     ]);
-    portaisMeta[totPortaisIdx] = { type: 'black_total', maxCol: portaisColCount };
+    portaisMeta[totPortaisIdx] = { type: 'subtotal', maxCol: portaisColCount };
 
     sheetsData.push({
       name: 'Portais e Globoplay',
       rows: portaisRows,
       colCount: portaisColCount,
       merges: [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: portaisColCount - 1 } }
+        { s: { r: 0, c: 0 }, e: { r: 0, c: portaisColCount - 1 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: portaisColCount - 1 } }
       ],
       rowMeta: portaisMeta,
       integerCols: [9],
       currencyCols: [10, 11],
       centerCols: [0, 6, 8],
-      boldCols: [0, 1, 11],
-      autofilterRef: `A3:L${lastPortaisItemRow1Based}`
+      boldCols: [0, 11],
+      italicCols: [2, 7],
+      autofilterRef: `A4:L${lastPortaisItemRow1Based}`
     });
   }
 
@@ -10491,7 +10589,8 @@ function exportFullCsv() {
   if (hasRevistas) {
     const revistasColCount = 10;
     const revistasRows = [
-      ['Revistas e Jornais Digitais'],
+      ['AQUI ADS (GLOBO & ELETROMIDIA) — REVISTAS E JORNAIS DIGITAIS'],
+      ['Publicações editoriais digitais e formatos multi-plataforma contratados'],
       [],
       [
         'Código',
@@ -10508,8 +10607,9 @@ function exportFullCsv() {
     ];
     const revistasMeta = {
       0: { type: 'orange_title', maxCol: revistasColCount },
-      1: { type: 'spacer' },
-      2: { type: 'green_header', maxCol: revistasColCount }
+      1: { type: 'orange_subtitle', maxCol: revistasColCount },
+      2: { type: 'spacer' },
+      3: { type: 'table_header', maxCol: revistasColCount }
     };
 
     m.revistasItems.forEach((r, idx) => {
@@ -10532,7 +10632,7 @@ function exportFullCsv() {
     const lastRevistasItemRow1Based = revistasRows.length;
     const totRevistasIdx = revistasRows.length;
     revistasRows.push([
-      'TOTAL REVISTAS E JORNAIS',
+      'SUBTOTAL REVISTAS E JORNAIS',
       `${m.revistasItems.length} ${m.revistasItems.length === 1 ? 'título' : 'títulos'}`,
       '',
       '',
@@ -10543,21 +10643,23 @@ function exportFullCsv() {
       Number(revistasAvgCpm.toFixed(2)),
       Number(f.revistasNet.toFixed(2))
     ]);
-    revistasMeta[totRevistasIdx] = { type: 'black_total', maxCol: revistasColCount };
+    revistasMeta[totRevistasIdx] = { type: 'subtotal', maxCol: revistasColCount };
 
     sheetsData.push({
       name: 'Revistas e Jornais',
       rows: revistasRows,
       colCount: revistasColCount,
       merges: [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: revistasColCount - 1 } }
+        { s: { r: 0, c: 0 }, e: { r: 0, c: revistasColCount - 1 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: revistasColCount - 1 } }
       ],
       rowMeta: revistasMeta,
       integerCols: [7],
       currencyCols: [8, 9],
       centerCols: [0, 5, 6],
-      boldCols: [0, 1, 9],
-      autofilterRef: `A3:J${lastRevistasItemRow1Based}`
+      boldCols: [0, 9],
+      italicCols: [3, 4],
+      autofilterRef: `A4:J${lastRevistasItemRow1Based}`
     });
   }
 
@@ -10567,7 +10669,8 @@ function exportFullCsv() {
   if (hasRadio) {
     const radioColCount = 11;
     const radioRows = [
-      ['Rádio CBN — Spots de 30 segundos'],
+      ['AQUI ADS (GLOBO & ELETROMIDIA) — RÁDIO CBN'],
+      ['Grade de programação, praças e inserções comerciais de áudio contratadas'],
       [],
       [
         'Código',
@@ -10585,8 +10688,9 @@ function exportFullCsv() {
     ];
     const radioMeta = {
       0: { type: 'orange_title', maxCol: radioColCount },
-      1: { type: 'spacer' },
-      2: { type: 'green_header', maxCol: radioColCount }
+      1: { type: 'orange_subtitle', maxCol: radioColCount },
+      2: { type: 'spacer' },
+      3: { type: 'table_header', maxCol: radioColCount }
     };
 
     m.radioItems.forEach((rd, idx) => {
@@ -10610,7 +10714,7 @@ function exportFullCsv() {
     const lastRadioItemRow1Based = radioRows.length;
     const totRadioIdx = radioRows.length;
     radioRows.push([
-      'TOTAL RÁDIO CBN',
+      'SUBTOTAL RÁDIO CBN',
       `${m.radioItems.length} ${m.radioItems.length === 1 ? 'praça/programa' : 'praças/programas'}`,
       '',
       '',
@@ -10622,37 +10726,41 @@ function exportFullCsv() {
       '—',
       Number(f.radioNet.toFixed(2))
     ]);
-    radioMeta[totRadioIdx] = { type: 'black_total', maxCol: radioColCount };
+    radioMeta[totRadioIdx] = { type: 'subtotal', maxCol: radioColCount };
 
     sheetsData.push({
       name: 'Rádio CBN',
       rows: radioRows,
       colCount: radioColCount,
       merges: [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: radioColCount - 1 } }
+        { s: { r: 0, c: 0 }, e: { r: 0, c: radioColCount - 1 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: radioColCount - 1 } }
       ],
       rowMeta: radioMeta,
       integerCols: [7, 8],
       currencyCols: [9, 10],
       centerCols: [0, 5, 6, 7],
-      boldCols: [0, 1, 10],
-      autofilterRef: `A3:K${lastRadioItemRow1Based}`
+      boldCols: [0, 10],
+      italicCols: [4],
+      autofilterRef: `A4:K${lastRadioItemRow1Based}`
     });
   }
 
   // ==========================================================================
-  // 8. ABA ESPECIFICAÇÕES TÉCNICAS DE ARTE (Padrão Eletromidia SMB)
+  // 8. ABA ESPECIFICAÇÕES TÉCNICAS DE ARTE
   // ==========================================================================
   const specColCount = 6;
   const specRows = [
-    ['ESPECIFICAÇÕES TÉCNICAS PARA ENVIO DE CRIATIVOS'],
+    ['AQUI ADS (GLOBO & ELETROMIDIA) — ESPECIFICAÇÕES TÉCNICAS DE CRIATIVOS'],
+    ['Dimensões, formatos de arquivo e requisitos técnicos para produção e envio das peças'],
     [],
     ['Meio / Canal', 'Formato / Peça', 'Dimensões (px)', 'Arquivos Aceitos', 'Duração / Peso Máximo', 'Observações Técnicas']
   ];
   const specMeta = {
     0: { type: 'orange_title', maxCol: specColCount },
-    1: { type: 'spacer' },
-    2: { type: 'table_header', maxCol: specColCount }
+    1: { type: 'orange_subtitle', maxCol: specColCount },
+    2: { type: 'spacer' },
+    3: { type: 'table_header', maxCol: specColCount }
   };
   let spIdx = 0;
   if (hasOoh) {
@@ -10675,9 +10783,13 @@ function exportFullCsv() {
     name: 'ESPECIFICAÇÕES TÉCNICAS',
     rows: specRows,
     colCount: specColCount,
-    merges: [{ s: { r: 0, c: 0 }, e: { r: 0, c: specColCount - 1 } }],
+    merges: [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: specColCount - 1 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: specColCount - 1 } }
+    ],
     rowMeta: specMeta,
-    boldCols: [0, 1]
+    boldCols: [0],
+    italicCols: [5]
   });
 
   // Exportação nativa em .xlsx estilizada via SheetJS (xlsx-js-style)
@@ -10706,15 +10818,17 @@ function exportFullCsv() {
     const rowsXml = sheet.rows.map((r, rIdx) => {
       const rMeta = rowMetaMap[rIdx] || {};
       const rType = rMeta.type || 'data';
-      const styleId = (rType === 'orange_title' || rType === 'orange_subtitle' || rType === 'orange_section' || rType === 'cta_button')
+      const styleId = (rType === 'orange_title' || rType === 'orange_section' || rType === 'cta_button' || rType === 'hero_banner_main')
         ? 'sOrange'
-        : rType === 'cta_link'
-          ? 'sLink'
-          : (rType === 'table_header' || rType === 'green_header')
-            ? 'sHeader'
-            : (rType === 'total' || rType === 'highlight_total' || rType === 'black_total')
-              ? 'sTotal'
-              : 'sData';
+        : rType === 'orange_subtitle'
+          ? 'sOrangeSub'
+          : rType === 'cta_link'
+            ? 'sLink'
+            : (rType === 'table_header' || rType === 'green_header')
+              ? 'sHeader'
+              : (rType === 'subtotal' || rType === 'total' || rType === 'highlight_total' || rType === 'black_total')
+                ? 'sTotal'
+                : 'sData';
       const cellsXml = (r || []).map((cell, cIdx) => {
         const isNum = typeof cell === 'number' && Number.isFinite(cell);
         const hrefAttr = (rMeta.hyperlinks && rMeta.hyperlinks[cIdx])
@@ -10734,11 +10848,12 @@ function exportFullCsv() {
  xmlns:x="urn:schemas-microsoft-com:office:excel"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
  <Styles>
-  <Style ss:ID="sOrange"><Font ss:FontName="Century Gothic" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sLink"><Font ss:FontName="Century Gothic" ss:Bold="1" ss:Underline="Single" ss:Color="#F15A22"/><Interior ss:Color="#FFF5F0" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sHeader"><Font ss:FontName="Century Gothic" ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#E8E0D5" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sTotal"><Font ss:FontName="Century Gothic" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#121212" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sData"><Font ss:FontName="Century Gothic" ss:Color="#121212"/></Style>
+  <Style ss:ID="sOrange"><Font ss:FontName="Century Gothic" ss:Size="11" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sOrangeSub"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Italic="1" ss:Color="#FFF5EE"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sLink"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Italic="1" ss:Underline="Single" ss:Color="#F15A22"/><Interior ss:Color="#FFF3EA" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sHeader"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#E8E0D5" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sTotal"><Font ss:FontName="Century Gothic" ss:Size="10" ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#FFF3EA" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sData"><Font ss:FontName="Century Gothic" ss:Size="9.5" ss:Color="#121212"/></Style>
  </Styles>
  ${worksheetsXml}
 </Workbook>`;
