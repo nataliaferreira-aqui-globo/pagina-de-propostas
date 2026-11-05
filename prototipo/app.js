@@ -4387,13 +4387,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
     `;
   }
 
-  contentHtml += `
-    <div class="mt-3 px-2 flex items-start sm:items-center gap-1.5 text-xs text-ds-textSecondary leading-snug">
-      <i class="uil uil-info-circle text-xs sm:text-sm text-ds-textMuted shrink-0 mt-0.5 sm:mt-0"></i>
-      <span>Os planos de mídia podem sofrer alteração de valores e/ou disponibilidade de pontos sem aviso prévio.</span>
-    </div>
-  `;
-
   document.getElementById('mediaPlanListColumn').innerHTML = contentHtml;
 
   // Se estiver no modo Mapa Inline (Web ou Mobile), inicializa/atualiza o Leaflet inline imediatamente
@@ -7115,18 +7108,19 @@ function renderFaqSection() {
 
   const m = getCurrentModel();
   const displayProposalId = getDisplayProposalId(m);
+  const mobile = isMobileSimulator();
 
   container.innerHTML = `
-    <div class="pt-3 pb-2 border-t border-ds-border/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-ds-textSecondary">
+    <div class="pt-3 pb-2 border-t border-ds-border/80 ${mobile ? 'flex flex-col items-center justify-center gap-1.5 text-center' : 'flex flex-col sm:flex-row items-center justify-between gap-2'} text-xs text-ds-textSecondary">
       <button
         type="button"
         onclick="openAndreiaChatWithFlow('specialist')"
-        class="inline-flex items-center gap-1.5 text-ds-textSecondary hover:text-primary font-medium transition cursor-pointer"
+        class="inline-flex items-center gap-1.5 text-ds-textSecondary hover:text-primary font-medium transition cursor-pointer whitespace-nowrap"
       >
-        <i class="uil uil-comment-question text-sm text-primary"></i>
+        <i class="uil uil-comment-question text-sm text-primary shrink-0"></i>
         <span>Dúvidas? <strong class="font-display font-semibold text-ds-textMain hover:text-primary underline underline-offset-2">Fale com um especialista</strong></span>
       </button>
-      <div id="proposalFooterMeta" class="text-xs text-ds-textMuted font-normal">
+      <div id="proposalFooterMeta" class="text-xs text-ds-textMuted font-normal whitespace-nowrap">
         Proposta comercial #${displayProposalId} · Aqui ads
       </div>
     </div>
@@ -7476,6 +7470,10 @@ function switchMainTab(tab) {
       content.classList.add('hidden');
     }
   });
+  const planDisclaimerEl = document.getElementById('mediaPlanDisclaimerOutside');
+  if (planDisclaimerEl) {
+    planDisclaimerEl.classList.toggle('hidden', tab !== 'plano');
+  }
   syncMainTabLabels();
   renderJourneyStepper();
   if (tab === 'plano') {

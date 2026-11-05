@@ -585,58 +585,65 @@
       <!-- 2. ESTIMATIVA DE ENTREGA POR CANAL -->
       <section id="modularMetricsSection"></section>
 
-      <!-- 3. NAVEGAÇÃO DE ABAS PRINCIPAIS -->
-      <div id="mainTabsSection" class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card overflow-hidden">
-        <div id="mainTabsHeaderBar" class="border-b border-ds-border px-3.5 sm:px-6 bg-ds-surface overflow-x-auto no-scrollbar">
-          <nav id="mainTabsNav" class="flex items-center justify-between sm:justify-start gap-3 sm:gap-8 -mb-px w-full" aria-label="Abas da Proposta">
-            <button id="tabBtn-plano" onclick="switchMainTab('plano')" class="py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-primary text-primary font-display font-bold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap transition focus:outline-none">
-              <i class="uil uil-layer-group text-sm sm:text-lg"></i>
-              <span id="tabLabel-plano">Resumo</span>
-              <span id="tabCountPlano" class="hidden">0</span>
-            </button>
-            <button id="tabBtn-arte" onclick="switchMainTab('arte')" class="py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-transparent text-ds-textSecondary hover:text-ds-textMain font-display font-bold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap transition focus:outline-none">
-              <i class="uil uil-image-check text-sm sm:text-lg"></i>
-              <span id="tabLabel-arte">Especificações de arte</span>
-              <span id="tabCountArte" class="hidden">0</span>
-            </button>
-            <button id="tabBtn-pagamento" onclick="switchMainTab('pagamento')" class="py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-transparent text-ds-textSecondary hover:text-ds-textMain font-display font-bold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap transition focus:outline-none">
-              <i class="uil uil-credit-card text-sm sm:text-lg"></i>
-              <span id="tabLabel-pagamento">Pagamento</span>
-            </button>
-          </nav>
-        </div>
+      <!-- 3. NAVEGAÇÃO DE ABAS PRINCIPAIS + AVISO DO PLANO ABAIXO DO CARD -->
+      <div class="space-y-2.5">
+        <div id="mainTabsSection" class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card overflow-hidden">
+          <div id="mainTabsHeaderBar" class="border-b border-ds-border px-3.5 sm:px-6 bg-ds-surface overflow-x-auto no-scrollbar">
+            <nav id="mainTabsNav" class="flex items-center justify-between sm:justify-start gap-3 sm:gap-8 -mb-px w-full" aria-label="Abas da Proposta">
+              <button id="tabBtn-plano" onclick="switchMainTab('plano')" class="py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-primary text-primary font-display font-bold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap transition focus:outline-none">
+                <i class="uil uil-layer-group text-sm sm:text-lg"></i>
+                <span id="tabLabel-plano">Resumo</span>
+                <span id="tabCountPlano" class="hidden">0</span>
+              </button>
+              <button id="tabBtn-arte" onclick="switchMainTab('arte')" class="py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-transparent text-ds-textSecondary hover:text-ds-textMain font-display font-bold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap transition focus:outline-none">
+                <i class="uil uil-image-check text-sm sm:text-lg"></i>
+                <span id="tabLabel-arte">Especificações de arte</span>
+                <span id="tabCountArte" class="hidden">0</span>
+              </button>
+              <button id="tabBtn-pagamento" onclick="switchMainTab('pagamento')" class="py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-transparent text-ds-textSecondary hover:text-ds-textMain font-display font-bold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap transition focus:outline-none">
+                <i class="uil uil-credit-card text-sm sm:text-lg"></i>
+                <span id="tabLabel-pagamento">Pagamento</span>
+              </button>
+            </nav>
+          </div>
 
-        <div id="mainTabsBodyShell" class="p-3.5 sm:p-6 bg-white">
-          <!-- CONTEÚDO ABA 1: PLANO DE MÍDIA -->
-          <div id="tabContent-plano" class="space-y-4 sm:space-y-6">
-            <!-- Barra de Filtros inspirada na Nova Home -->
-            <div id="mediaPlanFilterBar"></div>
+          <div id="mainTabsBodyShell" class="p-3.5 sm:p-6 bg-white">
+            <!-- CONTEÚDO ABA 1: PLANO DE MÍDIA -->
+            <div id="tabContent-plano" class="space-y-4 sm:space-y-6">
+              <!-- Barra de Filtros inspirada na Nova Home -->
+              <div id="mediaPlanFilterBar"></div>
 
-            <!-- Grid Principal: Lista de Itens + Mapa Lateral Sticky -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start sim-grid-1">
-              <!-- Coluna Lista (7 colunas no Desktop, 12 quando sem mapa) -->
-              <div id="mediaPlanListColumn" class="lg:col-span-7 space-y-4 sm:space-y-6"></div>
+              <!-- Grid Principal: Lista de Itens + Mapa Lateral Sticky -->
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start sim-grid-1">
+                <!-- Coluna Lista (7 colunas no Desktop, 12 quando sem mapa) -->
+                <div id="mediaPlanListColumn" class="lg:col-span-7 space-y-4 sm:space-y-6"></div>
 
-              <!-- Coluna Mapa Sticky (5 colunas no Desktop) -->
-              <div id="mediaPlanMapColumn" class="sim-hide-mobile hidden lg:block lg:col-span-5 sticky top-20">
-                <div id="oohMapCardBox" class="bg-white rounded-2xl border border-ds-borderStrong overflow-hidden shadow-sm flex flex-col">
-                  <div id="oohMapCardHeader" class="px-4 py-3.5 border-b border-ds-border bg-ds-surface shrink-0">
-                    <h3 class="font-display font-bold text-sm text-ds-textMain">
-                      Mapa dos pontos físicos (OOH)
-                    </h3>
-                    <p class="text-xs text-ds-textSecondary">Clique em um pino ou em "Mapa" no card para localizar o ativo</p>
+                <!-- Coluna Mapa Sticky (5 colunas no Desktop) -->
+                <div id="mediaPlanMapColumn" class="sim-hide-mobile hidden lg:block lg:col-span-5 sticky top-20">
+                  <div id="oohMapCardBox" class="bg-white rounded-2xl border border-ds-borderStrong overflow-hidden shadow-sm flex flex-col">
+                    <div id="oohMapCardHeader" class="px-4 py-3.5 border-b border-ds-border bg-ds-surface shrink-0">
+                      <h3 class="font-display font-bold text-sm text-ds-textMain">
+                        Mapa dos pontos físicos (OOH)
+                      </h3>
+                      <p class="text-xs text-ds-textSecondary">Clique em um pino ou em "Mapa" no card para localizar o ativo</p>
+                    </div>
+                    <div id="oohLeafletMap" class="w-full h-[570px] flex-1 z-10"></div>
                   </div>
-                  <div id="oohLeafletMap" class="w-full h-[570px] flex-1 z-10"></div>
                 </div>
               </div>
             </div>
+
+            <!-- CONTEÚDO ABA 2: ESPECIFICAÇÕES DE ARTE -->
+            <div id="tabContent-arte" class="hidden space-y-4 sm:space-y-6"></div>
+
+            <!-- CONTEÚDO ABA 3: PAGAMENTO E APROVAÇÃO (FIGMA 3387-12075) -->
+            <div id="tabContent-pagamento" class="hidden space-y-4 sm:space-y-6"></div>
           </div>
+        </div>
 
-          <!-- CONTEÚDO ABA 2: ESPECIFICAÇÕES DE ARTE -->
-          <div id="tabContent-arte" class="hidden space-y-4 sm:space-y-6"></div>
-
-          <!-- CONTEÚDO ABA 3: PAGAMENTO E APROVAÇÃO (FIGMA 3387-12075) -->
-          <div id="tabContent-pagamento" class="hidden space-y-4 sm:space-y-6"></div>
+        <div id="mediaPlanDisclaimerOutside" class="px-1 flex items-start sm:items-center gap-1.5 text-xs text-ds-textSecondary leading-snug">
+          <i class="uil uil-info-circle text-xs sm:text-sm text-ds-textMuted shrink-0 mt-0.5 sm:mt-0"></i>
+          <span>Os planos de mídia podem sofrer alteração de valores e/ou disponibilidade de pontos sem aviso prévio.</span>
         </div>
       </div>
 
@@ -661,7 +668,7 @@
     <span id="toastMessage">Ação realizada</span>
   </div>
 
-  <script src="data-scenarios.js?v=20261105_178"></script>
-  <script src="app.js?v=20261105_178"></script>
+  <script src="data-scenarios.js?v=20261105_179"></script>
+  <script src="app.js?v=20261105_179"></script>
 </body>
 </html>
