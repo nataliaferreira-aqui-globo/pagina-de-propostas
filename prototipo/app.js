@@ -1560,21 +1560,21 @@ function syncMainTabLabels() {
       : 'flex items-center justify-between sm:justify-start gap-3 sm:gap-8 -mb-px w-full';
   }
   if (lblPlano) {
-    lblPlano.textContent = 'Plano de mídia';
+    lblPlano.textContent = 'Resumo';
     lblPlano.className = mobile
-      ? 'order-3 w-full text-center text-[11px] leading-[1.15] min-h-[26px] flex items-center justify-center'
+      ? 'order-3 w-full text-center text-xs leading-[1.15] min-h-[20px] flex items-center justify-center'
       : '';
   }
   if (lblArte) {
-    lblArte.textContent = 'Especificações de arte';
+    lblArte.textContent = mobile ? 'Arte' : 'Especificações de arte';
     lblArte.className = mobile
-      ? 'order-3 w-full text-center text-[11px] leading-[1.15] min-h-[26px] flex items-center justify-center'
+      ? 'order-3 w-full text-center text-xs leading-[1.15] min-h-[20px] flex items-center justify-center'
       : '';
   }
   if (lblPag) {
-    lblPag.textContent = 'Pagamento e aprovação';
+    lblPag.textContent = mobile ? 'Pagamento' : 'Pagamento e aprovação';
     lblPag.className = mobile
-      ? 'order-3 w-full text-center text-[11px] leading-[1.15] min-h-[26px] flex items-center justify-center'
+      ? 'order-3 w-full text-center text-xs leading-[1.15] min-h-[20px] flex items-center justify-center'
       : '';
   }
 
@@ -1595,8 +1595,8 @@ function syncMainTabLabels() {
     }
     if (mobile) {
       btn.className = isActive
-        ? 'py-2 px-1 rounded-t-xl bg-white/90 border-b-2 border-primary text-primary font-display font-bold text-[11px] flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none'
-        : 'py-2 px-1 rounded-t-xl border-b-2 border-transparent text-ds-textSecondary font-display font-bold text-[11px] flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none';
+        ? 'py-2 px-1 rounded-t-xl bg-white/90 border-b-2 border-primary text-primary font-display font-bold text-xs flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none'
+        : 'py-2 px-1 rounded-t-xl border-b-2 border-transparent text-ds-textSecondary font-display font-bold text-xs flex flex-wrap items-center justify-center content-start gap-x-1 gap-y-1 transition focus:outline-none';
     } else {
       btn.className = isActive
         ? 'py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-primary text-primary font-display font-bold text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap transition focus:outline-none'
@@ -1607,20 +1607,20 @@ function syncMainTabLabels() {
   if (cntPlano) {
     cntPlano.className = mobile
       ? state.activeTab === 'plano'
-        ? 'order-2 h-4 px-1.5 rounded-full text-[10px] font-bold bg-primary-light text-primary inline-flex items-center justify-center leading-none'
-        : 'order-2 h-4 px-1.5 rounded-full text-[10px] font-bold bg-ds-bg text-ds-textSecondary inline-flex items-center justify-center leading-none'
+        ? 'order-2 h-4 px-1.5 rounded-full text-xs font-bold bg-primary-light text-primary inline-flex items-center justify-center leading-none'
+        : 'order-2 h-4 px-1.5 rounded-full text-xs font-bold bg-ds-bg text-ds-textSecondary inline-flex items-center justify-center leading-none'
       : state.activeTab === 'plano'
-        ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary-light text-primary'
-        : 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-ds-bg text-ds-textSecondary';
+        ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary'
+        : 'px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold bg-ds-bg text-ds-textSecondary';
   }
   if (cntArte) {
     cntArte.className = mobile
       ? state.activeTab === 'arte'
-        ? 'order-2 h-4 px-1.5 rounded-full text-[10px] font-bold bg-primary-light text-primary inline-flex items-center justify-center leading-none'
-        : 'order-2 h-4 px-1.5 rounded-full text-[10px] font-bold bg-ds-bg text-ds-textSecondary inline-flex items-center justify-center leading-none'
+        ? 'order-2 h-4 px-1.5 rounded-full text-xs font-bold bg-primary-light text-primary inline-flex items-center justify-center leading-none'
+        : 'order-2 h-4 px-1.5 rounded-full text-xs font-bold bg-ds-bg text-ds-textSecondary inline-flex items-center justify-center leading-none'
       : state.activeTab === 'arte'
-        ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary-light text-primary'
-        : 'px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-ds-bg text-ds-textSecondary';
+        ? 'px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary'
+        : 'px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold bg-ds-bg text-ds-textSecondary';
   }
 
   const heroEl = document.getElementById('proposalHeroSection');
@@ -2102,10 +2102,6 @@ function renderHeroSection(m) {
               <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none">
                 ${fmtBRL(f.trueProposalTotal)}
               </div>
-              ${hasDiscounts ? `
-                <span class="text-xs text-ds-textMuted line-through">${fmtBRL(f.totalGrossProposal)}</span>
-                <span class="text-xs font-semibold text-[#199958]">-${fmtBRL(f.totalDiscounts)}</span>
-              ` : ''}
             </div>
           </div>
 
@@ -2164,10 +2160,6 @@ function renderHeroSection(m) {
               <div class="font-display font-extrabold text-3xl sm:text-[38px] text-ds-textMain tracking-tight leading-none">
                 ${fmtBRL(f.trueProposalTotal)}
               </div>
-              ${hasDiscounts ? `
-                <span class="text-xs text-ds-textMuted line-through">${fmtBRL(f.totalGrossProposal)}</span>
-                <span class="text-xs font-semibold text-[#199958]">Desc. condo. -${fmtBRL(f.totalDiscounts)}</span>
-              ` : ''}
             </div>
           </div>
 
@@ -2218,11 +2210,11 @@ function renderHeroSection(m) {
 
 /**
  * ============================================================================
- * 2. ESTIMATIVA DE ENTREGA POR CANAL (COM DETALHAMENTO DE MÉTRICAS EXPANSÍVEL)
+ * 2. ESTIMATIVA DE ENTREGA POR CANAL (COM DETALHAMENTO EXPANSÍVEL)
  * - Título do canal simples e secundário em caixa alta (ex: OOH, PORTAIS E GLOBOPLAY)
  * - Métrica principal em destaque para leitura rápida
- * - Linha separadora com "DETALHAMENTO DE MÉTRICAS" e botão "Expandir" / "Ocultar"
- * - Mini-cards internos brancos com destaque em laranja no número ao passar o mouse (hover)
+ * - Linha separadora com "DETALHAMENTO" (mesmo peso de OOH) e botão "Expandir" / "Ocultar"
+ * - Mini-cards internos brancos informativos (sem efeito de hover para não parecerem clicáveis)
  * ============================================================================
  */
 function toggleSummaryCardMetrics(cardKey) {
@@ -2236,68 +2228,11 @@ function toggleSummaryCardMetrics(cardKey) {
 function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey) {
   const list = Array.isArray(items) ? items : [];
   if (list.length === 0) return '<strong class="text-ds-textMain font-semibold">—</strong>';
-  const visible = list.slice(0, visibleCount);
-  const remaining = list.slice(visibleCount);
-
-  if (remaining.length === 0) {
-    return `<strong class="text-ds-textMain group-hover/subcard:text-primary transition-colors font-semibold whitespace-nowrap">${visible.join(', ')}</strong>`;
-  }
-
-  return `
-    <div class="relative inline-flex items-center gap-1.5 group/veh" data-metric-popover="${popKey}">
-      <strong class="text-ds-textMain group-hover/subcard:text-primary transition-colors font-semibold whitespace-nowrap">${visible.join(', ')}</strong>
-      <button
-        type="button"
-        onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
-        class="px-1.5 py-0.5 rounded-md text-[11px] leading-none font-bold bg-[#E2E5E9] text-[#38414E] hover:bg-primary-light hover:text-primary transition-colors cursor-pointer"
-        aria-label="Ver todos (${list.length})">
-        +${remaining.length}
-      </button>
-      <div
-        id="metricPopover-${popKey}"
-        class="metric-items-popover invisible opacity-0 pointer-events-none group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto absolute right-0 bottom-full mb-2 w-56 p-3 rounded-xl bg-white border border-ds-border shadow-xl z-30 transition-all duration-150 text-left">
-        <div class="text-xs font-bold uppercase tracking-wider text-ds-textMuted mb-2">
-          ${popoverTitle} (${list.length})
-        </div>
-        <div class="flex flex-wrap gap-1.5">
-          ${list.map((item) => `
-            <span class="px-2 py-0.5 rounded-md bg-ds-surface border border-ds-border text-xs font-semibold text-ds-textMain whitespace-nowrap">
-              ${item}
-            </span>
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  `;
+  return `<strong class="text-ds-textMain font-semibold">${list.join(', ')}</strong>`;
 }
 
 function toggleMetricVehiclesPopover(event, popKey) {
   if (event) event.stopPropagation();
-  const target = document.getElementById(`metricPopover-${popKey}`);
-  if (!target) return;
-  const isOpen = target.getAttribute('data-open') === 'true';
-
-  document.querySelectorAll('.metric-items-popover').forEach((el) => {
-    el.setAttribute('data-open', 'false');
-    el.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-  });
-
-  if (!isOpen) {
-    target.setAttribute('data-open', 'true');
-    target.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
-  }
-}
-
-if (typeof window !== 'undefined' && !window.__metricPopoverListenerBound) {
-  window.__metricPopoverListenerBound = true;
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('[data-metric-popover]')) {
-      document.querySelectorAll('.metric-items-popover[data-open="true"]').forEach((el) => {
-        el.setAttribute('data-open', 'false');
-        el.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-      });
-    }
-  });
 }
 
 function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel, primaryValue, subCards, mobile }) {
@@ -2305,32 +2240,32 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
   const padClass = mobile ? 'p-4' : 'p-5';
 
   return `
-    <div class="bg-white rounded-2xl border border-ds-border shadow-sm flex flex-col justify-between self-start w-full overflow-hidden group/maincard">
+    <div class="bg-white rounded-2xl border border-ds-border shadow-sm flex flex-col justify-between self-start w-full overflow-hidden">
       <div class="${padClass}">
         <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
           ${channelTitle}
         </div>
         <div class="mt-2.5">
           <div class="text-xs text-ds-textSecondary leading-normal">${primaryLabel}</div>
-          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain group-hover/maincard:text-primary transition-colors leading-tight mt-0.5 whitespace-nowrap">
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
             ${primaryValue}
           </div>
         </div>
       </div>
 
-      <!-- Seção expansível de Detalhamento de Métricas (mesma estrutura do drawer de pontos) -->
+      <!-- Seção expansível de Detalhamento (mesmo peso tipográfico de OOH) -->
       <div class="bg-ds-bg border-t border-ds-border px-4 sm:px-5 py-3 text-xs">
         <div
           onclick="toggleSummaryCardMetrics('${cardKey}')"
-          class="flex items-center justify-between gap-2 cursor-pointer select-none group/toggle"
+          class="flex items-center justify-between gap-2 cursor-pointer select-none"
         >
-          <span class="text-[11px] font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
-            <i class="uil uil-chart-bar text-sm text-ds-textMain"></i>
-            <span>DETALHAMENTO DE MÉTRICAS</span>
+          <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+            <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
+            <span>DETALHAMENTO</span>
           </span>
           <button
             type="button"
-            class="text-xs font-semibold text-ds-textSecondary group-hover/toggle:text-primary transition inline-flex items-center gap-0.5 cursor-pointer"
+            class="text-xs font-semibold text-ds-textSecondary inline-flex items-center gap-0.5 cursor-pointer"
           >
             <span>${isExpanded ? 'Ocultar' : 'Expandir'}</span>
             <i class="uil ${isExpanded ? 'uil-angle-up' : 'uil-angle-down'} text-sm"></i>
@@ -2340,12 +2275,12 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
         ${isExpanded ? `
           <div class="mt-2.5 grid grid-cols-2 gap-2">
             ${subCards.map((sc) => `
-              <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-3 py-2.5 border border-ds-border group/subcard hover:border-primary/45 hover:bg-[#FFFBF7] hover:shadow-xs transition cursor-default">
+              <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-3 py-2.5 border border-ds-border">
                 <div class="text-ds-textSecondary text-xs">${sc.label}</div>
                 ${sc.rawHtml ? `
                   <div class="mt-0.5">${sc.rawHtml}</div>
                 ` : `
-                  <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain group-hover/subcard:text-primary transition-colors block mt-0.5 whitespace-nowrap">
+                  <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain block mt-0.5 whitespace-nowrap">
                     ${sc.value}
                   </strong>
                 `}
@@ -2399,10 +2334,11 @@ function renderModularMetrics(m) {
       mobile,
       subCards: [
         { label: 'Alcance único', value: fmtInt(c.oohReach || c.oohImpacts) },
-        { label: 'Pontos e telas', value: `${fmtInt(c.oohPointsCount)} pts · ${fmtInt(c.oohScreensCount)} telas` },
+        { label: 'Pontos', value: fmtInt(c.oohPointsCount) },
+        { label: 'Telas', value: fmtInt(c.oohScreensCount) },
         { label: 'Exibição diária', value: oohDailyExhibitionsVal },
         { label: 'Exibições', value: oohPeriodExhibitionsVal },
-        { label: 'Frequência', value: fmtFreq(c.oohFrequency || 1.88), fullWidth: true }
+        { label: 'Frequência', value: fmtFreq(c.oohFrequency || 1.88) }
       ]
     }));
   }
@@ -2421,7 +2357,7 @@ function renderModularMetrics(m) {
       subCards: [
         {
           label: 'Veículos',
-          rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi')
+          rawHtml: `<strong class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug block mt-0.5">${portaisVehiclesList.join(', ')}</strong>`
         },
         { label: 'CPM médio', value: portaisCpmLabel }
       ]
@@ -2442,7 +2378,7 @@ function renderModularMetrics(m) {
       subCards: [
         {
           label: 'Títulos',
-          rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi')
+          rawHtml: `<strong class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug block mt-0.5">${effectiveRevistasTitles.join(', ')}</strong>`
         },
         { label: 'CPM médio', value: revistasCpmLabel }
       ]
@@ -3120,42 +3056,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const reachValue = fmtInt(g.reach);
       const isMetricsOpen = !!state.expandedCardMetrics[g.code];
 
-      const metricsHoverPopoverHtml = `
-        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[245px] p-3 rounded-xl bg-[#1E293B] text-white text-xs leading-snug shadow-xl pointer-events-none text-left">
-          <div class="text-xs font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
-            Métricas estimadas
-          </div>
-          <div class="space-y-1">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Telas:</span>
-              <strong class="font-display font-bold text-white">${screensLabel}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Exibição diária:</span>
-              <strong class="font-display font-bold text-white">${dailyExhibitionsValue}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Exibições no período:</span>
-              <strong class="font-display font-bold text-white">${exhibitionsValue}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Alcance:</span>
-              <strong class="font-display font-bold text-white">${reachValue}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Frequência:</span>
-              <strong class="font-display font-bold text-white">${freqFormatted}</strong>
-            </div>
-          </div>
-        </div>
-      `;
+      const metricsHoverPopoverHtml = '';
 
       const metricsDrawerHtml = isMetricsOpen ? `
         <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
-              <i class="uil uil-chart-bar text-xs text-ds-textMain"></i>
-              Detalhamento de métricas
+            <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+              <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
+              <span>DETALHAMENTO</span>
             </span>
             <button type="button" onclick="toggleCardMetrics('${g.code}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
@@ -3200,7 +3108,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
               ${mobile ? `
                 <!-- ================= LAYOUT MOBILE (sm — 640px: Header com Impacto inline + Título e Endereço 100% full-width sem truncar) ================= -->
                 <div>
-                  <!-- Linha 1: Badge + Exibição diária + Torres (+ ID apenas Admin) à esquerda | Impacto Estimado à direita -->
+                  <!-- Linha 1: Badge + Torres (+ ID apenas Admin) à esquerda | Impacto Estimado à direita -->
                   <div class="flex items-center justify-between gap-2 mb-2">
                     <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
                       <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
@@ -3213,9 +3121,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       ` : ''}
                       <span class="px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
                         ${g.towersCount} torres
-                      </span>
-                      <span class="px-2 py-0.5 rounded-[5px] text-xs font-medium bg-ds-surface text-ds-textSecondary border border-ds-border">
-                        ${dailyExhibitionsValue} exib./dia
                       </span>
                     </div>
 
@@ -3265,7 +3170,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                           isMetricsOpen
                             ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
                             : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                        } inline-flex items-center justify-center transition shrink-0"
+                        } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                         aria-label="Ver métricas detalhadas"
                       >
                         <i class="uil uil-chart-bar text-base"></i>
@@ -3305,9 +3210,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       ` : ''}
                       <span class="px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
                         ${g.towersCount} torres
-                      </span>
-                      <span class="px-2 py-0.5 rounded-[5px] text-xs font-medium bg-ds-surface text-ds-textSecondary border border-ds-border">
-                        ${dailyExhibitionsValue} exib./dia
                       </span>
                     </div>
 
@@ -3367,21 +3269,18 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   </div>
 
                   <div class="flex items-center gap-1.5 ml-auto shrink-0">
-                    <div class="relative group/metrics">
-                      <button
-                        type="button"
-                        onclick="toggleCardMetrics('${g.code}')"
-                        class="w-8 h-8 rounded-[8px] border ${
-                          isMetricsOpen
-                            ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                            : 'border-[#B8AEA2] bg-[#F3ECE4] text-ds-textMain hover:bg-[#282E38] hover:border-[#282E38] hover:text-white'
-                        } inline-flex items-center justify-center transition shrink-0"
-                        aria-label="Ver métricas detalhadas"
-                      >
-                        <i class="uil uil-chart-bar text-base"></i>
-                      </button>
-                      ${metricsHoverPopoverHtml}
-                    </div>
+                    <button
+                      type="button"
+                      onclick="toggleCardMetrics('${g.code}')"
+                      class="w-8 h-8 rounded-[8px] border ${
+                        isMetricsOpen
+                          ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
+                          : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                      } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                      aria-label="Ver métricas detalhadas"
+                    >
+                      <i class="uil uil-chart-bar text-base"></i>
+                    </button>
                     <button
                       type="button"
                       onclick="toggleCondoGroup('${g.condoId}')"
@@ -3432,7 +3331,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
             ${mobile ? `
               <!-- ================= LAYOUT MOBILE (sm — 640px: Header com Impacto inline + Título e Endereço 100% full-width sem truncar) ================= -->
               <div>
-                <!-- Linha 1: Badge + Exibição diária (+ ID apenas Admin) à esquerda | Impacto Estimado à direita -->
+                <!-- Linha 1: Badge (+ ID apenas Admin) à esquerda | Impacto Estimado à direita -->
                 <div class="flex items-center justify-between gap-2 mb-2">
                   <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
                     <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-bold uppercase tracking-wider ${formatBadgeClass}">
@@ -3443,9 +3342,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                         ID: #${g.displayCode}
                       </span>
                     ` : ''}
-                    <span class="px-2 py-0.5 rounded-[5px] text-xs font-medium bg-ds-surface text-ds-textSecondary border border-ds-border">
-                      ${dailyExhibitionsValue} exib./dia
-                    </span>
                   </div>
 
                   <div class="text-right shrink-0 flex items-baseline gap-1">
@@ -3494,7 +3390,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                         isMetricsOpen
                           ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
                           : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                      } inline-flex items-center justify-center transition shrink-0"
+                      } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                       aria-label="Ver métricas detalhadas"
                     >
                       <i class="uil uil-chart-bar text-base"></i>
@@ -3524,9 +3420,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                         ID: #${g.displayCode}
                       </span>
                     ` : ''}
-                    <span class="px-2 py-0.5 rounded-[5px] text-xs font-medium bg-ds-surface text-ds-textSecondary border border-ds-border">
-                      ${dailyExhibitionsValue} exib./dia
-                    </span>
                   </div>
 
                   <h4
@@ -3585,21 +3478,18 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 </div>
 
                 <div class="flex items-center gap-1.5 ml-auto shrink-0">
-                  <div class="relative group/metrics">
-                    <button
-                      type="button"
-                      onclick="toggleCardMetrics('${g.code}')"
-                      class="w-8 h-8 rounded-[8px] border ${
-                        isMetricsOpen
-                          ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                          : 'border-[#B8AEA2] bg-[#F3ECE4] text-ds-textMain hover:bg-[#282E38] hover:border-[#282E38] hover:text-white'
-                      } inline-flex items-center justify-center transition shrink-0"
-                      aria-label="Ver métricas detalhadas"
-                    >
-                      <i class="uil uil-chart-bar text-base"></i>
-                    </button>
-                    ${metricsHoverPopoverHtml}
-                  </div>
+                  <button
+                    type="button"
+                    onclick="toggleCardMetrics('${g.code}')"
+                    class="w-8 h-8 rounded-[8px] border ${
+                      isMetricsOpen
+                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
+                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                    aria-label="Ver métricas detalhadas"
+                  >
+                    <i class="uil uil-chart-bar text-base"></i>
+                  </button>
                   <button
                     type="button"
                     onclick="focusMapPin(${g.latitude}, ${g.longitude}, '${safeTitle}', '${safeAddr}', '${fmtBRL(g.netPrice)}', '${categoryLabel}')"
@@ -3718,30 +3608,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const revSubtitle = `Revistas Digitais • Cobertura Nacional • CPM ${fmtBRL(r.cpm)}`;
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
 
-      const revMetricsPopoverHtml = `
-        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[235px] p-3 rounded-xl bg-[#1E293B] text-white text-xs leading-snug shadow-xl pointer-events-none text-left">
-          <div class="text-xs font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
-            Detalhamento de métricas
-          </div>
-          <div class="space-y-1">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Portais:</span>
-              <strong class="font-display font-bold text-white">1 portal (${r.editorialTitle})</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">CPM:</span>
-              <strong class="font-display font-bold text-white">${fmtBRL(r.cpm)}</strong>
-            </div>
-          </div>
-        </div>
-      `;
+      const revMetricsPopoverHtml = '';
 
       const revMetricsDrawerHtml = isMetricsOpen ? `
         <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
-              <i class="uil uil-chart-bar text-xs text-ds-textMain"></i>
-              Detalhamento de métricas
+            <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+              <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
+              <span>DETALHAMENTO</span>
             </span>
             <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
@@ -3804,7 +3678,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       isMetricsOpen
                         ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
                         : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                    } inline-flex items-center justify-center transition shrink-0"
+                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
                     <i class="uil uil-chart-bar text-base"></i>
@@ -3859,21 +3733,18 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 </div>
 
                 <div class="flex items-center gap-2 ml-auto shrink-0">
-                  <div class="relative group/metrics">
-                    <button
-                      type="button"
-                      onclick="toggleCardMetrics('${itemKey}')"
-                      class="w-8 h-8 rounded-[8px] border ${
-                        isMetricsOpen
-                          ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                          : 'border-[#B8AEA2] bg-[#F3ECE4] text-ds-textMain hover:bg-[#282E38] hover:border-[#282E38] hover:text-white'
-                      } inline-flex items-center justify-center transition shrink-0"
-                      aria-label="Ver métricas detalhadas"
-                    >
-                      <i class="uil uil-chart-bar text-base"></i>
-                    </button>
-                    ${revMetricsPopoverHtml}
-                  </div>
+                  <button
+                    type="button"
+                    onclick="toggleCardMetrics('${itemKey}')"
+                    class="w-8 h-8 rounded-[8px] border ${
+                      isMetricsOpen
+                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
+                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                    aria-label="Ver métricas detalhadas"
+                  >
+                    <i class="uil uil-chart-bar text-base"></i>
+                  </button>
                 </div>
               </div>
             `}
@@ -3923,30 +3794,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
       const digChannelsLabel = `${p.vehicles.length} ${p.vehicles.length > 1 ? 'portais' : 'portal'}`;
 
-      const digMetricsPopoverHtml = `
-        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[235px] p-3 rounded-xl bg-[#1E293B] text-white text-xs leading-snug shadow-xl pointer-events-none text-left">
-          <div class="text-xs font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
-            Detalhamento de métricas
-          </div>
-          <div class="space-y-1">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Portais:</span>
-              <strong class="font-display font-bold text-white">${digChannelsLabel}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">CPM:</span>
-              <strong class="font-display font-bold text-white">${fmtBRL(p.cpm)}</strong>
-            </div>
-          </div>
-        </div>
-      `;
+      const digMetricsPopoverHtml = '';
 
       const digMetricsDrawerHtml = isMetricsOpen ? `
         <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
-              <i class="uil uil-chart-bar text-xs text-ds-textMain"></i>
-              Detalhamento de métricas
+            <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+              <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
+              <span>DETALHAMENTO</span>
             </span>
             <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
@@ -4009,7 +3864,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       isMetricsOpen
                         ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
                         : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                    } inline-flex items-center justify-center transition shrink-0"
+                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
                     <i class="uil uil-chart-bar text-base"></i>
@@ -4064,21 +3919,18 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 </div>
 
                 <div class="flex items-center gap-2 ml-auto shrink-0">
-                  <div class="relative group/metrics">
-                    <button
-                      type="button"
-                      onclick="toggleCardMetrics('${itemKey}')"
-                      class="w-8 h-8 rounded-[8px] border ${
-                        isMetricsOpen
-                          ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                          : 'border-[#B8AEA2] bg-[#F3ECE4] text-ds-textMain hover:bg-[#282E38] hover:border-[#282E38] hover:text-white'
-                      } inline-flex items-center justify-center transition shrink-0"
-                      aria-label="Ver métricas detalhadas"
-                    >
-                      <i class="uil uil-chart-bar text-base"></i>
-                    </button>
-                    ${digMetricsPopoverHtml}
-                  </div>
+                  <button
+                    type="button"
+                    onclick="toggleCardMetrics('${itemKey}')"
+                    class="w-8 h-8 rounded-[8px] border ${
+                      isMetricsOpen
+                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
+                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                    aria-label="Ver métricas detalhadas"
+                  >
+                    <i class="uil uil-chart-bar text-base"></i>
+                  </button>
                 </div>
               </div>
             `}
@@ -4129,34 +3981,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
       const spotsLabel = `${fmtInt(rd.totalInsertions)} (${fmtInt(rd.weeklyInsertions)}/sem)`;
 
-      const radMetricsPopoverHtml = `
-        <div class="hidden group-hover/metrics:block absolute right-0 bottom-full mb-2 z-30 w-[235px] p-3 rounded-xl bg-[#1E293B] text-white text-xs leading-snug shadow-xl pointer-events-none text-left">
-          <div class="text-xs font-bold uppercase tracking-wider text-slate-300 pb-1.5 mb-1.5 border-b border-slate-700/80">
-            Detalhamento de métricas
-          </div>
-          <div class="space-y-1">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Frequência:</span>
-              <strong class="font-display font-bold text-white">${rd.frequencyDaysLabel}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Faixa horária:</span>
-              <strong class="font-display font-bold text-white">${rd.timeWindow}</strong>
-            </div>
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-slate-300">Duração:</span>
-              <strong class="font-display font-bold text-white">${rd.spotDuration}s</strong>
-            </div>
-          </div>
-        </div>
-      `;
+      const radMetricsPopoverHtml = '';
 
       const radMetricsDrawerHtml = isMetricsOpen ? `
         <div class="bg-ds-bg border-t border-ds-border px-4 py-3 text-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-ds-textSecondary flex items-center gap-1">
-              <i class="uil uil-chart-bar text-xs text-ds-textMain"></i>
-              Detalhamento de métricas
+            <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
+              <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
+              <span>DETALHAMENTO</span>
             </span>
             <button type="button" onclick="toggleCardMetrics('${itemKey}')" class="text-xs font-semibold text-ds-textSecondary hover:text-ds-textMain">
               Ocultar
@@ -4226,7 +4058,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
                       isMetricsOpen
                         ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
                         : 'border-ds-borderStrong bg-white text-ds-textSecondary'
-                    } inline-flex items-center justify-center transition shrink-0"
+                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
                     aria-label="Ver métricas detalhadas"
                   >
                     <i class="uil uil-chart-bar text-base"></i>
@@ -4284,21 +4116,18 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <span class="px-2.5 py-1.5 rounded-[8px] bg-amber-50 border border-amber-200 text-amber-900 font-display font-bold text-xs inline-flex items-center whitespace-nowrap">
                     Faturado à parte
                   </span>
-                  <div class="relative group/metrics">
-                    <button
-                      type="button"
-                      onclick="toggleCardMetrics('${itemKey}')"
-                      class="w-8 h-8 rounded-[8px] border ${
-                        isMetricsOpen
-                          ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
-                          : 'border-[#B8AEA2] bg-[#F3ECE4] text-ds-textMain hover:bg-[#282E38] hover:border-[#282E38] hover:text-white'
-                      } inline-flex items-center justify-center transition shrink-0"
-                      aria-label="Ver métricas detalhadas"
-                    >
-                      <i class="uil uil-chart-bar text-base"></i>
-                    </button>
-                    ${radMetricsPopoverHtml}
-                  </div>
+                  <button
+                    type="button"
+                    onclick="toggleCardMetrics('${itemKey}')"
+                    class="w-8 h-8 rounded-[8px] border ${
+                      isMetricsOpen
+                        ? 'border-[#282E38] bg-[#282E38] text-white shadow-xs'
+                        : 'border-ds-borderStrong bg-white text-ds-textSecondary'
+                    } inline-flex items-center justify-center transition shrink-0 cursor-pointer"
+                    aria-label="Ver métricas detalhadas"
+                  >
+                    <i class="uil uil-chart-bar text-base"></i>
+                  </button>
                 </div>
               </div>
             `}
@@ -7885,66 +7714,97 @@ function renderPdfDocument(m) {
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200 text-slate-800">
-            ${m.oohDisplayGroups.map((g, idx) => {
-              const isStatic = Boolean(g.isStatic);
-              const exhType = isStatic ? 'Estático' : 'DOOH';
-              let towersNote = '';
-              if (g.kind === 'condo_group' && g.towers && g.towers.length > 1) {
-                const shortTowers = g.towers.map((t) => {
-                  let rawName = String(t.name || '').trim();
-                  if (g.name && rawName.toLowerCase().startsWith(g.name.toLowerCase())) {
-                    rawName = rawName.slice(g.name.length).replace(/^[\s\-–—:·]+/, '').trim();
-                  } else if (rawName.includes(' - ')) {
-                    rawName = rawName.split(' - ').slice(1).join(' - ').trim();
-                  }
-                  return escapeHtml(rawName || t.name);
-                });
-                towersNote = `
-                  <div class="mt-1 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-0.5 leading-snug">
-                    <span class="font-bold">${g.towersCount} torres:</span>
-                    <span>${shortTowers.join(' · ')}</span>
-                  </div>
-                `;
-              }
-              const geoMeta = [g.district, g.city ? `${g.city}/${g.state || 'SP'}` : ''].filter(Boolean).join(', ');
-              const reachVal = g.reach || 0;
-              const impactVal = g.impacts || g.reach || 0;
+            ${(() => {
+              const pdfOohRows = [];
+              m.oohDisplayGroups.forEach((g) => {
+                const isStatic = Boolean(g.isStatic);
+                const exhType = isStatic ? 'Estático' : 'DOOH';
+                const geoMeta = [g.district, g.city ? `${g.city}/${g.state || 'SP'}` : ''].filter(Boolean).join(', ');
+                if (g.kind === 'condo_group' && Array.isArray(g.towers) && g.towers.length > 0) {
+                  g.towers.forEach((t) => {
+                    let towerCleanName = String(t.name || '').trim();
+                    if (g.name && !towerCleanName.toLowerCase().includes(g.name.toLowerCase())) {
+                      towerCleanName = `${g.name} — ${towerCleanName}`;
+                    }
+                    const tReach = t.reach || Math.round((g.reach || 0) / Math.max(1, g.towers.length));
+                    const tImpacts = t.impacts || Math.round((g.impacts || g.reach || 0) / Math.max(1, g.towers.length));
+                    const tGross = t.originalPrice ?? t.netPrice;
+                    const tDisc = t.residentDiscount ?? Math.max(0, tGross - t.netPrice);
+                    pdfOohRows.push({
+                      code: t.code,
+                      name: towerCleanName,
+                      address: g.address,
+                      geoMeta,
+                      vertical: g.vertical,
+                      exhType,
+                      resolution: t.resolution || g.resolution || '1080x1920',
+                      screens: t.screens,
+                      isStatic,
+                      dailyInsertions: t.dailyInsertions,
+                      periodInsertions: t.periodInsertions,
+                      reachVal: tReach,
+                      impactVal: tImpacts,
+                      originalPrice: tGross,
+                      residentDiscount: tDisc,
+                      netPrice: t.netPrice
+                    });
+                  });
+                } else {
+                  pdfOohRows.push({
+                    code: g.displayCode || g.code,
+                    name: g.name,
+                    address: g.address,
+                    geoMeta,
+                    vertical: g.vertical,
+                    exhType,
+                    resolution: g.resolution || '1080x1920',
+                    screens: g.screens,
+                    isStatic,
+                    dailyInsertions: g.dailyInsertions,
+                    periodInsertions: g.periodInsertions,
+                    reachVal: g.reach || 0,
+                    impactVal: g.impacts || g.reach || 0,
+                    originalPrice: g.originalPrice,
+                    residentDiscount: g.residentDiscount || 0,
+                    netPrice: g.netPrice
+                  });
+                }
+              });
 
-              return `
+              return pdfOohRows.map((item, idx) => `
                 <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
                   ${state.isAdminView ? `
                     <td class="py-2.5 px-2.5 align-top font-mono font-bold text-xs text-slate-700 whitespace-nowrap">
-                      <div>#${escapeHtml(g.displayCode || g.code)}</div>
+                      <div>#${escapeHtml(item.code)}</div>
                     </td>
                   ` : ''}
                   <td class="py-2.5 px-3 align-top">
-                    <div class="font-bold text-slate-900 leading-snug">${escapeHtml(g.name)}</div>
-                    <div class="text-xs text-slate-500 leading-snug mt-0.5">${escapeHtml(g.address)}${geoMeta ? ` · ${escapeHtml(geoMeta)}` : ''}</div>
-                    ${towersNote}
+                    <div class="font-bold text-slate-900 leading-snug">${escapeHtml(item.name)}</div>
+                    <div class="text-xs text-slate-500 leading-snug mt-0.5">${escapeHtml(item.address)}${item.geoMeta ? ` · ${escapeHtml(item.geoMeta)}` : ''}</div>
                   </td>
                   <td class="py-2.5 px-2.5 align-top">
-                    <div class="font-semibold text-slate-800 leading-snug">${escapeHtml(g.vertical)}</div>
-                    <div class="text-xs text-slate-500 mt-0.5 whitespace-nowrap">${exhType} · ${escapeHtml(g.resolution || '1080x1920')}</div>
+                    <div class="font-semibold text-slate-800 leading-snug">${escapeHtml(item.vertical)}</div>
+                    <div class="text-xs text-slate-500 mt-0.5 whitespace-nowrap">${item.exhType} · ${escapeHtml(item.resolution)}</div>
                   </td>
-                  <td class="py-2.5 px-2 align-top text-center font-bold text-slate-800 whitespace-nowrap">${fmtInt(g.screens)}</td>
+                  <td class="py-2.5 px-2 align-top text-center font-bold text-slate-800 whitespace-nowrap">${fmtInt(item.screens)}</td>
                   <td class="py-2.5 px-2.5 align-top text-right whitespace-nowrap">
-                    <span class="font-semibold text-slate-800">${isStatic ? 'Fixa' : fmtInt(g.dailyInsertions)}</span>
+                    <span class="font-semibold text-slate-800">${item.isStatic ? 'Fixa' : fmtInt(item.dailyInsertions)}</span>
                   </td>
                   <td class="py-2.5 px-2.5 align-top text-right whitespace-nowrap">
-                    <span class="font-semibold text-slate-900">${isStatic ? 'Fixa' : fmtInt(g.periodInsertions)}</span>
+                    <span class="font-semibold text-slate-900">${item.isStatic ? 'Fixa' : fmtInt(item.periodInsertions)}</span>
                   </td>
-                  <td class="py-2.5 px-2.5 align-top text-right text-slate-700 whitespace-nowrap">${reachVal > 0 ? fmtInt(reachVal) : '—'}</td>
-                  <td class="py-2.5 px-2.5 align-top text-right text-slate-700 whitespace-nowrap">${impactVal > 0 ? fmtInt(impactVal) : '—'}</td>
+                  <td class="py-2.5 px-2.5 align-top text-right text-slate-700 whitespace-nowrap">${item.reachVal > 0 ? fmtInt(item.reachVal) : '—'}</td>
+                  <td class="py-2.5 px-2.5 align-top text-right text-slate-700 whitespace-nowrap">${item.impactVal > 0 ? fmtInt(item.impactVal) : '—'}</td>
                   <td class="py-2.5 px-3 align-top text-right whitespace-nowrap">
-                    ${g.residentDiscount > 0 ? `
-                      <div class="text-xs text-slate-400 line-through leading-none mb-0.5">${fmtBRL(g.originalPrice)}</div>
-                      <div class="text-xs font-semibold text-emerald-700 leading-none mb-0.5">Desc. condo. (-${fmtBRL(g.residentDiscount)})</div>
+                    ${item.residentDiscount > 0 ? `
+                      <div class="text-xs text-slate-400 line-through leading-none mb-0.5">${fmtBRL(item.originalPrice)}</div>
+                      <div class="text-xs font-semibold text-emerald-700 leading-none mb-0.5">Desc. condo. (-${fmtBRL(item.residentDiscount)})</div>
                     ` : ''}
-                    <div class="font-bold text-slate-900">${fmtBRL(g.netPrice)}</div>
+                    <div class="font-bold text-slate-900">${fmtBRL(item.netPrice)}</div>
                   </td>
                 </tr>
-              `;
-            }).join('')}
+              `).join('');
+            })()}
           </tbody>
           <tfoot class="bg-ds-surface border-t border-ds-borderStrong font-bold text-ds-textMain text-xs">
             <tr>
@@ -9693,15 +9553,15 @@ function applyStyledWorksheet(ws, cfg) {
     const activeCols = rMeta.maxCol || colCount;
 
     if (rType === 'orange_title') {
-      rowHeights[r] = { hpt: 30 };
+      rowHeights[r] = { hpt: 32 };
     } else if (rType === 'orange_subtitle' || rType === 'orange_section') {
-      rowHeights[r] = { hpt: 23 };
-    } else if (rType === 'cta_link') {
+      rowHeights[r] = { hpt: 24 };
+    } else if (rType === 'cta_link' || rType === 'cta_button') {
+      rowHeights[r] = { hpt: 28 };
+    } else if (rType === 'table_header' || rType === 'green_header') {
       rowHeights[r] = { hpt: 26 };
-    } else if (rType === 'table_header') {
-      rowHeights[r] = { hpt: 25 };
-    } else if (rType === 'total' || rType === 'highlight_total') {
-      rowHeights[r] = { hpt: 23 };
+    } else if (rType === 'total' || rType === 'highlight_total' || rType === 'black_total') {
+      rowHeights[r] = { hpt: 24 };
     } else if (rType === 'spacer') {
       rowHeights[r] = { hpt: 12 };
     } else {
@@ -9752,29 +9612,36 @@ function applyStyledWorksheet(ws, cfg) {
         horiz = centerColsSet.has(c) && !isCurrency ? 'center' : 'right';
       } else if (centerColsSet.has(c) && rType !== 'orange_title' && rType !== 'orange_subtitle' && rType !== 'orange_section' && rType !== 'cta_link') {
         horiz = 'center';
-      } else if (rType === 'table_header' && (currencyColsSet.has(c) || integerColsSet.has(c) || (Array.isArray(rMeta.rightHeaderCols) && rMeta.rightHeaderCols.includes(c)))) {
+      } else if ((rType === 'table_header' || rType === 'green_header') && (currencyColsSet.has(c) || integerColsSet.has(c) || (Array.isArray(rMeta.rightHeaderCols) && rMeta.rightHeaderCols.includes(c)))) {
         horiz = centerColsSet.has(c) ? 'center' : 'right';
       }
 
       if (rType === 'orange_title') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Arial', sz: 13, bold: true, color: { rgb: 'FFFFFF' } },
+          font: { name: 'Century Gothic', sz: 13, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderOrange
         };
       } else if (rType === 'orange_subtitle') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Arial', sz: 11, bold: true, color: { rgb: 'FFFFFF' } },
+          font: { name: 'Century Gothic', sz: 10.5, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderOrange
         };
       } else if (rType === 'orange_section') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
-          font: { name: 'Arial', sz: 10.5, bold: true, color: { rgb: 'FFFFFF' } },
+          font: { name: 'Century Gothic', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
           alignment: { vertical: 'center', horizontal: 'left' },
+          border: borderOrange
+        };
+      } else if (rType === 'cta_button') {
+        cell.s = {
+          fill: { patternType: 'solid', fgColor: { rgb: 'F15A22' } },
+          font: { name: 'Century Gothic', sz: 11, bold: true, underline: true, color: { rgb: 'FFFFFF' } },
+          alignment: { vertical: 'center', horizontal: 'center' },
           border: borderOrange
         };
       } else if (rType === 'cta_link') {
@@ -9782,8 +9649,8 @@ function applyStyledWorksheet(ws, cfg) {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: isLinkCell ? 'FFF3EA' : 'FBF8F4' } },
           font: {
-            name: 'Arial',
-            sz: 10.5,
+            name: 'Century Gothic',
+            sz: 10,
             bold: true,
             underline: isLinkCell,
             color: { rgb: isLinkCell ? 'F15A22' : '121212' }
@@ -9791,19 +9658,39 @@ function applyStyledWorksheet(ws, cfg) {
           alignment: { vertical: 'center', horizontal: 'left' },
           border: borderHeader
         };
+      } else if (rType === 'green_header') {
+        cell.s = {
+          fill: { patternType: 'solid', fgColor: { rgb: '70AD47' } },
+          font: { name: 'Century Gothic', sz: 9.5, bold: true, color: { rgb: 'FFFFFF' } },
+          alignment: { vertical: 'center', horizontal: horiz, wrapText: true },
+          border: borderHeader
+        };
       } else if (rType === 'table_header') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'E8E0D5' } },
-          font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '121212' } },
+          font: { name: 'Century Gothic', sz: 9.5, bold: true, color: { rgb: '121212' } },
           alignment: { vertical: 'center', horizontal: horiz, wrapText: true },
           border: borderHeader
         };
       } else if (rType === 'coupon') {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: 'ECFDF5' } },
-          font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '047857' } },
+          font: { name: 'Century Gothic', sz: 9.5, bold: true, color: { rgb: '047857' } },
           alignment: { vertical: 'center', horizontal: horiz },
           border: borderThin,
+          ...(numFmt ? { numFmt } : {})
+        };
+      } else if (rType === 'black_total') {
+        cell.s = {
+          fill: { patternType: 'solid', fgColor: { rgb: '121212' } },
+          font: {
+            name: 'Century Gothic',
+            sz: 10,
+            bold: true,
+            color: { rgb: 'FFFFFF' }
+          },
+          alignment: { vertical: 'center', horizontal: horiz },
+          border: borderTotal,
           ...(numFmt ? { numFmt } : {})
         };
       } else if (rType === 'total' || rType === 'highlight_total') {
@@ -9811,8 +9698,8 @@ function applyStyledWorksheet(ws, cfg) {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: rType === 'highlight_total' ? 'FFF3EA' : 'F3ECE4' } },
           font: {
-            name: 'Arial',
-            sz: 10.5,
+            name: 'Century Gothic',
+            sz: 10,
             bold: true,
             color: { rgb: isFinalNetCol ? 'F15A22' : '121212' }
           },
@@ -9825,8 +9712,8 @@ function applyStyledWorksheet(ws, cfg) {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: isKeyCol ? 'FBF8F4' : 'FFFFFF' } },
           font: {
-            name: 'Arial',
-            sz: 10,
+            name: 'Century Gothic',
+            sz: 9.5,
             bold: Boolean(isKeyCol || rMeta.boldValue),
             color: { rgb: '121212' }
           },
@@ -9843,8 +9730,8 @@ function applyStyledWorksheet(ws, cfg) {
         cell.s = {
           fill: { patternType: 'solid', fgColor: { rgb: isEvenData ? 'FAF7F2' : 'FFFFFF' } },
           font: {
-            name: 'Arial',
-            sz: 10,
+            name: 'Century Gothic',
+            sz: 9.5,
             bold: isBoldCol,
             color: { rgb: '121212' }
           },
@@ -9881,7 +9768,6 @@ function exportFullCsv() {
   const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
   const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
 
-  // Portais e Revistas helpers iguais ao PDF (sem Cartola)
   const portaisVehiclesSet = new Set();
   (m.portaisItems || []).forEach((it) => {
     (it.vehicles || []).forEach((v) => {
@@ -9913,10 +9799,74 @@ function exportFullCsv() {
     ? window.location.href.split('#')[0]
     : 'https://aquiads.com.br/proposta/' + m.id;
 
+  const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
   const sheetsData = [];
 
   // ==========================================================================
-  // 1. ABA RESUMO DA PROPOSTA (Capa Institucional Aqui Ads + Link Direto Online + Resumo Executivo)
+  // 1. CAPA INSTITUCIONAL DE ABERTURA: "ACESSAR O PLANO NO ADS" (Padrão Eletromidia SMB)
+  // ==========================================================================
+  const coverRows = [];
+  const coverMeta = {};
+  const coverMerges = [];
+  const pushCoverRow = (arr, meta) => {
+    const idx = coverRows.length;
+    coverRows.push(arr);
+    coverMeta[idx] = meta;
+    return idx;
+  };
+
+  const cTitleIdx = pushCoverRow(['AQUI ADS (GLOBO & ELETROMIDIA) — PLANO DE MÍDIA INTERATIVO'], { type: 'orange_title', maxCol: 4 });
+  coverMerges.push({ s: { r: cTitleIdx, c: 0 }, e: { r: cTitleIdx, c: 3 } });
+
+  const cSubIdx = pushCoverRow([
+    'Este plano de mídia foi criado no Aqui Ads. Você pode visualizar todos os detalhes, mapa interativo e concluir a contratação diretamente na plataforma.'
+  ], { type: 'orange_subtitle', maxCol: 4 });
+  coverMerges.push({ s: { r: cSubIdx, c: 0 }, e: { r: cSubIdx, c: 3 } });
+
+  pushCoverRow([], { type: 'spacer' });
+
+  const cBtnIdx = pushCoverRow(['ACESSAR A PROPOSTA ONLINE'], {
+    type: 'cta_button',
+    maxCol: 2,
+    hyperlinks: { 0: onlineProposalUrl, 1: onlineProposalUrl }
+  });
+  coverMerges.push({ s: { r: cBtnIdx, c: 0 }, e: { r: cBtnIdx, c: 1 } });
+
+  pushCoverRow(['Link direto:', onlineProposalUrl], {
+    type: 'cta_link',
+    maxCol: 2,
+    hyperlinks: { 1: onlineProposalUrl }
+  });
+
+  pushCoverRow([], { type: 'spacer' });
+
+  const cSecIdx = pushCoverRow(['RESUMO EXECUTIVO DA PROPOSTA COMERCIAL'], { type: 'orange_section', maxCol: 2 });
+  coverMerges.push({ s: { r: cSecIdx, c: 0 }, e: { r: cSecIdx, c: 1 } });
+  pushCoverRow(['Código da proposta', proposalDisplayId], { type: 'kv_row', maxCol: 2, boldValue: true });
+  if (hasCampaignName) {
+    pushCoverRow(['Campanha', m.campaignName], { type: 'kv_row', maxCol: 2 });
+  }
+  pushCoverRow([billingHolderLabel, billingCompany], { type: 'kv_row', maxCol: 2 });
+  pushCoverRow([billingDocTypeLabel, billingCnpj], { type: 'kv_row', maxCol: 2 });
+  pushCoverRow(['Período de veiculação', `${m.startDate} a ${m.endDate} (${m.durationDays} dias)`], { type: 'kv_row', maxCol: 2 });
+  pushCoverRow(['Investimento total líquido', Number(f.trueProposalTotal.toFixed(2))], { type: 'highlight_total', maxCol: 2, currencyCols: [1] });
+
+  sheetsData.push({
+    name: 'ACESSAR O PLANO NO ADS',
+    rows: coverRows,
+    colCount: 4,
+    merges: coverMerges,
+    rowMeta: coverMeta,
+    customCols: [
+      { wch: 36 },
+      { wch: 56 },
+      { wch: 24 },
+      { wch: 24 }
+    ]
+  });
+
+  // ==========================================================================
+  // 2. ABA RESUMO PROPOSTA (Padrão Executivo Eletromidia Ads)
   // ==========================================================================
   const resumoColsCount = 6;
   const resumoRows = [];
@@ -9930,16 +9880,13 @@ function exportFullCsv() {
     return idx;
   };
 
-  // Capa Institucional de Abertura (Padrão Executivo Aqui Ads / Eletromidia Ads)
-  const rTitleIdx = pushResumoRow(['AQUI ADS (GLOBO & ELETROMIDIA) — PROPOSTA COMERCIAL EXECUTIVA'], { type: 'orange_title', maxCol: resumoColsCount });
+  const rTitleIdx = pushResumoRow(['AQUI ADS — RESUMO DA PROPOSTA COMERCIAL'], { type: 'orange_title', maxCol: resumoColsCount });
   resumoMerges.push({ s: { r: rTitleIdx, c: 0 }, e: { r: rTitleIdx, c: resumoColsCount - 1 } });
 
-  const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
   const subtitleCoverText = `${hasCampaignName ? `${m.campaignName} · ` : ''}Proposta ${proposalDisplayId} · Período de veiculação: ${m.startDate} a ${m.endDate} (${m.durationDays} dias corridos)`;
   const rSubIdx = pushResumoRow([subtitleCoverText], { type: 'orange_subtitle', maxCol: resumoColsCount });
   resumoMerges.push({ s: { r: rSubIdx, c: 0 }, e: { r: rSubIdx, c: resumoColsCount - 1 } });
 
-  // Ligação Direta Destacada para a Proposta Online
   pushResumoRow([
     'Acesso direto à proposta virtual',
     'Acessar a proposta online (Mapa interativo, envio de artes e pagamento)'
@@ -9951,137 +9898,215 @@ function exportFullCsv() {
 
   pushResumoRow([], { type: 'spacer' });
 
-  // Bloco 1: Dados de Campanha
-  const secCampIdx = pushResumoRow(['DADOS DE CAMPANHA'], { type: 'orange_section', maxCol: 2 });
+  // Bloco 1: Dados de Campanha & Faturamento (LGPD)
+  const secCampIdx = pushResumoRow(['IDENTIFICAÇÃO DA CAMPANHA E FATURAMENTO (LGPD)'], { type: 'orange_section', maxCol: 2 });
   resumoMerges.push({ s: { r: secCampIdx, c: 0 }, e: { r: secCampIdx, c: 1 } });
   pushResumoRow(['Campo', 'Informação'], { type: 'table_header', maxCol: 2 });
   pushResumoRow(['Código da proposta', proposalDisplayId], { type: 'kv_row', maxCol: 2, boldValue: true });
   if (hasCampaignName) {
     pushResumoRow(['Nome da campanha', m.campaignName], { type: 'kv_row', maxCol: 2 });
   }
-  pushResumoRow(['Duração da campanha', `${m.durationDays} dias corridos`], { type: 'kv_row', maxCol: 2 });
-  pushResumoRow(['Período de veiculação', `${m.startDate} a ${m.endDate}`], { type: 'kv_row', maxCol: 2 });
+  pushResumoRow(['Período de veiculação', `${m.startDate} a ${m.endDate} (${m.durationDays} dias)`], { type: 'kv_row', maxCol: 2 });
+  pushResumoRow([billingHolderLabel, billingCompany], { type: 'kv_row', maxCol: 2, boldValue: true });
+  pushResumoRow([billingDocTypeLabel, billingCnpj], { type: 'kv_row', maxCol: 2 });
   pushResumoRow(['Link da proposta online', onlineProposalUrl], { type: 'kv_row', maxCol: 2, hyperlinks: { 1: onlineProposalUrl } });
 
   pushResumoRow([], { type: 'spacer' });
 
-  // Bloco 2: Dados de Faturamento (Protegidos para compartilhamento — LGPD)
-  const secFatIdx = pushResumoRow(['DADOS DE FATURAMENTO (PROTEGIDOS · LGPD)'], { type: 'orange_section', maxCol: 2 });
-  resumoMerges.push({ s: { r: secFatIdx, c: 0 }, e: { r: secFatIdx, c: 1 } });
-  pushResumoRow(['Campo', 'Informação'], { type: 'table_header', maxCol: 2 });
-  pushResumoRow([billingHolderLabel, billingCompany], { type: 'kv_row', maxCol: 2, boldValue: true });
-  pushResumoRow([billingDocTypeLabel, billingCnpj], { type: 'kv_row', maxCol: 2 });
-  pushResumoRow(['Status de privacidade (LGPD)', 'Dados de faturamento protegidos para compartilhamento'], { type: 'kv_row', maxCol: 2 });
+  // Bloco 2: Quadro Resumo de Investimento por Meio
+  const secInvIdx = pushResumoRow(['QUADRO RESUMO DE INVESTIMENTO POR CANAL'], { type: 'orange_section', maxCol: resumoColsCount });
+  resumoMerges.push({ s: { r: secInvIdx, c: 0 }, e: { r: secInvIdx, c: resumoColsCount - 1 } });
 
-  pushResumoRow([], { type: 'spacer' });
+  const invHeaderIdx = pushResumoRow([
+    'Meio / Canal',
+    'Ativos / Inventário',
+    'Período de Veiculação',
+    'Valor Tabela (R$)',
+    'Desconto Aplicado (R$)',
+    'Valor Líquido (R$)'
+  ], { type: 'table_header', maxCol: resumoColsCount, rightHeaderCols: [3, 4, 5] });
 
-  // Bloco 3: Investimento Consolidado por Canal
-  const secInvIdx = pushResumoRow(['INVESTIMENTO CONSOLIDADO'], { type: 'orange_section', maxCol: 2 });
-  resumoMerges.push({ s: { r: secInvIdx, c: 0 }, e: { r: secInvIdx, c: 1 } });
-  pushResumoRow(['Item', 'Valor Líquido (R$)'], { type: 'table_header', maxCol: 2, rightHeaderCols: [1] });
-  if (hasOoh) pushResumoRow(['OOH — Telas Digitais e Estáticas', Number(f.oohNet.toFixed(2))], { type: 'data', dataIndex: 0, maxCol: 2, currencyCols: [1] });
-  if (hasPortais) pushResumoRow(['Portais e Globoplay — Vídeo e Display', Number(f.portaisNet.toFixed(2))], { type: 'data', dataIndex: 1, maxCol: 2, currencyCols: [1] });
-  if (hasRevistas) pushResumoRow(['Revistas Digitais', Number(f.revistasNet.toFixed(2))], { type: 'data', dataIndex: 2, maxCol: 2, currencyCols: [1] });
-  if (hasRadio) pushResumoRow(['Rádio CBN — Spots de 30 segundos', Number(f.radioNet.toFixed(2))], { type: 'data', dataIndex: 3, maxCol: 2, currencyCols: [1] });
-  pushResumoRow(['Valor bruto da proposta', Number(f.totalGrossProposal.toFixed(2))], { type: 'kv_row', maxCol: 2, currencyCols: [1] });
-  if (f.totalDiscounts > 0) {
-    pushResumoRow(['Descontos aplicados (Condomínios)', Number((-f.totalDiscounts).toFixed(2))], { type: 'coupon', maxCol: 2, currencyCols: [1] });
-  }
-  pushResumoRow(['Investimento total líquido', Number(f.trueProposalTotal.toFixed(2))], { type: 'highlight_total', maxCol: 2, currencyCols: [1] });
-
-  pushResumoRow([], { type: 'spacer' });
-
-  // Bloco 4: Detalhamento de Métricas por Canal
-  const secMetIdx = pushResumoRow(['DETALHAMENTO DE MÉTRICAS POR CANAL'], { type: 'orange_section', maxCol: resumoColsCount });
-  resumoMerges.push({ s: { r: secMetIdx, c: 0 }, e: { r: secMetIdx, c: resumoColsCount - 1 } });
-
-  const metHeaderIdx = pushResumoRow([
-    'Canal',
-    'Métrica Principal',
-    'Impacto / Impressões',
-    'Alcance Estimado',
-    'Inventário e Exibição Diária',
-    'Total Líquido (R$)'
-  ], { type: 'table_header', maxCol: resumoColsCount, rightHeaderCols: [2, 3, 5] });
-
-  let metItemIdx = 0;
+  let invItemIdx = 0;
   if (hasOoh) {
     pushResumoRow([
       'OOH — Telas Digitais e Estáticas',
-      'Impacto no período',
-      c.oohImpacts,
-      c.oohReach || c.oohImpacts,
-      `${fmtInt(c.oohPointsCount)} pontos · ${fmtInt(c.oohScreensCount)} telas · ${oohDigitalPts > 0 ? `${fmtInt(c.oohDailyInsertions)} exib./dia (${fmtInt(c.oohTotalInsertions)} no período)` : 'Exibição fixa'}`,
+      `${fmtInt(c.oohPointsCount)} pontos · ${fmtInt(c.oohScreensCount)} telas`,
+      `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
+      Number(f.oohGross.toFixed(2)),
+      Number((-f.oohResidentDiscounts).toFixed(2)),
       Number(f.oohNet.toFixed(2))
-    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2, 3], currencyCols: [5], boldCols: [0, 2, 3, 5] });
+    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5] });
   }
   if (hasPortais) {
     pushResumoRow([
-      'Portais e Globoplay',
-      'Impressões contratadas',
-      c.portaisImpressions,
-      Math.round(c.portaisImpressions * 0.62),
-      `Portais: ${portaisListLabel} · CPM médio: ${portaisCpmLabel}`,
+      'Portais e Globoplay — Vídeo e Display',
+      `${fmtInt(c.portaisCount)} formatos (${portaisListLabel})`,
+      `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
+      Number(f.portaisNet.toFixed(2)),
+      0,
       Number(f.portaisNet.toFixed(2))
-    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2, 3], currencyCols: [5], boldCols: [0, 2, 3, 5] });
+    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5] });
   }
   if (hasRevistas) {
     pushResumoRow([
-      'Revistas e Jornais',
-      'Impressões contratadas',
-      c.revistasImpressions,
-      Math.round(c.revistasImpressions * 0.62),
-      `Títulos: ${revistasListLabel} · CPM médio: ${revistasCpmLabel}`,
+      'Revistas e Jornais Digitais',
+      `${fmtInt(c.revistasCount)} títulos (${revistasListLabel})`,
+      `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
+      Number(f.revistasNet.toFixed(2)),
+      0,
       Number(f.revistasNet.toFixed(2))
-    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2, 3], currencyCols: [5], boldCols: [0, 2, 3, 5] });
+    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5] });
   }
   if (hasRadio) {
     pushResumoRow([
-      'Rádio CBN',
-      'Inserções no período',
-      c.radioTotalInsertions,
-      Math.round(c.radioTotalInsertions * 18500 * 0.58),
-      `${fmtInt(c.radioCount)} praças/programas · ${fmtInt(c.radioWeeklyInsertions)} inserções/semana · ${radioDurationsLabel}`,
+      'Rádio CBN — Spots de 30s (Faturado à parte)',
+      `${fmtInt(c.radioCount)} praças/programas (${fmtInt(c.radioTotalInsertions)} inserções)`,
+      `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
+      Number(f.radioNet.toFixed(2)),
+      0,
       Number(f.radioNet.toFixed(2))
-    ], { type: 'data', dataIndex: metItemIdx++, maxCol: resumoColsCount, integerCols: [2, 3], currencyCols: [5], boldCols: [0, 2, 3, 5] });
+    ], { type: 'data', dataIndex: invItemIdx++, maxCol: resumoColsCount, currencyCols: [3, 4, 5], boldCols: [0, 5] });
   }
 
-  const lastMetDataIdx = resumoRows.length - 1;
+  const lastInvDataIdx = resumoRows.length - 1;
   pushResumoRow([
-    'Total Geral da Proposta',
-    `${c.totalItems} ${c.totalItems === 1 ? 'ativo contratado' : 'ativos contratados'}`,
-    '',
-    '',
-    '',
+    'TOTAL GERAL DA PROPOSTA',
+    `${c.totalItems} ativos contratados`,
+    `${m.durationDays} dias`,
+    Number(f.totalGrossProposal.toFixed(2)),
+    Number((-f.totalDiscounts).toFixed(2)),
     Number(f.trueProposalTotal.toFixed(2))
-  ], { type: 'highlight_total', maxCol: resumoColsCount, currencyCols: [5] });
+  ], { type: 'black_total', maxCol: resumoColsCount, currencyCols: [3, 4, 5] });
+
+  pushResumoRow([], { type: 'spacer' });
+
+  // Bloco 3: Observações Comerciais (Padrão Eletromidia SMB)
+  const secObsIdx = pushResumoRow(['OBSERVAÇÕES E CONDIÇÕES COMERCIAIS'], { type: 'orange_section', maxCol: 2 });
+  resumoMerges.push({ s: { r: secObsIdx, c: 0 }, e: { r: secObsIdx, c: 1 } });
+  pushResumoRow(['Condições de pagamento (Online)', 'Cartão de Crédito em até 6x sem juros, Pix ou Boleto Bancário para OOH, Portais e Revistas.'], { type: 'kv_row', maxCol: 2 });
+  if (hasRadio) {
+    pushResumoRow(['Faturamento Rádio CBN', 'Faturado separadamente via boleto bancário mediante confirmação de grade junto à emissora.'], { type: 'kv_row', maxCol: 2 });
+  }
+  pushResumoRow(['Disponibilidade de inventário', 'Sujeita a confirmação no momento do fechamento do pedido na plataforma Aqui Ads.'], { type: 'kv_row', maxCol: 2 });
 
   sheetsData.push({
-    name: 'Resumo da Proposta',
+    name: 'RESUMO PROPOSTA',
     rows: resumoRows,
     colCount: resumoColsCount,
     merges: resumoMerges,
     rowMeta: resumoMeta,
-    autofilterRef: lastMetDataIdx >= metHeaderIdx + 1
-      ? `A${metHeaderIdx + 1}:F${lastMetDataIdx + 1}`
+    autofilterRef: lastInvDataIdx >= invHeaderIdx + 1
+      ? `A${invHeaderIdx + 1}:F${lastInvDataIdx + 1}`
       : null,
     customCols: [
       { wch: 38 },
-      { wch: 36 },
+      { wch: 42 },
+      { wch: 26 },
       { wch: 22 },
       { wch: 22 },
-      { wch: 48 },
       { wch: 24 }
     ]
   });
 
   // ==========================================================================
-  // 2. ABA OOH (Desagrupamento 1 por Linha para Condomínios/Torres + Manutenção de Códigos + Exibição Diária + Período)
+  // 3. ABA MÉTRICAS NO PERÍODO (Padrão Verde #70AD47 do Eletromidia SMB)
+  // ==========================================================================
+  const metPeriodCols = 8;
+  const metPeriodRows = [
+    ['MÉTRICAS CONSOLIDADAS NO PERÍODO POR CANAL'],
+    [],
+    [
+      'Canal / Produto',
+      'Praça / Abrangência',
+      'Período de Veiculação',
+      'Pontos / Formatos',
+      'Telas',
+      'Exibição Diária',
+      'Alcance Estimado',
+      'Impacto / Impressões no Período'
+    ]
+  ];
+  const metPeriodMeta = {
+    0: { type: 'orange_title', maxCol: metPeriodCols },
+    1: { type: 'spacer' },
+    2: { type: 'green_header', maxCol: metPeriodCols, rightHeaderCols: [3, 4, 5, 6, 7] }
+  };
+
+  let mpIdx = 0;
+  if (hasOoh) {
+    const rIdx = metPeriodRows.length;
+    metPeriodRows.push([
+      'OOH — Telas Digitais e Estáticas',
+      'Praças selecionadas no plano',
+      `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
+      c.oohPointsCount,
+      c.oohScreensCount,
+      oohDigitalPts > 0 ? c.oohDailyInsertions : 'Fixa',
+      c.oohReach || c.oohImpacts,
+      c.oohImpacts
+    ]);
+    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 4, 5, 6, 7], boldCols: [0, 6, 7] };
+  }
+  if (hasPortais) {
+    const rIdx = metPeriodRows.length;
+    metPeriodRows.push([
+      `Portais e Globoplay (${portaisListLabel})`,
+      'Nacional / Segmentado',
+      `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
+      c.portaisCount,
+      '—',
+      Math.round(c.portaisImpressions / Math.max(1, m.durationDays)),
+      Math.round(c.portaisImpressions * 0.62),
+      c.portaisImpressions
+    ]);
+    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 5, 6, 7], boldCols: [0, 6, 7] };
+  }
+  if (hasRevistas) {
+    const rIdx = metPeriodRows.length;
+    metPeriodRows.push([
+      `Revistas e Jornais (${revistasListLabel})`,
+      'Nacional / BR',
+      `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
+      c.revistasCount,
+      '—',
+      Math.round(c.revistasImpressions / Math.max(1, m.durationDays)),
+      Math.round(c.revistasImpressions * 0.62),
+      c.revistasImpressions
+    ]);
+    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 5, 6, 7], boldCols: [0, 6, 7] };
+  }
+  if (hasRadio) {
+    const rIdx = metPeriodRows.length;
+    metPeriodRows.push([
+      `Rádio CBN (${radioDurationsLabel})`,
+      'Praças selecionadas',
+      `${m.startDate} a ${m.endDate} (${m.durationDays}d)`,
+      c.radioCount,
+      '—',
+      Math.round(c.radioTotalInsertions / Math.max(1, m.durationDays)),
+      Math.round(c.radioTotalInsertions * 18500 * 0.58),
+      c.radioTotalInsertions
+    ]);
+    metPeriodMeta[rIdx] = { type: 'data', dataIndex: mpIdx++, maxCol: metPeriodCols, integerCols: [3, 5, 6, 7], boldCols: [0, 6, 7] };
+  }
+
+  sheetsData.push({
+    name: 'MÉTRICAS NO PERÍODO',
+    rows: metPeriodRows,
+    colCount: metPeriodCols,
+    merges: [{ s: { r: 0, c: 0 }, e: { r: 0, c: metPeriodCols - 1 } }],
+    rowMeta: metPeriodMeta,
+    integerCols: [3, 4, 5, 6, 7],
+    centerCols: [2]
+  });
+
+  // ==========================================================================
+  // 4. ABA MÉTRICAS POR PRODUTO (OOH) — Desagrupamento 1 por Linha para Condomínios + Códigos Visíveis
   // ==========================================================================
   if (hasOoh) {
     const oohColCount = 14;
     const oohRows = [
-      [`OOH — Inventário Detalhado de Pontos e Condomínios (${fmtInt(c.oohPointsCount)} pontos)`],
+      [`MÉTRICAS POR PRODUTO (OOH) — INVENTÁRIO DETALHADO (${fmtInt(c.oohPointsCount)} PONTOS / TORRES INDIVIDUAIS)`],
       [],
       [
         'Código',
@@ -10103,7 +10128,7 @@ function exportFullCsv() {
     const oohMeta = {
       0: { type: 'orange_title', maxCol: oohColCount },
       1: { type: 'spacer' },
-      2: { type: 'table_header', maxCol: oohColCount }
+      2: { type: 'green_header', maxCol: oohColCount }
     };
 
     const periodText = `${m.startDate} a ${m.endDate} (${m.durationDays}d)`;
@@ -10175,7 +10200,7 @@ function exportFullCsv() {
 
     const totOohIdx = oohRows.length;
     oohRows.push([
-      'Total Consolidado OOH',
+      'TOTAL CONSOLIDADO OOH',
       `${c.oohPointsCount} ${c.oohPointsCount === 1 ? 'ponto listado' : 'pontos/torres listados individualmente'}`,
       '',
       '',
@@ -10190,10 +10215,10 @@ function exportFullCsv() {
       Number(f.oohResidentDiscounts.toFixed(2)),
       Number(f.oohNet.toFixed(2))
     ]);
-    oohMeta[totOohIdx] = { type: 'total', maxCol: oohColCount };
+    oohMeta[totOohIdx] = { type: 'black_total', maxCol: oohColCount };
 
     sheetsData.push({
-      name: 'OOH',
+      name: 'MÉTRICAS POR PRODUTO (OOH)',
       rows: oohRows,
       colCount: oohColCount,
       merges: [
@@ -10209,7 +10234,7 @@ function exportFullCsv() {
   }
 
   // ==========================================================================
-  // 3. ABA PORTAIS E GLOBOPLAY
+  // 5. ABA PORTAIS E GLOBOPLAY
   // ==========================================================================
   if (hasPortais) {
     const portaisColCount = 12;
@@ -10234,7 +10259,7 @@ function exportFullCsv() {
     const portaisMeta = {
       0: { type: 'orange_title', maxCol: portaisColCount },
       1: { type: 'spacer' },
-      2: { type: 'table_header', maxCol: portaisColCount }
+      2: { type: 'green_header', maxCol: portaisColCount }
     };
 
     m.portaisItems.forEach((p, idx) => {
@@ -10259,7 +10284,7 @@ function exportFullCsv() {
     const lastPortaisItemRow1Based = portaisRows.length;
     const totPortaisIdx = portaisRows.length;
     portaisRows.push([
-      'Total Portais e Globoplay',
+      'TOTAL PORTAIS E GLOBOPLAY',
       `${m.portaisItems.length} ${m.portaisItems.length === 1 ? 'formato' : 'formatos'}`,
       '',
       '',
@@ -10272,7 +10297,7 @@ function exportFullCsv() {
       Number(portaisAvgCpm.toFixed(2)),
       Number(f.portaisNet.toFixed(2))
     ]);
-    portaisMeta[totPortaisIdx] = { type: 'total', maxCol: portaisColCount };
+    portaisMeta[totPortaisIdx] = { type: 'black_total', maxCol: portaisColCount };
 
     sheetsData.push({
       name: 'Portais e Globoplay',
@@ -10291,12 +10316,12 @@ function exportFullCsv() {
   }
 
   // ==========================================================================
-  // 4. ABA REVISTAS E JORNAIS
+  // 6. ABA REVISTAS E JORNAIS
   // ==========================================================================
   if (hasRevistas) {
     const revistasColCount = 10;
     const revistasRows = [
-      ['Revistas Digitais'],
+      ['Revistas e Jornais Digitais'],
       [],
       [
         'Código',
@@ -10314,7 +10339,7 @@ function exportFullCsv() {
     const revistasMeta = {
       0: { type: 'orange_title', maxCol: revistasColCount },
       1: { type: 'spacer' },
-      2: { type: 'table_header', maxCol: revistasColCount }
+      2: { type: 'green_header', maxCol: revistasColCount }
     };
 
     m.revistasItems.forEach((r, idx) => {
@@ -10337,7 +10362,7 @@ function exportFullCsv() {
     const lastRevistasItemRow1Based = revistasRows.length;
     const totRevistasIdx = revistasRows.length;
     revistasRows.push([
-      'Total Revistas e Jornais',
+      'TOTAL REVISTAS E JORNAIS',
       `${m.revistasItems.length} ${m.revistasItems.length === 1 ? 'título' : 'títulos'}`,
       '',
       '',
@@ -10348,7 +10373,7 @@ function exportFullCsv() {
       Number(revistasAvgCpm.toFixed(2)),
       Number(f.revistasNet.toFixed(2))
     ]);
-    revistasMeta[totRevistasIdx] = { type: 'total', maxCol: revistasColCount };
+    revistasMeta[totRevistasIdx] = { type: 'black_total', maxCol: revistasColCount };
 
     sheetsData.push({
       name: 'Revistas e Jornais',
@@ -10367,7 +10392,7 @@ function exportFullCsv() {
   }
 
   // ==========================================================================
-  // 5. ABA RÁDIO CBN
+  // 7. ABA RÁDIO CBN
   // ==========================================================================
   if (hasRadio) {
     const radioColCount = 11;
@@ -10391,7 +10416,7 @@ function exportFullCsv() {
     const radioMeta = {
       0: { type: 'orange_title', maxCol: radioColCount },
       1: { type: 'spacer' },
-      2: { type: 'table_header', maxCol: radioColCount }
+      2: { type: 'green_header', maxCol: radioColCount }
     };
 
     m.radioItems.forEach((rd, idx) => {
@@ -10415,7 +10440,7 @@ function exportFullCsv() {
     const lastRadioItemRow1Based = radioRows.length;
     const totRadioIdx = radioRows.length;
     radioRows.push([
-      'Total Rádio CBN',
+      'TOTAL RÁDIO CBN',
       `${m.radioItems.length} ${m.radioItems.length === 1 ? 'praça/programa' : 'praças/programas'}`,
       '',
       '',
@@ -10427,7 +10452,7 @@ function exportFullCsv() {
       '—',
       Number(f.radioNet.toFixed(2))
     ]);
-    radioMeta[totRadioIdx] = { type: 'total', maxCol: radioColCount };
+    radioMeta[totRadioIdx] = { type: 'black_total', maxCol: radioColCount };
 
     sheetsData.push({
       name: 'Rádio CBN',
@@ -10445,6 +10470,46 @@ function exportFullCsv() {
     });
   }
 
+  // ==========================================================================
+  // 8. ABA ESPECIFICAÇÕES TÉCNICAS DE ARTE (Padrão Eletromidia SMB)
+  // ==========================================================================
+  const specColCount = 6;
+  const specRows = [
+    ['ESPECIFICAÇÕES TÉCNICAS PARA ENVIO DE CRIATIVOS'],
+    [],
+    ['Meio / Canal', 'Formato / Peça', 'Dimensões (px)', 'Arquivos Aceitos', 'Duração / Peso Máximo', 'Observações Técnicas']
+  ];
+  const specMeta = {
+    0: { type: 'orange_title', maxCol: specColCount },
+    1: { type: 'spacer' },
+    2: { type: 'table_header', maxCol: specColCount }
+  };
+  let spIdx = 0;
+  if (hasOoh) {
+    specRows.push(['OOH Digital (DOOH)', 'Vídeo Vertical / Horizontal', '1080×1920 px / 1920×1080 px', 'MP4 (H.264) ou JPG/PNG', '10s ou 15s · Máx. 20 MB', 'Sem áudio · Margem de segurança de 90px']);
+    specMeta[specRows.length - 1] = { type: 'data', dataIndex: spIdx++, maxCol: specColCount };
+  }
+  if (hasPortais) {
+    specRows.push(['Portais e Globoplay', 'Vídeo In-Stream & Display IAB', '1920×1080, 970×250, 300×250, 300×600, 320×50 px', 'MP4, JPG, PNG ou HTML5', '15s/30s (Vídeo) · 150 KB (Display)', 'URL de destino (clique) com HTTPS obrigatório']);
+    specMeta[specRows.length - 1] = { type: 'data', dataIndex: spIdx++, maxCol: specColCount };
+  }
+  if (hasRevistas) {
+    specRows.push(['Revistas e Jornais', 'Display Editorial Multi-Formato', '970×250, 300×250, 300×600, 320×50 px', 'JPG, PNG ou HTML5', 'Máx. 150 KB por peça', 'Borda de 1px quando fundo da arte for branco']);
+    specMeta[specRows.length - 1] = { type: 'data', dataIndex: spIdx++, maxCol: specColCount };
+  }
+  if (hasRadio) {
+    specRows.push(['Rádio CBN', 'Spot Comercial de Áudio', 'Áudio Estéreo (44.1 kHz / 16 bits)', 'MP3 ou WAV (192 kbps mín.)', '30 segundos exatos', 'Enviar arquivo final ou roteiro para gravação']);
+    specMeta[specRows.length - 1] = { type: 'data', dataIndex: spIdx++, maxCol: specColCount };
+  }
+  sheetsData.push({
+    name: 'ESPECIFICAÇÕES TÉCNICAS',
+    rows: specRows,
+    colCount: specColCount,
+    merges: [{ s: { r: 0, c: 0 }, e: { r: 0, c: specColCount - 1 } }],
+    rowMeta: specMeta,
+    boldCols: [0, 1]
+  });
+
   // Exportação nativa em .xlsx estilizada via SheetJS (xlsx-js-style)
   if (typeof window !== 'undefined' && window.XLSX && window.XLSX.utils) {
     const wb = window.XLSX.utils.book_new();
@@ -10455,11 +10520,11 @@ function exportFullCsv() {
       window.XLSX.utils.book_append_sheet(wb, ws, sheet.name.slice(0, 31));
     });
     window.XLSX.writeFile(wb, `proposta_aquiads_${m.id}.xlsx`);
-    showToast('Planilha Excel (.xlsx) exportada e estilizada com filtros');
+    showToast('Planilha Excel (.xlsx) exportada no padrão executivo');
     return;
   }
 
-  // Fallback SpreadsheetML (.xls estilizado com múltiplas abas e AutoFilter) caso offline
+  // Fallback SpreadsheetML (.xls estilizado com múltiplas abas) caso offline
   const xmlEsc = (v) => String(v ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -10471,19 +10536,19 @@ function exportFullCsv() {
     const rowsXml = sheet.rows.map((r, rIdx) => {
       const rMeta = rowMetaMap[rIdx] || {};
       const rType = rMeta.type || 'data';
-      const styleId = (rType === 'orange_title' || rType === 'orange_subtitle' || rType === 'orange_section')
+      const styleId = (rType === 'orange_title' || rType === 'orange_subtitle' || rType === 'orange_section' || rType === 'cta_button')
         ? 'sOrange'
-        : rType === 'link_cta'
+        : rType === 'cta_link'
           ? 'sLink'
-          : rType === 'table_header'
+          : (rType === 'table_header' || rType === 'green_header')
             ? 'sHeader'
-            : (rType === 'total' || rType === 'highlight_total')
+            : (rType === 'total' || rType === 'highlight_total' || rType === 'black_total')
               ? 'sTotal'
               : 'sData';
       const cellsXml = (r || []).map((cell, cIdx) => {
         const isNum = typeof cell === 'number' && Number.isFinite(cell);
-        const hrefAttr = (rType === 'link_cta' && cIdx === 0 && rMeta.linkTarget)
-          ? ` ss:HRef="${xmlEsc(rMeta.linkTarget)}"`
+        const hrefAttr = (rMeta.hyperlinks && rMeta.hyperlinks[cIdx])
+          ? ` ss:HRef="${xmlEsc(rMeta.hyperlinks[cIdx])}"`
           : '';
         return `<Cell ss:StyleID="${styleId}"${hrefAttr}><Data ss:Type="${isNum ? 'Number' : 'String'}">${xmlEsc(cell)}</Data></Cell>`;
       }).join('');
@@ -10499,11 +10564,11 @@ function exportFullCsv() {
  xmlns:x="urn:schemas-microsoft-com:office:excel"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
  <Styles>
-  <Style ss:ID="sOrange"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sLink"><Font ss:Bold="1" ss:Underline="Single" ss:Color="#F15A22"/><Interior ss:Color="#FFF5F0" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sHeader"><Font ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#E8E0D5" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sTotal"><Font ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#F3ECE4" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="sData"><Font ss:Color="#121212"/></Style>
+  <Style ss:ID="sOrange"><Font ss:FontName="Century Gothic" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#F15A22" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sLink"><Font ss:FontName="Century Gothic" ss:Bold="1" ss:Underline="Single" ss:Color="#F15A22"/><Interior ss:Color="#FFF5F0" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sHeader"><Font ss:FontName="Century Gothic" ss:Bold="1" ss:Color="#121212"/><Interior ss:Color="#E8E0D5" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sTotal"><Font ss:FontName="Century Gothic" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#121212" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="sData"><Font ss:FontName="Century Gothic" ss:Color="#121212"/></Style>
  </Styles>
  ${worksheetsXml}
 </Workbook>`;
@@ -10514,31 +10579,6 @@ function exportFullCsv() {
   link.download = `proposta_aquiads_${m.id}.xls`;
   link.click();
   showToast('Planilha Excel exportada com abas por canal');
-}
-
-function exportFullXml() {
-  const m = getCurrentModel();
-  const f = m.financials;
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<PropostaAquiAds id="${m.id}">
-  <Cabecalho>
-    <Periodo inicio="${m.startDate}" fim="${m.endDate}" dias="${m.durationDays}" />
-  </Cabecalho>
-  <ResumoFinanceiro moeda="BRL">
-    <TotalBruto>${f.totalGrossProposal.toFixed(2)}</TotalBruto>
-    <Descontos>${f.totalDiscounts.toFixed(2)}</Descontos>
-    <ValorTotalProposta>${f.trueProposalTotal.toFixed(2)}</ValorTotalProposta>
-    <PagoOnlineOohDigital>${f.onlinePayableNow.toFixed(2)}</PagoOnlineOohDigital>
-    <FaturamentoDedicadoRadio>${f.radioNet.toFixed(2)}</FaturamentoDedicadoRadio>
-  </ResumoFinanceiro>
-</PropostaAquiAds>`;
-
-  const blob = new Blob([xml], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `proposta_aquiads_${m.id}.xml`;
-  link.click();
-  showToast('Arquivo XML exportado com sucesso');
 }
 
 window.addEventListener('DOMContentLoaded', initApp);
