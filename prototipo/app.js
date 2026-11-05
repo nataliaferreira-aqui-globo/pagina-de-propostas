@@ -2285,16 +2285,16 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
   const padClass = mobile ? 'p-4' : 'p-5';
 
   return `
-    <div class="bg-white rounded-2xl border border-ds-border shadow-sm flex flex-col justify-between self-start w-full">
+    <div class="bg-white rounded-2xl border border-ds-borderStrong shadow-card hover:border-[#B8AEA2] transition flex flex-col justify-between self-start w-full">
       <div class="${padClass}">
-        <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">
+        <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">
           ${channelTitle}
         </div>
-        <div class="mt-2.5">
-          <div class="text-xs text-ds-textSecondary leading-normal">${primaryLabel}</div>
-          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain leading-tight mt-0.5 whitespace-nowrap">
-            ${primaryValue}
-          </div>
+        <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5 whitespace-nowrap">
+          ${primaryValue}
+        </div>
+        <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">
+          ${primaryLabel}
         </div>
       </div>
 
@@ -2302,15 +2302,15 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
       <div class="bg-white border-t border-ds-border rounded-b-2xl px-4 sm:px-5 py-3 text-xs">
         <div
           onclick="toggleSummaryCardMetrics('${cardKey}')"
-          class="flex items-center justify-between gap-2 cursor-pointer select-none"
+          class="flex items-center justify-between gap-2 cursor-pointer select-none group"
         >
-          <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary flex items-center gap-1.5">
-            <i class="uil uil-chart-bar text-sm text-ds-textSecondary"></i>
+          <span class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary group-hover:text-ds-textMain transition flex items-center gap-1.5">
+            <i class="uil uil-chart-bar text-sm text-ds-textSecondary group-hover:text-ds-textMain transition"></i>
             <span>DETALHAMENTO</span>
           </span>
           <button
             type="button"
-            class="text-xs font-semibold text-ds-textSecondary inline-flex items-center gap-0.5 cursor-pointer"
+            class="text-xs font-semibold text-ds-textSecondary group-hover:text-ds-textMain transition inline-flex items-center gap-0.5 cursor-pointer"
           >
             <span>${isExpanded ? 'Ocultar' : 'Expandir'}</span>
             <i class="uil ${isExpanded ? 'uil-angle-up' : 'uil-angle-down'} text-sm"></i>
@@ -2318,14 +2318,14 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
         </div>
 
         ${isExpanded ? `
-          <div class="mt-2.5 grid grid-cols-2 gap-2">
+          <div class="mt-3 grid grid-cols-2 gap-2">
             ${subCards.map((sc) => `
               <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-3 py-2.5 border border-ds-border">
-                <div class="text-ds-textSecondary text-xs">${sc.label}</div>
+                <div class="text-ds-textSecondary text-xs font-medium">${sc.label}</div>
                 ${sc.rawHtml ? `
-                  <div class="mt-0.5">${sc.rawHtml}</div>
+                  <div class="mt-1">${sc.rawHtml}</div>
                 ` : `
-                  <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain block mt-0.5 whitespace-nowrap">
+                  <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain block mt-1 whitespace-nowrap">
                     ${sc.value}
                   </strong>
                 `}
@@ -2364,76 +2364,52 @@ function renderModularMetrics(m) {
   const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
 
   // =========================================================================
-  // CASO 1A: CAMPANHA ÚNICA — SOMENTE OOH (6 métricas separadas visualmente)
+  // CASO 1A: CAMPANHA ÚNICA — SOMENTE OOH (6 métricas no padrão Imagem 1 e 3)
   // =========================================================================
   if (activeChannelsCount === 1 && c.oohPointsCount > 0) {
     singleChannelTitle = 'Estimativa de entrega — OOH';
 
     cards = [
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Pontos</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohPointsCount)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Locais selecionados</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Pontos</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohPointsCount)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Locais selecionados</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Telas</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohScreensCount)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Ativas na campanha</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Telas</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohScreensCount)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Ativas na campanha</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Exibições</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${oohDigitalPts > 0 ? fmtInt(c.oohTotalInsertions) : 'Fixa'}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Total no período</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Exibições</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${oohDigitalPts > 0 ? fmtInt(c.oohTotalInsertions) : 'Fixa'}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Total no período</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Alcance</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohReach || c.oohImpacts)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Pessoas únicas</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Alcance</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohReach || c.oohImpacts)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Pessoas únicas</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Impacto</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.oohImpacts)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Volume no período</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Impacto</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohImpacts)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Impacto estimado</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Frequência</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtFreq(c.oohFrequency || 1.88)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Média por pessoa</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Frequência</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtFreq(c.oohFrequency || 1.88)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Média por pessoa</div>
         </div>
       `
     ];
@@ -2447,36 +2423,24 @@ function renderModularMetrics(m) {
 
     cards = [
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Impressões</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.portaisImpressions)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Vídeo e Display</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Impressões</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.portaisImpressions)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Impressões contratadas</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Portais</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${portaisVehiclesList.length} veículos</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-single')}</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Portais</div>
+          <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${portaisVehiclesList.length} veículos</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-single')}</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">CPM</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtBRL(avgCpm)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Custo por mil impressões</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">CPM médio</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtBRL(avgCpm)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Custo por mil impressões</div>
         </div>
       `
     ];
@@ -2490,36 +2454,24 @@ function renderModularMetrics(m) {
 
     cards = [
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Impressões</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.revistasImpressions)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Revistas Digitais</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Impressões</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.revistasImpressions)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Impressões contratadas</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Títulos</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">${renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-single')}</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Títulos</div>
+          <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-single')}</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">CPM</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtBRL(avgCpm)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Custo por mil impressões</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">CPM médio</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtBRL(avgCpm)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Custo por mil impressões</div>
         </div>
       `
     ];
@@ -2533,47 +2485,31 @@ function renderModularMetrics(m) {
 
     cards = [
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Inserções</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.radioTotalInsertions)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Total no período</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Inserções</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioTotalInsertions)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Inserções no período</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Rádio/programa</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.radioCount)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Grade selecionada</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Rádio / programa</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioCount)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Grade selecionada</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Inserções/semana</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-2xl sm:text-3xl text-ds-textMain leading-tight">${fmtInt(c.radioWeeklyInsertions)}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Ritmo semanal</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Inserções / semana</div>
+          <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioWeeklyInsertions)}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Ritmo semanal</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-border shadow-sm flex flex-col justify-between h-full">
-          <div class="min-w-0">
-            <h3 class="font-display font-bold text-base text-ds-textMain leading-snug truncate">Duração</h3>
-          </div>
-          <div class="mt-3">
-            <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain leading-tight">${radioDurationsLabel}</div>
-            <div class="text-xs text-ds-textSecondary mt-1 leading-normal">Formato comercial</div>
-          </div>
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary truncate">Duração</div>
+          <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${radioDurationsLabel}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Formato comercial</div>
         </div>
       `
     ];
@@ -7719,13 +7655,11 @@ function renderPdfDocument(m) {
       : 'Fixa';
 
     modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-border bg-white p-4 flex flex-col justify-between pdf-avoid-break">
+      <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">OOH</div>
-          <div class="mt-2">
-            <div class="text-xs text-ds-textSecondary">Impacto estimado</div>
-            <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-1">${fmtInt(c.oohImpacts)}</div>
-          </div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">OOH</div>
+          <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.oohImpacts)}</div>
+          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impacto estimado</div>
         </div>
         <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-3 gap-x-3 gap-y-2.5">
           <div>
@@ -7779,13 +7713,11 @@ function renderPdfDocument(m) {
     const portaisEstReach = Math.round(c.portaisImpressions * 0.62);
 
     modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-border bg-white p-4 flex flex-col justify-between pdf-avoid-break">
+      <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">Portais e Globoplay</div>
-          <div class="mt-2">
-            <div class="text-xs text-ds-textSecondary">Impressões contratadas</div>
-            <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-1">${fmtInt(c.portaisImpressions)}</div>
-          </div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">Portais e Globoplay</div>
+          <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.portaisImpressions)}</div>
+          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impressões contratadas</div>
         </div>
         <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-2 gap-x-4 gap-y-2.5">
           <div>
@@ -7813,13 +7745,11 @@ function renderPdfDocument(m) {
     const revistasEstReach = Math.round(c.revistasImpressions * 0.62);
 
     modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-border bg-white p-4 flex flex-col justify-between pdf-avoid-break">
+      <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">Revistas e Jornais</div>
-          <div class="mt-2">
-            <div class="text-xs text-ds-textSecondary">Impressões contratadas</div>
-            <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-1">${fmtInt(c.revistasImpressions)}</div>
-          </div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">Revistas e Jornais</div>
+          <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.revistasImpressions)}</div>
+          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Impressões contratadas</div>
         </div>
         <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-2 gap-x-4 gap-y-2.5">
           <div>
@@ -7844,13 +7774,11 @@ function renderPdfDocument(m) {
     const radioEstReach = Math.round(c.radioTotalInsertions * 18500 * 0.58);
 
     modularCardsHtml.push(`
-      <div class="rounded-2xl border border-ds-border bg-white p-4 flex flex-col justify-between pdf-avoid-break">
+      <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 shadow-xs flex flex-col justify-between pdf-avoid-break">
         <div>
-          <div class="text-xs font-medium uppercase tracking-wider text-ds-textSecondary">Rádio CBN</div>
-          <div class="mt-2">
-            <div class="text-xs text-ds-textSecondary">Inserções no período</div>
-            <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-1">${fmtInt(c.radioTotalInsertions)}</div>
-          </div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-ds-textSecondary">Rádio CBN</div>
+          <div class="font-display font-extrabold text-2xl text-ds-textMain tracking-tight leading-none mt-2">${fmtInt(c.radioTotalInsertions)}</div>
+          <div class="text-xs font-normal text-ds-textSecondary leading-normal mt-1.5">Inserções no período</div>
         </div>
         <div class="mt-3.5 pt-3 border-t border-ds-border grid grid-cols-2 gap-x-4 gap-y-2.5">
           <div>
