@@ -2112,24 +2112,24 @@ function renderHeroSection(m) {
           ${mobileActionButtonsHtml}
         </div>
 
-        <!-- Metadados Organizados (Início/Fim, Duração, Pontos) + Criado por -->
+        <!-- Metadados Organizados (Início/Fim, Duração, Pontos) + Criado por (apenas separadores, sem fundo nos cards) -->
         <div class="pt-3.5 border-t border-ds-border space-y-3">
-          <div class="grid grid-cols-3 gap-2 text-xs">
-            <div class="bg-ds-surface/70 rounded-xl p-2.5 border border-ds-border">
+          <div class="grid grid-cols-3 divide-x divide-ds-border text-xs">
+            <div class="pr-3">
               <div class="text-xs text-ds-textSecondary">Período</div>
               <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${shortPeriodLabel}</div>
             </div>
-            <div class="bg-ds-surface/70 rounded-xl p-2.5 border border-ds-border">
+            <div class="px-3">
               <div class="text-xs text-ds-textSecondary">Duração</div>
               <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${durationLabel}</div>
             </div>
-            <div class="bg-ds-surface/70 rounded-xl p-2.5 border border-ds-border">
+            <div class="pl-3">
               <div class="text-xs text-ds-textSecondary">${c.oohPointsCount > 0 ? 'Pontos' : 'Ativos'}</div>
               <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${thirdMetricValue}</div>
             </div>
           </div>
 
-          <div class="text-xs text-ds-textSecondary leading-snug">
+          <div class="pt-3 border-t border-ds-border text-xs text-ds-textSecondary leading-snug">
             ${escapeHtml(creatorLabel)}
           </div>
         </div>
@@ -5889,10 +5889,10 @@ function renderPaymentTab(m) {
     'Outros Segmentos'
   ];
 
-  // Stepper de 2 etapas no canto superior esquerdo (substituindo "Escolha a forma de pagamento" fixo)
+  // Stepper de 2 etapas no canto superior central do lado esquerdo (substituindo "Escolha a forma de pagamento")
   const paymentStepperHeaderHtml = `
-    <div class="border-b border-ds-border pb-4 space-y-2.5">
-      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs sm:text-sm">
+    <div class="border-b border-ds-border pb-4 space-y-2">
+      <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm">
         <button
           type="button"
           onclick="goToPaymentCheckoutStep(1)"
@@ -5912,7 +5912,7 @@ function renderPaymentTab(m) {
           </span>
         </button>
 
-        <span class="w-6 sm:w-10 h-[2px] ${activeStep === 2 && hasBillingData ? 'bg-emerald-500' : 'bg-ds-borderStrong'}"></span>
+        <span class="w-8 sm:w-12 h-[2px] ${activeStep === 2 && hasBillingData ? 'bg-emerald-500' : 'bg-ds-borderStrong'}"></span>
 
         <button
           type="button"
@@ -5932,9 +5932,9 @@ function renderPaymentTab(m) {
         </button>
       </div>
 
-      <p class="text-xs text-ds-textSecondary">
+      <p class="text-xs text-ds-textSecondary text-center">
         ${activeStep === 1
-          ? 'Confira os dados de faturamento ou cadastre diretamente abaixo para avançar para o pagamento.'
+          ? 'Conferir os dados de faturamento ou cadastrar se não houver nenhum.'
           : `Selecione como deseja pagar os canais de ativação online (${onlineChannelsLabel}).`
         }
       </p>
@@ -5942,7 +5942,7 @@ function renderPaymentTab(m) {
   `;
 
   // Conteúdo da Etapa 1: Dados de faturamento (Cenário 1: Sócia loga e cadastra | Cenário 2: Titular atualiza priorizando CNPJ)
-  const step1BillingContentHtml = unlogged ? `
+  const step1BillingContentHtml = (unlogged && !state.billingFormOpen) ? `
     <div class="space-y-4">
       <!-- Cenário 1: Sócia / Pagador precisa logar para preencher seus dados de faturamento e pagar -->
       <div class="rounded-2xl border border-ds-borderStrong bg-ds-surface/70 p-4 sm:p-5 space-y-3.5">
@@ -5955,7 +5955,7 @@ function renderPaymentTab(m) {
               Entre na sua conta para preencher o faturamento e pagar
             </h4>
             <p class="text-xs text-ds-textSecondary leading-relaxed">
-              Vai realizar o pagamento desta proposta compartilhada? Faça login na sua conta para cadastrar seus dados de faturamento aqui mesmo na página e concluir o pagamento.
+              Vai realizar o pagamento desta proposta compartilhada? Faça login na sua conta ou preencha seus dados de faturamento aqui mesmo na página para concluir o pagamento.
             </p>
           </div>
         </div>
@@ -5970,10 +5970,11 @@ function renderPaymentTab(m) {
           </button>
           <button
             type="button"
-            onclick="openAuthModal('cadastro')"
+            onclick="state.billingFormOpen = true; state.billingPersonType = 'CNPJ'; renderPaymentTab(getCurrentModel());"
             class="px-4 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 transition cursor-pointer"
           >
-            <span>Criar conta</span>
+            <i class="uil uil-file-edit-alt text-sm text-primary"></i>
+            <span>Cadastrar faturamento direto aqui</span>
           </button>
         </div>
       </div>
