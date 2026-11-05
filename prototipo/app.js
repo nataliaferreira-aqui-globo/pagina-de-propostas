@@ -1572,7 +1572,7 @@ function syncMainTabLabels() {
       : '';
   }
   if (lblPag) {
-    lblPag.textContent = mobile ? 'Pagamento' : 'Pagamento e aprovação';
+    lblPag.textContent = 'Pagamento';
     lblPag.className = mobile
       ? 'order-3 w-full text-center text-xs leading-[1.15] min-h-[20px] flex items-center justify-center'
       : '';
@@ -6005,37 +6005,37 @@ function renderPaymentTab(m) {
     'Outros Segmentos'
   ];
 
-  // Stepper de 2 etapas no canto superior central do lado esquerdo (substituindo "Escolha a forma de pagamento")
+  // Stepper de 2 etapas no canto superior central do lado esquerdo (sem quebrar linha no mobile)
   const paymentStepperHeaderHtml = `
-    <div class="border-b border-ds-border pb-4 space-y-2">
-      <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm">
+    <div class="border-b border-ds-border pb-3.5 space-y-1.5">
+      <div class="flex items-center justify-center ${mobile ? 'gap-2 text-xs' : 'gap-3 sm:gap-4 text-xs sm:text-sm'} whitespace-nowrap">
         <button
           type="button"
           onclick="goToPaymentCheckoutStep(1)"
-          class="inline-flex items-center gap-2 group transition cursor-pointer"
+          class="inline-flex items-center gap-1.5 sm:gap-2 group transition cursor-pointer shrink-0"
         >
-          <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-display font-bold text-xs transition ${
+          <span class="${mobile ? 'w-5 h-5' : 'w-6 h-6 sm:w-7 sm:h-7'} rounded-full flex items-center justify-center font-display font-bold text-xs transition ${
             activeStep > 1 && hasBillingData
               ? 'bg-emerald-600 text-white'
               : activeStep === 1
                 ? 'bg-primary text-white shadow-xs'
                 : 'bg-ds-bg text-ds-textMuted border border-ds-borderStrong'
           }">
-            ${activeStep > 1 && hasBillingData ? '<i class="uil uil-check text-sm"></i>' : '1'}
+            ${activeStep > 1 && hasBillingData ? '<i class="uil uil-check text-xs sm:text-sm"></i>' : '1'}
           </span>
           <span class="font-display ${activeStep === 1 ? 'font-bold text-ds-textMain' : hasBillingData ? 'font-bold text-emerald-700' : 'font-medium text-ds-textMuted'} group-hover:text-primary transition">
             Dados de faturamento
           </span>
         </button>
 
-        <span class="w-8 sm:w-12 h-[2px] ${activeStep === 2 && hasBillingData ? 'bg-emerald-500' : 'bg-ds-borderStrong'}"></span>
+        <span class="${mobile ? 'w-4' : 'w-8 sm:w-12'} h-[2px] shrink-0 ${activeStep === 2 && hasBillingData ? 'bg-emerald-500' : 'bg-ds-borderStrong'}"></span>
 
         <button
           type="button"
           onclick="goToPaymentCheckoutStep(2)"
-          class="inline-flex items-center gap-2 group transition cursor-pointer"
+          class="inline-flex items-center gap-1.5 sm:gap-2 group transition cursor-pointer shrink-0"
         >
-          <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-display font-bold text-xs transition ${
+          <span class="${mobile ? 'w-5 h-5' : 'w-6 h-6 sm:w-7 sm:h-7'} rounded-full flex items-center justify-center font-display font-bold text-xs transition ${
             activeStep === 2
               ? 'bg-primary text-white shadow-xs'
               : 'bg-ds-bg text-ds-textMuted border border-ds-borderStrong'
@@ -6858,14 +6858,21 @@ function renderPaymentTab(m) {
 
   document.getElementById('tabContent-pagamento').innerHTML = `
     <div class="grid grid-cols-1 lg:grid-cols-12 ${mobile ? 'gap-4' : 'gap-6'} items-start sim-grid-1">
-      <div class="lg:col-span-7 flex flex-col gap-4">
-        ${leftPaymentColumnHtml}
-        ${!mobile ? radioDedicatedCardHtml : ''}
-      </div>
-      <div class="lg:col-span-5 flex flex-col gap-4">
-        ${rightSummaryColumnHtml}
-        ${mobile ? radioDedicatedCardHtml : ''}
-      </div>
+      ${mobile ? `
+        <div class="col-span-1 flex flex-col gap-4">
+          ${rightSummaryColumnHtml}
+          ${leftPaymentColumnHtml}
+          ${radioDedicatedCardHtml}
+        </div>
+      ` : `
+        <div class="order-2 lg:order-1 lg:col-span-7 flex flex-col gap-4">
+          ${leftPaymentColumnHtml}
+          ${radioDedicatedCardHtml}
+        </div>
+        <div class="order-1 lg:order-2 lg:col-span-5 flex flex-col gap-4">
+          ${rightSummaryColumnHtml}
+        </div>
+      `}
     </div>
   `;
   syncMobileHoverElimination();
