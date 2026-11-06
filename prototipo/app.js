@@ -1246,14 +1246,9 @@ function buildNormalizedModel(rawPayload) {
           ],
           interest: [
             'Datas Comemorativas',
-            'Hobbies e Interesses',
-            'Finanças Pessoais',
-            'Estilo de Vida',
-            'Moda e Estilo',
-            'Música e Áudio',
-            'Negócios'
+            'Hobbies e Interesses'
           ],
-          age: ['18 – 24 anos', '25 – 34 anos', '35 – 59 anos'],
+          age: ['18 – 24 anos', '25 – 34 anos', '35 – 59 anos', '60 + anos'],
           gender: 'Feminino'
         };
       } else if (scKey === 'completo_28') {
@@ -1324,7 +1319,17 @@ function buildNormalizedModel(rawPayload) {
     const locationCompact = formatCompactText(locationList, 1);
     const interestCompact = formatCompactText(interestList, 1);
     const ageCompact = formatCompactText(ageList, 1);
-    const summaryText = `Local: ${locationCompact} · Interesses: ${interestCompact} · Idade: ${ageCompact} · Gênero: ${gender}`;
+    const isAllTodos =
+      (location === 'Todos' || location === 'Todos os estados (27)') &&
+      interest === 'Todos' &&
+      age === 'Todos' &&
+      gender === 'Todos';
+    const cleanSummaryText = isAllTodos
+      ? 'Todos'
+      : `${locationCompact} · ${interestCompact} · ${ageCompact} · ${gender}`;
+    const summaryText = isAllTodos
+      ? 'Todos'
+      : `Local: ${locationCompact} · Interesses: ${interestCompact} · Idade: ${ageCompact} · Gênero: ${gender}`;
 
     return {
       locationList,
@@ -1338,6 +1343,8 @@ function buildNormalizedModel(rawPayload) {
       locationCompact,
       interestCompact,
       ageCompact,
+      isAllTodos,
+      cleanSummaryText,
       summaryText
     };
   };
@@ -8097,7 +8104,7 @@ function renderPdfDocument(m) {
         : 'Fixa';
 
       modularCardsHtml.push(`
-        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
           <div>
             <div class="text-xs font-semibold text-ds-textSecondary">OOH</div>
             <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohImpacts)}</div>
@@ -8155,7 +8162,7 @@ function renderPdfDocument(m) {
       const portaisEstReach = Math.round(c.portaisImpressions * 0.62);
 
       modularCardsHtml.push(`
-        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
           <div>
             <div class="text-xs font-semibold text-ds-textSecondary">Portais e Globoplay</div>
             <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.portaisImpressions)}</div>
@@ -8203,7 +8210,7 @@ function renderPdfDocument(m) {
       const revistasEstReach = Math.round(c.revistasImpressions * 0.62);
 
       modularCardsHtml.push(`
-        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
           <div>
             <div class="text-xs font-semibold text-ds-textSecondary">Revistas Digitais</div>
             <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.revistasImpressions)}</div>
@@ -8248,7 +8255,7 @@ function renderPdfDocument(m) {
       const radioEstReach = Math.round(c.radioTotalInsertions * 18500 * 0.58);
 
       modularCardsHtml.push(`
-        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between pdf-avoid-break">
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
           <div>
             <div class="text-xs font-semibold text-ds-textSecondary">Rádio</div>
             <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioTotalInsertions)}</div>
@@ -8435,7 +8442,7 @@ function renderPdfDocument(m) {
           </h2>
         </div>
         <p class="text-xs text-slate-500 mt-0.5 pl-4">
-          Público-alvo segmentado: ${escapeHtml(digTargets.summaryText)}
+          <strong class="font-bold text-slate-700">Público-alvo:</strong> ${escapeHtml(digTargets.cleanSummaryText || digTargets.summaryText)}
         </p>
       </div>
 
@@ -8500,7 +8507,7 @@ function renderPdfDocument(m) {
           </h2>
         </div>
         <p class="text-xs text-slate-500 mt-0.5 pl-4">
-          Público-alvo segmentado: ${escapeHtml(digTargets.summaryText)}
+          <strong class="font-bold text-slate-700">Público-alvo:</strong> ${escapeHtml(digTargets.cleanSummaryText || digTargets.summaryText)}
         </p>
       </div>
 
