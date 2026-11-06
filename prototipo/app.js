@@ -2566,7 +2566,21 @@ function formatPdfAudienceStripHtml(digTargets, boldColorClass = 'text-slate-600
   return `<span><strong class="font-bold ${boldColorClass}">Estado:</strong> ${escapeHtml(locFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Interesses:</strong> ${escapeHtml(intFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Idade:</strong> ${escapeHtml(ageFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Gênero:</strong> ${escapeHtml(genFullText)}</span>`;
 }
 
+let __metricPopoverAutoCloseTimer = null;
+
+function closeAllMetricPopovers() {
+  if (__metricPopoverAutoCloseTimer) {
+    clearTimeout(__metricPopoverAutoCloseTimer);
+    __metricPopoverAutoCloseTimer = null;
+  }
+  document.querySelectorAll('.metric-items-popover').forEach((el) => {
+    el.setAttribute('data-open', 'false');
+    el.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+  });
+}
+
 function closeOtherMetricPopovers(activePopKey) {
+  if (isMobileView()) return;
   document.querySelectorAll('.metric-items-popover').forEach((el) => {
     if (el.id !== `metricPopover-${activePopKey}`) {
       el.setAttribute('data-open', 'false');
@@ -2581,27 +2595,29 @@ function toggleMetricVehiclesPopover(event, popKey) {
   if (!target) return;
   const isOpen = target.getAttribute('data-open') === 'true';
 
-  document.querySelectorAll('.metric-items-popover').forEach((el) => {
-    el.setAttribute('data-open', 'false');
-    el.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-  });
+  closeAllMetricPopovers();
 
   if (!isOpen) {
     target.setAttribute('data-open', 'true');
     target.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+    __metricPopoverAutoCloseTimer = setTimeout(() => {
+      target.setAttribute('data-open', 'false');
+      target.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+      __metricPopoverAutoCloseTimer = null;
+    }, 5000);
   }
 }
 
 if (typeof window !== 'undefined' && !window.__metricPopoverListenerBound) {
   window.__metricPopoverListenerBound = true;
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('[data-metric-popover]')) {
-      document.querySelectorAll('.metric-items-popover[data-open="true"]').forEach((el) => {
-        el.setAttribute('data-open', 'false');
-        el.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-      });
+  const handleOutsideMetricPopover = (e) => {
+    const targetEl = e.target && typeof e.target.closest === 'function' ? e.target : null;
+    if (!targetEl || !targetEl.closest('[data-metric-popover]')) {
+      closeAllMetricPopovers();
     }
-  });
+  };
+  document.addEventListener('click', handleOutsideMetricPopover, true);
+  document.addEventListener('touchstart', handleOutsideMetricPopover, { capture: true, passive: true });
 }
 
 function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel, primaryValue, subCards, mobile }) {
