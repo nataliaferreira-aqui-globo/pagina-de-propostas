@@ -2249,17 +2249,6 @@ function renderHeroSection(m) {
 
   const heroUtilityButtonsHtml = `
     <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-      <button
-        type="button"
-        onclick="copyShareLink()"
-        class="inline-flex items-center justify-center gap-1.5 ${mobile ? 'px-2.5 py-1.5' : 'px-3.5 py-2'} rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-semibold text-xs shadow-2xs transition cursor-pointer"
-        title="Compartilhar link"
-        aria-label="Compartilhar link"
-      >
-        <i class="uil uil-share-alt text-primary text-sm"></i>
-        ${mobile ? '' : '<span>Compartilhar link</span>'}
-      </button>
-
       <div class="relative" id="exportDropdownContainer">
         <button
           type="button"
