@@ -2349,26 +2349,32 @@ function renderHeroSection(m) {
 
   const html = `
     <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-7 sm:px-9 py-6 sm:py-7">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-        <!-- Lado Esquerdo: Identificação + Valor Principal + Botões de Ação logo abaixo -->
-        <div class="lg:col-span-7 space-y-4">
-          <div>
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs sm:text-sm text-ds-textSecondary font-medium truncate">
-                ${topEyebrowLabel}
-              </span>
-              <button
-                type="button"
-                onclick="cycleProposalStatus()"
-                title="Clique para alternar o status da proposta"
-                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0 cursor-pointer hover:opacity-90 transition"
-              >
-                <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
-                <span>${statusMeta.label}</span>
-              </button>
-            </div>
+      <!-- Barra Superior Unificada: Identificação + Status à esquerda | Compartilhar + Exportar no extremo direito -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-ds-border">
+        <div class="flex flex-wrap items-center gap-2.5 min-w-0">
+          <span class="text-xs sm:text-sm text-ds-textSecondary font-medium truncate">
+            ${topEyebrowLabel}
+          </span>
+          <button
+            type="button"
+            onclick="cycleProposalStatus()"
+            title="Clique para alternar o status da proposta"
+            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0 cursor-pointer hover:opacity-90 transition"
+          >
+            <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
+            <span>${statusMeta.label}</span>
+          </button>
+        </div>
 
-            <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        ${heroUtilityButtonsHtml}
+      </div>
+
+      <!-- Corpo em 2 Colunas: Valor + CTAs à esquerda | Início, Fim e Duração à direita -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+        <div class="lg:col-span-7 space-y-3.5">
+          <div>
+            <div class="text-xs text-ds-textSecondary font-medium">Investimento total</div>
+            <div class="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <div class="font-display font-extrabold text-3xl sm:text-[38px] text-ds-textMain tracking-tight leading-none">
                 ${fmtBRL(f.trueProposalTotal)}
               </div>
@@ -2378,12 +2384,7 @@ function renderHeroSection(m) {
           ${desktopActionButtonsHtml}
         </div>
 
-        <!-- Separador Central + Lado Direito: Ações utilitárias (Compartilhar/Exportar) no topo + Início, Fim e Duração abaixo -->
-        <div class="lg:col-span-5 lg:border-l lg:border-ds-border lg:pl-8 space-y-4">
-          <div class="flex items-center justify-end pb-3.5 border-b border-ds-border">
-            ${heroUtilityButtonsHtml}
-          </div>
-
+        <div class="lg:col-span-5 lg:border-l lg:border-ds-border lg:pl-8">
           <div class="flex items-center">
             <div class="pr-5 sm:pr-6 border-r border-ds-border">
               <div class="text-xs font-medium text-ds-textSecondary">
