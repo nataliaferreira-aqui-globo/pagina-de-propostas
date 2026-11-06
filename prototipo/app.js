@@ -8370,15 +8370,15 @@ function renderPdfDocument(m) {
                     <div class="text-xs text-slate-500 leading-snug mt-0.5">${escapeHtml(item.address)}${item.geoMeta ? ` · ${escapeHtml(item.geoMeta)}` : ''}</div>
                   </td>
                   <td class="py-2.5 px-2.5 align-top">
-                    <div class="font-semibold text-slate-800 leading-snug">${escapeHtml(item.vertical)}</div>
+                    <div class="font-normal text-slate-700 leading-snug">${escapeHtml(item.vertical)}</div>
                     <div class="text-xs text-slate-500 mt-0.5 whitespace-nowrap">${item.exhType}</div>
                   </td>
-                  <td class="py-2.5 px-2 align-top text-center font-bold text-slate-800 whitespace-nowrap">${fmtInt(item.screens)}</td>
+                  <td class="py-2.5 px-2 align-top text-center font-normal text-slate-700 whitespace-nowrap">${fmtInt(item.screens)}</td>
                   <td class="py-2.5 px-2.5 align-top text-right whitespace-nowrap">
-                    <span class="font-semibold text-slate-800">${item.isStatic ? 'Fixa' : fmtInt(item.dailyInsertions)}</span>
+                    <span class="font-normal text-slate-700">${item.isStatic ? 'Fixa' : fmtInt(item.dailyInsertions)}</span>
                   </td>
                   <td class="py-2.5 px-2.5 align-top text-right whitespace-nowrap">
-                    <span class="font-semibold text-slate-900">${item.isStatic ? 'Fixa' : fmtInt(item.periodInsertions)}</span>
+                    <span class="font-normal text-slate-700">${item.isStatic ? 'Fixa' : fmtInt(item.periodInsertions)}</span>
                   </td>
                   <td class="py-2.5 px-2.5 align-top text-right text-slate-700 whitespace-nowrap">${item.reachVal > 0 ? fmtInt(item.reachVal) : '—'}</td>
                   <td class="py-2.5 px-2.5 align-top text-right text-slate-700 whitespace-nowrap">${item.impactVal > 0 ? fmtInt(item.impactVal) : '—'}</td>
@@ -8446,14 +8446,14 @@ function renderPdfDocument(m) {
                   <div class="font-bold text-slate-900">${escapeHtml(p.cleanTitle || p.name)}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top">
-                  <div class="font-semibold text-slate-800">${escapeHtml(p.channelTypeLabel || p.vertical)}</div>
+                  <div class="font-normal text-slate-700">${escapeHtml(p.channelTypeLabel || p.vertical)}</div>
                   <div class="text-xs text-slate-500 uppercase">${escapeHtml((p.vehicles || []).join(', '))}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top">
-                  <span class="font-semibold text-slate-800">${escapeHtml(p.formatTagLabel || p.mediaTypeLabel)}</span>
+                  <span class="font-normal text-slate-700">${escapeHtml(p.formatTagLabel || p.mediaTypeLabel)}</span>
                 </td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700 whitespace-nowrap">Nacional / Seg.</td>
-                <td class="py-2.5 px-2.5 align-top text-right font-semibold text-slate-900 whitespace-nowrap">${fmtInt(p.impressions)}</td>
+                <td class="py-2.5 px-2.5 align-top text-right font-normal text-slate-700 whitespace-nowrap">${fmtInt(p.impressions)}</td>
                 <td class="py-2.5 px-2.5 align-top text-right text-slate-600 whitespace-nowrap">${fmtBRL(p.cpm)}</td>
                 <td class="py-2.5 px-3 align-top text-right font-bold text-slate-900 whitespace-nowrap">${fmtBRL(p.totalPrice)}</td>
               </tr>
@@ -8507,11 +8507,11 @@ function renderPdfDocument(m) {
                 ${state.isAdminView ? `<td class="py-2.5 px-2.5 align-top font-mono font-bold text-xs text-slate-700 whitespace-nowrap">#${escapeHtml(r.code)}</td>` : ''}
                 <td class="py-2.5 px-3 align-top font-bold text-slate-900">${escapeHtml(r.editorialTitle)}</td>
                 <td class="py-2.5 px-2.5 align-top">
-                  <div class="font-semibold text-slate-800">Display Editorial Multi-Formato</div>
+                  <div class="font-normal text-slate-700">Display Editorial Multi-Formato</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700">Capa e Editorias · Web & Mobile</td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700 whitespace-nowrap">Nacional / BR</td>
-                <td class="py-2.5 px-2.5 align-top text-right font-semibold text-slate-900 whitespace-nowrap">${fmtInt(r.impressions)}</td>
+                <td class="py-2.5 px-2.5 align-top text-right font-normal text-slate-700 whitespace-nowrap">${fmtInt(r.impressions)}</td>
                 <td class="py-2.5 px-2.5 align-top text-right text-slate-600 whitespace-nowrap">${fmtBRL(r.cpm)}</td>
                 <td class="py-2.5 px-3 align-top text-right font-bold text-slate-900 whitespace-nowrap">${fmtBRL(r.totalPrice)}</td>
               </tr>
@@ -8565,12 +8565,12 @@ function renderPdfDocument(m) {
                   <div class="text-xs text-slate-500">${escapeHtml(rd.city)}/${escapeHtml(rd.state)}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top">
-                  <div class="font-semibold text-slate-800">${escapeHtml(rd.cleanTitle || rd.programLabel)}</div>
+                  <div class="font-normal text-slate-700">${escapeHtml(rd.cleanTitle || rd.programLabel)}</div>
                   <div class="text-xs text-slate-500">${escapeHtml(rd.frequencyDaysLabel)} · ${escapeHtml(rd.timeWindow)}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700 whitespace-nowrap">Spot ${rd.spotDuration}"</td>
-                <td class="py-2.5 px-2.5 align-top text-right font-semibold text-slate-800 whitespace-nowrap">${fmtInt(rd.weeklyInsertions)}/sem</td>
-                <td class="py-2.5 px-2.5 align-top text-right font-bold text-slate-900 whitespace-nowrap">${fmtInt(rd.totalInsertions)} spots</td>
+                <td class="py-2.5 px-2.5 align-top text-right font-normal text-slate-700 whitespace-nowrap">${fmtInt(rd.weeklyInsertions)}/sem</td>
+                <td class="py-2.5 px-2.5 align-top text-right font-normal text-slate-700 whitespace-nowrap">${fmtInt(rd.totalInsertions)} spots</td>
                 <td class="py-2.5 px-2.5 align-top text-right text-slate-600 whitespace-nowrap">${fmtBRL(rd.unitInsertionPrice)}</td>
                 <td class="py-2.5 px-3 align-top text-right font-bold text-slate-900 whitespace-nowrap">${fmtBRL(rd.totalPrice)}</td>
               </tr>
