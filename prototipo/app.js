@@ -2300,10 +2300,6 @@ function renderHeroSection(m) {
               <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${thirdMetricValue}</div>
             </div>
           </div>
-
-          <div class="pt-3 border-t border-ds-border text-xs text-ds-textSecondary leading-snug">
-            ${escapeHtml(creatorLabel)}
-          </div>
         </div>
       </div>
     `;
@@ -2371,10 +2367,6 @@ function renderHeroSection(m) {
                 ${thirdMetricValue}
               </div>
             </div>
-          </div>
-
-          <div class="pt-3 border-t border-ds-border text-xs text-ds-textSecondary">
-            ${escapeHtml(creatorLabel)}
           </div>
         </div>
       </div>
@@ -7463,8 +7455,8 @@ function renderFaqSection() {
         <i class="uil uil-comment-question text-sm text-primary shrink-0"></i>
         <span>Dúvidas? <strong class="font-display font-semibold text-ds-textMain hover:text-primary underline underline-offset-2">Fale com um especialista</strong></span>
       </button>
-      <div id="proposalFooterMeta" class="text-xs text-ds-textMuted font-normal whitespace-nowrap">
-        Proposta comercial #${displayProposalId} · Aqui ads
+      <div id="proposalFooterMeta" class="text-xs text-ds-textMuted font-normal ${mobile ? 'leading-relaxed' : ''}">
+        Proposta comercial #${displayProposalId} · Criado por ${escapeHtml(state.creatorName || 'Natalia Ferreira')} (${escapeHtml(state.creatorEmail || 'natalia.ferreira@aqui.globo')}) · Aqui ads
       </div>
     </div>
   `;
@@ -8882,10 +8874,6 @@ function renderPdfDocument(m) {
                   </div>
                 </div>
               </div>
-
-              <div class="pt-3 border-t border-ds-border text-xs text-ds-textSecondary">
-                ${escapeHtml(`Criado por ${state.creatorName || 'Natalia Ferreira'} (${state.creatorEmail || 'natalia.ferreira@aqui.globo'})`)}
-              </div>
             </div>
           </div>
         </div>
@@ -8984,7 +8972,7 @@ function renderPdfDocument(m) {
               <strong>Aqui ads</strong> · Proposta comercial sujeita à disponibilidade de inventário no momento da confirmação do pagamento.
             </div>
             <div>
-              Documento gerado eletronicamente · Proposta ${proposalDisplayId}
+              Documento gerado eletronicamente · Proposta ${proposalDisplayId} · ${escapeHtml(`Criado por ${state.creatorName || 'Natalia Ferreira'} (${state.creatorEmail || 'natalia.ferreira@aqui.globo'})`)}
             </div>
           </footer>
 
