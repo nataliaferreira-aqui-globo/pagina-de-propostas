@@ -2554,48 +2554,6 @@ function renderModularMetrics(m) {
     gender: 'Todos'
   };
 
-  const dt = m.digitalTargets || {
-    locationList: ['Todos os estados (27)'],
-    interestList: ['Todos'],
-    ageList: ['Todos'],
-    genderList: ['Todos'],
-    location: 'Todos os estados (27)',
-    interest: 'Todos',
-    age: 'Todos',
-    gender: 'Todos'
-  };
-
-  const buildSeparateAudienceCards = (keyPrefix) => [
-    `
-      <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
-        <div class="text-xs font-semibold text-ds-textSecondary truncate">Local</div>
-        <div class="mt-2.5 min-w-0">${renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', `${keyPrefix}-loc`, false, 'text-lg sm:text-xl')}</div>
-        <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal truncate">${dt.locationList.length > 1 ? `${dt.locationList.length} estados selecionados` : 'Estado selecionado'}</div>
-      </div>
-    `,
-    `
-      <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
-        <div class="text-xs font-semibold text-ds-textSecondary truncate">Interesses</div>
-        <div class="mt-2.5 min-w-0">${renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', `${keyPrefix}-int`, true, 'text-lg sm:text-xl')}</div>
-        <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal truncate">${dt.interestList.length > 1 ? `${dt.interestList.length} categorias de interesse` : 'Segmentação de interesse'}</div>
-      </div>
-    `,
-    `
-      <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
-        <div class="text-xs font-semibold text-ds-textSecondary truncate">Idade</div>
-        <div class="mt-2.5 min-w-0">${renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', `${keyPrefix}-age`, false, 'text-lg sm:text-xl')}</div>
-        <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal truncate">${dt.ageList.length > 1 ? `${dt.ageList.length} faixas etárias` : 'Faixa etária'}</div>
-      </div>
-    `,
-    `
-      <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
-        <div class="text-xs font-semibold text-ds-textSecondary truncate">Gênero</div>
-        <div class="mt-2.5 min-w-0">${renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', `${keyPrefix}-gen`, true, 'text-lg sm:text-xl')}</div>
-        <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal truncate">Perfil demográfico</div>
-      </div>
-    `
-  ];
-
   // =========================================================================
   // CASO 1A: CAMPANHA ÚNICA — SOMENTE OOH (6 métricas no padrão Imagem 1 e 3)
   // =========================================================================
@@ -2791,23 +2749,7 @@ function renderModularMetrics(m) {
             label: 'Veículos',
             rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi', false)
           },
-          { label: 'CPM médio', value: portaisCpmLabel },
-          {
-            label: 'Local',
-            rawHtml: renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', 'portais-loc-multi', false)
-          },
-          {
-            label: 'Interesses',
-            rawHtml: renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', 'portais-int-multi', true)
-          },
-          {
-            label: 'Idade',
-            rawHtml: renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', 'portais-age-multi', false)
-          },
-          {
-            label: 'Gênero',
-            rawHtml: renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', 'portais-gen-multi', true)
-          }
+          { label: 'CPM médio', value: portaisCpmLabel }
         ]
       }));
     }
@@ -2828,23 +2770,7 @@ function renderModularMetrics(m) {
             label: 'Títulos',
             rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi', false)
           },
-          { label: 'CPM médio', value: revistasCpmLabel },
-          {
-            label: 'Local',
-            rawHtml: renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', 'revistas-loc-multi', false)
-          },
-          {
-            label: 'Interesses',
-            rawHtml: renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', 'revistas-int-multi', true)
-          },
-          {
-            label: 'Idade',
-            rawHtml: renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', 'revistas-age-multi', false)
-          },
-          {
-            label: 'Gênero',
-            rawHtml: renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', 'revistas-gen-multi', true)
-          }
+          { label: 'CPM médio', value: revistasCpmLabel }
         ]
       }));
     }
@@ -8194,22 +8120,6 @@ function renderPdfDocument(m) {
               <div class="text-xs text-ds-textSecondary leading-tight">Veículos</div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(portaisListLabel)}</div>
             </div>
-            <div class="min-w-0">
-              <div class="text-xs text-ds-textSecondary leading-tight">Local</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.locationList || [digTargets.location], 'pdf-portais-loc', 'Local (Estados)', 1)}</div>
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs text-ds-textSecondary leading-tight">Interesses</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.interestList || [digTargets.interest], 'pdf-portais-int', 'Interesses', 1, true)}</div>
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs text-ds-textSecondary leading-tight">Idade</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.ageList || [digTargets.age], 'pdf-portais-age', 'Faixa etária', 1)}</div>
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs text-ds-textSecondary leading-tight">Gênero</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.genderList || [digTargets.gender], 'pdf-portais-gen', 'Gênero', 1, true)}</div>
-            </div>
           </div>
         </div>
       `);
@@ -8241,22 +8151,6 @@ function renderPdfDocument(m) {
             <div class="col-span-2">
               <div class="text-xs text-ds-textSecondary leading-tight">Títulos editoriais</div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(revistasListLabel)}</div>
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs text-ds-textSecondary leading-tight">Local</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.locationList || [digTargets.location], 'pdf-revistas-loc', 'Local (Estados)', 1)}</div>
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs text-ds-textSecondary leading-tight">Interesses</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.interestList || [digTargets.interest], 'pdf-revistas-int', 'Interesses', 1, true)}</div>
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs text-ds-textSecondary leading-tight">Idade</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.ageList || [digTargets.age], 'pdf-revistas-age', 'Faixa etária', 1)}</div>
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs text-ds-textSecondary leading-tight">Gênero</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.genderList || [digTargets.gender], 'pdf-revistas-gen', 'Gênero', 1, true)}</div>
             </div>
           </div>
         </div>
