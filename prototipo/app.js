@@ -2376,12 +2376,12 @@ function toggleSummaryCardMetrics(cardKey) {
   renderModularMetrics(getCurrentModel());
 }
 
-function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey, alignRight = false, textSizeClass = 'text-sm sm:text-base') {
+function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey, alignRight = false, textSizeClass = 'text-xs') {
   const list = Array.isArray(items)
     ? items.filter(Boolean)
     : (items ? [String(items)] : []);
   if (list.length === 0) {
-    return `<strong class="font-display font-extrabold ${textSizeClass} text-ds-textMain block truncate">—</strong>`;
+    return `<strong class="font-sans font-bold ${textSizeClass} text-ds-textMain block truncate">—</strong>`;
   }
 
   const firstLen = String(list[0] || '').length;
@@ -2389,10 +2389,10 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey, al
   const visible = list.slice(0, effectiveVisibleCount);
   const remaining = list.slice(effectiveVisibleCount);
   const visibleText = visible.join(', ');
-  const isLongSingle = remaining.length === 0 && visibleText.length > 16;
+  const isLongSingle = remaining.length === 0 && visibleText.length > 18;
 
   if (remaining.length === 0 && !isLongSingle) {
-    return `<strong class="font-display font-extrabold ${textSizeClass} text-ds-textMain block truncate min-w-0" title="${escapeHtml(visibleText)}">${escapeHtml(visibleText)}</strong>`;
+    return `<strong class="font-sans font-bold ${textSizeClass} text-ds-textMain block truncate min-w-0" title="${escapeHtml(visibleText)}">${escapeHtml(visibleText)}</strong>`;
   }
 
   const popoverAlignClass = alignRight ? 'right-0' : 'left-0';
@@ -2401,14 +2401,14 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey, al
     <div class="relative flex items-center gap-1.5 min-w-0 max-w-full group/veh" data-metric-popover="${popKey}">
       <strong
         onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
-        class="font-display font-extrabold ${textSizeClass} text-ds-textMain truncate min-w-0 cursor-pointer"
+        class="font-sans font-bold ${textSizeClass} text-ds-textMain truncate min-w-0 cursor-pointer"
         title="${escapeHtml(list.join(', '))}"
       >${escapeHtml(visibleText)}</strong>
       ${remaining.length > 0 ? `
         <button
           type="button"
           onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
-          class="shrink-0 px-1.5 py-0.5 rounded-md text-[11px] leading-none font-bold bg-ds-surface border border-ds-borderStrong text-ds-textMain hover:bg-primary-light hover:text-primary hover:border-primary/40 transition-colors cursor-pointer"
+          class="shrink-0 px-1.5 py-0.5 rounded text-[10px] leading-none font-bold bg-ds-surface border border-ds-borderStrong text-ds-textSecondary hover:bg-primary-light hover:text-primary hover:border-primary/40 transition-colors cursor-pointer"
           aria-label="Ver todos (${list.length})">
           +${remaining.length}
         </button>
@@ -2500,12 +2500,12 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
         ${isExpanded ? `
           <div class="mt-3 grid grid-cols-2 gap-2">
             ${subCards.map((sc) => `
-              <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-3 py-2.5 border border-ds-border min-w-0">
-                <div class="text-ds-textSecondary text-xs font-medium truncate">${sc.label}</div>
+              <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-2.5 py-2 border border-ds-border min-w-0">
+                <div class="text-ds-textSecondary text-[11px] font-normal truncate leading-tight">${sc.label}</div>
                 ${sc.rawHtml ? `
-                  <div class="mt-1 min-w-0">${sc.rawHtml}</div>
+                  <div class="mt-0.5 min-w-0">${sc.rawHtml}</div>
                 ` : `
-                  <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain block mt-1 truncate" title="${escapeHtml(sc.value)}">
+                  <strong class="font-sans font-bold text-xs text-ds-textMain block mt-0.5 truncate" title="${escapeHtml(sc.value)}">
                     ${sc.value}
                   </strong>
                 `}
@@ -2747,9 +2747,25 @@ function renderModularMetrics(m) {
         subCards: [
           {
             label: 'Veículos',
-            rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi', false)
+            rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi', false, 'text-xs')
           },
-          { label: 'CPM médio', value: portaisCpmLabel }
+          { label: 'CPM médio', value: portaisCpmLabel },
+          {
+            label: 'Local',
+            rawHtml: renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', 'portais-loc-multi', false, 'text-xs')
+          },
+          {
+            label: 'Interesses',
+            rawHtml: renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', 'portais-int-multi', true, 'text-xs')
+          },
+          {
+            label: 'Idade',
+            rawHtml: renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', 'portais-age-multi', false, 'text-xs')
+          },
+          {
+            label: 'Gênero',
+            rawHtml: renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', 'portais-gen-multi', true, 'text-xs')
+          }
         ]
       }));
     }
@@ -2768,9 +2784,25 @@ function renderModularMetrics(m) {
         subCards: [
           {
             label: 'Títulos',
-            rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi', false)
+            rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi', false, 'text-xs')
           },
-          { label: 'CPM médio', value: revistasCpmLabel }
+          { label: 'CPM médio', value: revistasCpmLabel },
+          {
+            label: 'Local',
+            rawHtml: renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', 'revistas-loc-multi', false, 'text-xs')
+          },
+          {
+            label: 'Interesses',
+            rawHtml: renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', 'revistas-int-multi', true, 'text-xs')
+          },
+          {
+            label: 'Idade',
+            rawHtml: renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', 'revistas-age-multi', false, 'text-xs')
+          },
+          {
+            label: 'Gênero',
+            rawHtml: renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', 'revistas-gen-multi', true, 'text-xs')
+          }
         ]
       }));
     }
@@ -4190,23 +4222,23 @@ function renderMediaPlanList(m, preserveScroll = false) {
             </div>
           ` : `
             <div class="mt-2.5">
-              <div class="text-xs font-bold text-ds-textMain mb-1.5">Público-alvo</div>
+              <div class="text-[11px] font-bold text-ds-textMain mb-1.5">Público-alvo</div>
               <div class="grid grid-cols-2 sm:grid-cols-4 sim-grid-2 gap-2">
-                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
-                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Local</div>
-                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.locationList, 1, 'Estados selecionados', 'rev-hdr-loc', false, 'text-xs sm:text-sm')}</div>
+                <div class="bg-ds-bg rounded-xl px-2.5 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-normal text-ds-textSecondary truncate leading-tight">Local</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.locationList, 1, 'Estados selecionados', 'rev-hdr-loc', false, 'text-xs')}</div>
                 </div>
-                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
-                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Interesses</div>
-                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.interestList, 1, 'Interesses selecionados', 'rev-hdr-int', true, 'text-xs sm:text-sm')}</div>
+                <div class="bg-ds-bg rounded-xl px-2.5 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-normal text-ds-textSecondary truncate leading-tight">Interesses</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.interestList, 1, 'Interesses selecionados', 'rev-hdr-int', true, 'text-xs')}</div>
                 </div>
-                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
-                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Idade</div>
-                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.ageList, 1, 'Faixas etárias', 'rev-hdr-age', false, 'text-xs sm:text-sm')}</div>
+                <div class="bg-ds-bg rounded-xl px-2.5 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-normal text-ds-textSecondary truncate leading-tight">Idade</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.ageList, 1, 'Faixas etárias', 'rev-hdr-age', false, 'text-xs')}</div>
                 </div>
-                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
-                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Gênero</div>
-                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.genderList, 1, 'Gênero selecionado', 'rev-hdr-gen', true, 'text-xs sm:text-sm')}</div>
+                <div class="bg-ds-bg rounded-xl px-2.5 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-normal text-ds-textSecondary truncate leading-tight">Gênero</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.genderList, 1, 'Gênero selecionado', 'rev-hdr-gen', true, 'text-xs')}</div>
                 </div>
               </div>
             </div>
@@ -4434,23 +4466,23 @@ function renderMediaPlanList(m, preserveScroll = false) {
             </div>
           ` : `
             <div class="mt-2.5">
-              <div class="text-xs font-bold text-ds-textMain mb-1.5">Público-alvo</div>
+              <div class="text-[11px] font-bold text-ds-textMain mb-1.5">Público-alvo</div>
               <div class="grid grid-cols-2 sm:grid-cols-4 sim-grid-2 gap-2">
-                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
-                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Local</div>
-                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.locationList, 1, 'Estados selecionados', 'dig-hdr-loc', false, 'text-xs sm:text-sm')}</div>
+                <div class="bg-ds-bg rounded-xl px-2.5 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-normal text-ds-textSecondary truncate leading-tight">Local</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.locationList, 1, 'Estados selecionados', 'dig-hdr-loc', false, 'text-xs')}</div>
                 </div>
-                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
-                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Interesses</div>
-                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.interestList, 1, 'Interesses selecionados', 'dig-hdr-int', true, 'text-xs sm:text-sm')}</div>
+                <div class="bg-ds-bg rounded-xl px-2.5 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-normal text-ds-textSecondary truncate leading-tight">Interesses</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.interestList, 1, 'Interesses selecionados', 'dig-hdr-int', true, 'text-xs')}</div>
                 </div>
-                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
-                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Idade</div>
-                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.ageList, 1, 'Faixas etárias', 'dig-hdr-age', false, 'text-xs sm:text-sm')}</div>
+                <div class="bg-ds-bg rounded-xl px-2.5 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-normal text-ds-textSecondary truncate leading-tight">Idade</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.ageList, 1, 'Faixas etárias', 'dig-hdr-age', false, 'text-xs')}</div>
                 </div>
-                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
-                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Gênero</div>
-                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.genderList, 1, 'Gênero selecionado', 'dig-hdr-gen', true, 'text-xs sm:text-sm')}</div>
+                <div class="bg-ds-bg rounded-xl px-2.5 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-normal text-ds-textSecondary truncate leading-tight">Gênero</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.genderList, 1, 'Gênero selecionado', 'dig-hdr-gen', true, 'text-xs')}</div>
                 </div>
               </div>
             </div>
