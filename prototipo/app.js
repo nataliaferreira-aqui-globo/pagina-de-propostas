@@ -8359,6 +8359,25 @@ function renderPdfDocument(m) {
                 }
               });
 
+              const abbreviatePdfLocation = (str, isAddress = false) => {
+                let res = String(str || '')
+                  .replace(/\bAvenida\b/gi, 'Av.')
+                  .replace(/\bAV\.?(?=\s)/g, 'Av.')
+                  .replace(/\bRua\b/gi, 'R.')
+                  .replace(/\bAlameda\b/gi, 'Al.')
+                  .replace(/\bRodovia\b/gi, 'Rod.')
+                  .replace(/\bEstrada\b/gi, 'Estr.')
+                  .replace(/\bTravessa\b/gi, 'Tv.')
+                  .replace(/\bDoutor\b/gi, 'Dr.')
+                  .replace(/\bProfessor(?:a)?\b/gi, 'Prof.')
+                  .replace(/\bBrigadeiro\b/gi, 'Brig.')
+                  .replace(/\bBRIG\.?(?=\s)/g, 'Brig.');
+                if (isAddress) {
+                  res = res.replace(/^Praça\b/i, 'Pça.');
+                }
+                return res;
+              };
+
               return pdfOohRows.map((item, idx) => `
                 <tr class="${idx % 2 === 1 ? 'bg-slate-50' : 'bg-white'}">
                   ${state.isAdminView ? `
@@ -8367,8 +8386,8 @@ function renderPdfDocument(m) {
                     </td>
                   ` : ''}
                   <td class="py-2.5 px-3 align-top">
-                    <div class="font-bold text-slate-900 leading-snug">${escapeHtml(item.name)}</div>
-                    <div class="text-xs text-slate-500 leading-snug mt-0.5">${escapeHtml(item.address)}${item.geoMeta ? ` · ${escapeHtml(item.geoMeta)}` : ''}</div>
+                    <div class="font-bold text-slate-900 leading-snug">${escapeHtml(abbreviatePdfLocation(item.name, false))}</div>
+                    <div class="text-xs text-slate-500 leading-snug mt-0.5">${escapeHtml(abbreviatePdfLocation(item.address, true))}${item.geoMeta ? ` · ${escapeHtml(item.geoMeta)}` : ''}</div>
                   </td>
                   <td class="py-2.5 px-2.5 align-top">
                     <div class="font-normal text-slate-700 leading-snug">${escapeHtml(item.vertical)}</div>
