@@ -2543,6 +2543,16 @@ function renderModularMetrics(m) {
 
   const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
   const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
+  const dt = m.digitalTargets || {
+    locationList: ['Todos os estados (27)'],
+    interestList: ['Todos'],
+    ageList: ['Todos'],
+    genderList: ['Todos'],
+    location: 'Todos os estados (27)',
+    interest: 'Todos',
+    age: 'Todos',
+    gender: 'Todos'
+  };
 
   const dt = m.digitalTargets || {
     locationList: ['Todos os estados (27)'],
@@ -2667,7 +2677,6 @@ function renderModularMetrics(m) {
         </div>
       `
     ];
-    audienceRowCards = buildSeparateAudienceCards('portais-single');
 
   // =========================================================================
   // CASO 1C: CAMPANHA ÚNICA — SÓ REVISTAS DIGITAIS
@@ -2699,7 +2708,6 @@ function renderModularMetrics(m) {
         </div>
       `
     ];
-    audienceRowCards = buildSeparateAudienceCards('revistas-single');
 
   // =========================================================================
   // CASO 1D: CAMPANHA ÚNICA — SÓ RÁDIO
@@ -2878,11 +2886,6 @@ function renderModularMetrics(m) {
       <div class="grid ${colsClass} gap-3.5 sm:gap-4 ${activeChannelsCount === 1 ? 'items-stretch' : 'items-start'}">
         ${cards.join('')}
       </div>
-      ${audienceRowCards.length > 0 ? `
-        <div class="grid grid-cols-2 lg:grid-cols-4 sim-grid-2 gap-3.5 sm:gap-4 items-stretch pt-0.5">
-          ${audienceRowCards.join('')}
-        </div>
-      ` : ''}
     </div>
   `;
 }
@@ -7948,6 +7951,16 @@ function renderPdfDocument(m) {
   const isSingleChannel = activeChannelsCount === 1;
   const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
   const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
+  const dt = m.digitalTargets || {
+    locationList: ['Todos os estados (27)'],
+    interestList: ['Todos'],
+    ageList: ['Todos'],
+    genderList: ['Todos'],
+    location: 'Todos os estados (27)',
+    interest: 'Todos',
+    age: 'Todos',
+    gender: 'Todos'
+  };
   const oohStaticScr = c.oohStaticScreensCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.screens, 0);
   const oohDigScr = Math.max(0, (c.oohScreensCount || 0) - oohStaticScr);
   const oohCities = Array.isArray(c.oohCitiesList) && c.oohCitiesList.length > 0 ? c.oohCitiesList : ['São Paulo'];
@@ -10844,6 +10857,16 @@ function exportFullCsv() {
 
   const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
   const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
+  const dt = m.digitalTargets || {
+    locationList: ['Todos os estados (27)'],
+    interestList: ['Todos'],
+    ageList: ['Todos'],
+    genderList: ['Todos'],
+    location: 'Todos os estados (27)',
+    interest: 'Todos',
+    age: 'Todos',
+    gender: 'Todos'
+  };
 
   const portaisVehiclesSet = new Set();
   (m.portaisItems || []).forEach((it) => {
