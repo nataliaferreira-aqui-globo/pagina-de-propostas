@@ -2247,27 +2247,67 @@ function renderHeroSection(m) {
     </div>
   `;
 
+  const heroUtilityButtonsHtml = `
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <button
+        type="button"
+        onclick="copyShareLink()"
+        class="inline-flex items-center justify-center gap-1.5 ${mobile ? 'px-2.5 py-1.5' : 'px-3.5 py-2'} rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-semibold text-xs shadow-2xs transition cursor-pointer"
+        title="Compartilhar link"
+        aria-label="Compartilhar link"
+      >
+        <i class="uil uil-share-alt text-primary text-sm"></i>
+        ${mobile ? '' : '<span>Compartilhar link</span>'}
+      </button>
+
+      <div class="relative" id="exportDropdownContainer">
+        <button
+          type="button"
+          onclick="toggleExportMenu()"
+          class="inline-flex items-center gap-1 ${mobile ? 'px-2.5 py-1.5' : 'px-3.5 py-2'} rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-semibold text-xs shadow-2xs transition cursor-pointer"
+        >
+          <i class="uil uil-import text-primary text-sm"></i>
+          <span>Exportar</span>
+          <i class="uil uil-angle-down text-sm text-ds-textSecondary"></i>
+        </button>
+        <div id="exportMenu" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-lg border border-ds-borderStrong py-1.5 z-50 text-xs">
+          <button type="button" onclick="openPdfPreviewAndPrint(); toggleExportMenu();" class="w-full px-4 py-2.5 text-left hover:bg-ds-bg flex items-center gap-2.5 text-ds-textMain font-normal cursor-pointer">
+            <i class="uil uil-file-download-alt text-primary text-base"></i>
+            <span>Baixar PDF</span>
+          </button>
+          <button type="button" onclick="exportFullCsv(); toggleExportMenu();" class="w-full px-4 py-2.5 text-left hover:bg-ds-bg flex items-center gap-2.5 text-ds-textMain font-normal border-t border-ds-border cursor-pointer">
+            <i class="uil uil-file-alt text-emerald-600 text-base"></i>
+            <span>Exportar planilha Excel</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
   if (mobile) {
     const mobileHtml = `
       <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card p-5 space-y-4">
-        <!-- Topo Mobile Organizado: Status + Nome da campanha (se houver) -->
-        <div class="space-y-2">
+        <!-- Topo Mobile Organizado: Status acima do título + Botões no extremo direito alinhados ao status -->
+        <div class="space-y-2.5">
           <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold text-ds-textSecondary">Plano de mídia</span>
             <button
               type="button"
               onclick="cycleProposalStatus()"
-              class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0"
             >
               <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
               <span>${statusMeta.label}</span>
             </button>
+            ${heroUtilityButtonsHtml}
           </div>
-          ${hasCampaignName ? `
-            <div class="text-xs font-semibold text-ds-textMain">
-              ${escapeHtml(m.campaignName)}
-            </div>
-          ` : ''}
+          <div class="space-y-0.5">
+            <div class="text-xs font-semibold text-ds-textSecondary">Plano de mídia</div>
+            ${hasCampaignName ? `
+              <div class="text-xs font-semibold text-ds-textMain">
+                ${escapeHtml(m.campaignName)}
+              </div>
+            ` : ''}
+          </div>
         </div>
 
         <!-- Bloco de Investimento e Ações Principais -->
@@ -2338,8 +2378,12 @@ function renderHeroSection(m) {
           ${desktopActionButtonsHtml}
         </div>
 
-        <!-- Separador Central + Lado Direito: Início, Fim e Duração -->
+        <!-- Separador Central + Lado Direito: Ações utilitárias (Compartilhar/Exportar) no topo + Início, Fim e Duração abaixo -->
         <div class="lg:col-span-5 lg:border-l lg:border-ds-border lg:pl-8 space-y-4">
+          <div class="flex items-center justify-end pb-3.5 border-b border-ds-border">
+            ${heroUtilityButtonsHtml}
+          </div>
+
           <div class="flex items-center">
             <div class="pr-5 sm:pr-6 border-r border-ds-border">
               <div class="text-xs font-medium text-ds-textSecondary">

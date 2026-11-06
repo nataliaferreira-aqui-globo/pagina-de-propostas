@@ -545,30 +545,26 @@
         <!-- Stepper de Jornada Centralizado (Figma 3387-12075: 1. Resumo — 2. Pagamento — 3. Ativar campanha) -->
         <div id="journeyStepperContainer" class="hidden lg:flex items-center justify-center"></div>
 
-        <!-- Ações do Header (Compartilhar + Exportar) -->
-        <div class="flex items-center gap-2">
-          <button onclick="copyShareLink()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-semibold text-xs shadow-2xs transition" title="Compartilhar link">
-            <i class="uil uil-share-alt text-primary text-sm"></i>
-            <span class="hidden sm:inline sim-hide-mobile">Compartilhar link</span>
+        <!-- Navegação Global Aqui ads (Fiel à plataforma em produção) -->
+        <div class="flex items-center gap-3 sm:gap-5 text-xs text-ds-textMain">
+          <button type="button" onclick="openAndreiaChatWithFlow('specialist')" class="hidden sm:inline-flex sim-hide-mobile items-center gap-1.5 font-display font-semibold text-ds-textMain hover:text-primary transition cursor-pointer">
+            <span>Assistente de anúncios</span>
+            <i class="uil uil-sparkles text-indigo-500 text-sm"></i>
           </button>
 
-          <div class="relative" id="exportDropdownContainer">
-            <button onclick="toggleExportMenu()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-semibold text-xs shadow-2xs transition">
-              <i class="uil uil-import text-primary text-sm"></i>
-              <span>Exportar</span>
-              <i class="uil uil-angle-down text-sm text-ds-textSecondary"></i>
-            </button>
-            <div id="exportMenu" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-lg border border-ds-borderStrong py-1.5 z-50 text-xs">
-              <button onclick="openPdfPreviewAndPrint(); toggleExportMenu();" class="w-full px-4 py-2.5 text-left hover:bg-ds-bg flex items-center gap-2.5 text-ds-textMain font-normal">
-                <i class="uil uil-file-download-alt text-primary text-base"></i>
-                <span>Baixar PDF</span>
-              </button>
-              <button onclick="exportFullCsv(); toggleExportMenu();" class="w-full px-4 py-2.5 text-left hover:bg-ds-bg flex items-center gap-2.5 text-ds-textMain font-normal border-t border-ds-border">
-                <i class="uil uil-file-alt text-emerald-600 text-base"></i>
-                <span>Exportar planilha Excel</span>
-              </button>
-            </div>
+          <div class="relative inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-ds-surface transition cursor-pointer" title="Carrinho">
+            <i class="uil uil-shopping-cart text-lg text-ds-textMain"></i>
+            <span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center leading-none">3</span>
           </div>
+
+          <div class="hidden sm:inline-flex sim-hide-mobile items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-ds-surface/70 border border-ds-border">
+            <span class="w-6 h-6 rounded-full bg-ds-borderStrong/60 text-ds-textMain font-display font-bold text-[11px] flex items-center justify-center">N</span>
+            <span class="font-display font-semibold text-xs text-ds-textMain">Olá, Natalia!</span>
+          </div>
+
+          <button type="button" class="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-ds-surface text-ds-textMain transition cursor-pointer" aria-label="Menu">
+            <i class="uil uil-bars text-lg"></i>
+          </button>
         </div>
       </div>
     </header>
@@ -668,7 +664,7 @@
     <span id="toastMessage">Ação realizada</span>
   </div>
 
-  <script src="data-scenarios.js?v=20261106_215"></script>
-  <script src="app.js?v=20261106_215"></script>
+  <script src="data-scenarios.js?v=20261106_216"></script>
+  <script src="app.js?v=20261106_216"></script>
 </body>
 </html>
