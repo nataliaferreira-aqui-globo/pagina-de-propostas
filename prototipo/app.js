@@ -8630,11 +8630,11 @@ function renderPdfDocument(m) {
           ${escapeHtml(formatoLabel)}
         </td>
         <td class="py-2.5 px-3 align-top">
-          <div class="font-semibold text-slate-900">${escapeHtml(tipoLabel)}</div>
+          <div class="font-normal text-slate-700">${escapeHtml(tipoLabel)}</div>
           <div class="text-[11px] text-slate-500 mt-0.5 leading-snug">${escapeHtml(categoriaLabel)}</div>
         </td>
         <td class="py-2.5 px-3 align-top whitespace-nowrap">
-          <div class="font-semibold text-slate-900">${escapeHtml(dimText)}</div>
+          <div class="font-normal text-slate-700">${escapeHtml(dimText)}</div>
           ${safeAreaText ? `<div class="text-[10.5px] text-slate-500 mt-0.5">${escapeHtml(safeAreaText)}</div>` : ''}
         </td>
         <td class="py-2.5 px-3 align-top text-slate-700">
@@ -8653,11 +8653,11 @@ function renderPdfDocument(m) {
           Spot Comercial
         </td>
         <td class="py-2.5 px-3 align-top">
-          <div class="font-semibold text-slate-900">Áudio (Rádio)</div>
+          <div class="font-normal text-slate-700">Áudio (Rádio)</div>
           <div class="text-[11px] text-slate-500 mt-0.5 leading-snug">Rádio</div>
         </td>
         <td class="py-2.5 px-3 align-top whitespace-nowrap">
-          <div class="font-semibold text-slate-900">Duração: ${escapeHtml(radioDur)}</div>
+          <div class="font-normal text-slate-700">Duração: ${escapeHtml(radioDur)}</div>
         </td>
         <td class="py-2.5 px-3 align-top text-slate-700">
           Arquivo: MP3 ou WAV (44.1 kHz, 16 bits, estéreo) · Entrega: até 2 dias úteis antes da veiculação
