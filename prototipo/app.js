@@ -2521,7 +2521,7 @@ function formatPdfAudienceStripHtml(digTargets, boldColorClass = 'text-slate-700
       const mUf = String(st).match(/\(([A-Z]{2})\)/);
       return mUf ? mUf[1] : st;
     });
-    locFullText = `${ufs.join(', ')} (${locList.length} estados)`;
+    locFullText = ufs.join(', ');
   }
 
   const intFullText = intList.join(', ');
@@ -2533,7 +2533,7 @@ function formatPdfAudienceStripHtml(digTargets, boldColorClass = 'text-slate-700
 
   const genFullText = genList.join(', ');
 
-  return `<strong class="font-bold ${boldColorClass}">Público-alvo:</strong> <span><strong class="font-bold ${boldColorClass}">Local:</strong> ${escapeHtml(locFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Interesses:</strong> ${escapeHtml(intFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Idade:</strong> ${escapeHtml(ageFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Gênero:</strong> ${escapeHtml(genFullText)}</span>`;
+  return `<span><strong class="font-bold ${boldColorClass}">Estado:</strong> ${escapeHtml(locFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Interesses:</strong> ${escapeHtml(intFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Idade:</strong> ${escapeHtml(ageFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Gênero:</strong> ${escapeHtml(genFullText)}</span>`;
 }
 
 function toggleMetricVehiclesPopover(event, popKey) {
