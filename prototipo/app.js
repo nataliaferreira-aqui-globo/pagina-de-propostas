@@ -1234,7 +1234,7 @@ function buildNormalizedModel(rawPayload) {
 
     let ts = rawTs;
     if (isAllDefault) {
-      if (scKey === 'completo' || scKey === 'so_digital' || scKey === 'so_revistas') {
+      if (scKey === 'completo' || scKey === 'so_digital' || scKey === 'so_revistas' || scKey === 'ooh_digital' || scKey === 'ooh_digital_revistas') {
         ts = {
           location: [
             'Mato Grosso do Sul (MS)',
@@ -1539,28 +1539,35 @@ function initApp() {
   // Registra cenários de canal único para simulação rápida (Só Digital, Só Revistas Digitais, Só Rádio)
   if (window.PROPOSAL_SCENARIOS && window.PROPOSAL_SCENARIOS.completo && !window.PROPOSAL_SCENARIOS.so_digital) {
     const basePayload = window.PROPOSAL_SCENARIOS.completo.payload;
-    const buildSingleChannelScenario = (id, label, description, targetChannel, codeSuffix, customId) => {
+    const buildChannelComboScenario = (id, label, description, targetChannels, codeSuffix, customId) => {
+      const allowedSet = new Set(Array.isArray(targetChannels) ? targetChannels : [targetChannels]);
       const cloned = JSON.parse(JSON.stringify(basePayload));
       cloned.id = customId;
       cloned.code = `${cloned.code || '743446'}-${codeSuffix}`;
-      cloned.metrics = {};
+      if (!allowedSet.has('ooh')) {
+        cloned.metrics = {};
+      }
 
       const sourceItems =
         cloned?.campaign?.items ||
         cloned?.campaigns?.Campaign_740747?.items ||
         cloned?.items ||
         [];
-      const filteredItems = sourceItems.filter((it) => classifyCartItem(it) === targetChannel);
+      const filteredItems = sourceItems.filter((it) => allowedSet.has(classifyCartItem(it)));
 
       if (cloned.campaign) {
         cloned.campaign.name = label.replace(/^\d+\.\s*/, '');
         cloned.campaign.items = filteredItems;
-        cloned.campaign.items_summary = {};
+        if (!allowedSet.has('ooh')) {
+          cloned.campaign.items_summary = {};
+        }
         cloned.campaign.formats = {};
       }
       if (cloned.campaigns && cloned.campaigns.Campaign_740747) {
         cloned.campaigns.Campaign_740747.items = filteredItems;
-        cloned.campaigns.Campaign_740747.items_summary = {};
+        if (!allowedSet.has('ooh')) {
+          cloned.campaigns.Campaign_740747.items_summary = {};
+        }
         cloned.campaigns.Campaign_740747.formats = {};
       }
       cloned.items = filteredItems;
@@ -1568,7 +1575,7 @@ function initApp() {
       return { id, label, description, payload: cloned };
     };
 
-    window.PROPOSAL_SCENARIOS.so_digital = buildSingleChannelScenario(
+    window.PROPOSAL_SCENARIOS.so_digital = buildChannelComboScenario(
       'so_digital',
       '5. Só Digital — Portais e Globoplay (5 formatos)',
       'Campanha exclusiva em Portais Globo (G1, GE, Gshow, Receitas) e Globoplay.',
@@ -1577,7 +1584,7 @@ function initApp() {
       743451
     );
 
-    window.PROPOSAL_SCENARIOS.so_revistas = buildSingleChannelScenario(
+    window.PROPOSAL_SCENARIOS.so_revistas = buildChannelComboScenario(
       'so_revistas',
       '6. Só Revistas Digitais (4 títulos)',
       'Campanha exclusiva em Revistas Digitais (O Globo, Extra, Galileu, Globo Rural).',
@@ -1586,13 +1593,31 @@ function initApp() {
       743452
     );
 
-    window.PROPOSAL_SCENARIOS.so_radio = buildSingleChannelScenario(
+    window.PROPOSAL_SCENARIOS.so_radio = buildChannelComboScenario(
       'so_radio',
       '7. Só Rádio — Rádio CBN (4 faixas)',
       'Campanha exclusiva de spots 30" nas praças CBN São Paulo e Brasília.',
       'radio',
       'RAD',
       743453
+    );
+
+    window.PROPOSAL_SCENARIOS.ooh_digital = buildChannelComboScenario(
+      'ooh_digital',
+      '8. OOH + Digital (OOH + Portais e Globoplay)',
+      'Campanha combinada em 2 canais: OOH (32 pontos) + Portais e Globoplay (5 formatos).',
+      ['ooh', 'portais'],
+      'OOHDIG',
+      743454
+    );
+
+    window.PROPOSAL_SCENARIOS.ooh_digital_revistas = buildChannelComboScenario(
+      'ooh_digital_revistas',
+      '9. OOH + Digital Completo (OOH + Portais + Revistas)',
+      'Campanha combinada em 3 canais: OOH + Portais e Globoplay + Revistas Digitais.',
+      ['ooh', 'portais', 'revistas'],
+      'OOHDIGREV',
+      743455
     );
   }
 
