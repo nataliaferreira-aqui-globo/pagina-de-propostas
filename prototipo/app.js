@@ -6371,14 +6371,14 @@ function renderPaymentTab(m) {
   `;
 
   // Conteúdo da Etapa 1: Dados de faturamento com hierarquia visual limpa
-  const step1BillingContentHtml = (unlogged && !state.billingFormOpen) ? `
+  const step1BillingContentHtml = unlogged ? `
     <div class="rounded-2xl border border-ds-border bg-ds-surface/50 p-5 space-y-4">
       <div class="space-y-1">
         <h4 class="font-display font-bold text-base text-ds-textMain">
           Identifique-se para informar o faturamento
         </h4>
         <p class="text-xs text-ds-textSecondary leading-relaxed">
-          Entre na sua conta ou preencha os dados de faturamento diretamente abaixo para avançar para o pagamento.
+          Entre na sua conta ou crie um cadastro rápido para preencher os dados de faturamento e avançar para o pagamento.
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-2.5">
@@ -6388,15 +6388,7 @@ function renderPaymentTab(m) {
           class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-xs transition cursor-pointer"
         >
           <i class="uil uil-signin text-base"></i>
-          <span>Entrar na minha conta</span>
-        </button>
-        <button
-          type="button"
-          onclick="state.billingFormOpen = true; state.billingPersonType = 'CNPJ'; renderPaymentTab(getCurrentModel());"
-          class="px-4 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 transition cursor-pointer"
-        >
-          <i class="uil uil-file-edit-alt text-sm text-primary"></i>
-          <span>Preencher dados de faturamento</span>
+          <span>Entrar ou criar conta</span>
         </button>
       </div>
     </div>
@@ -7057,7 +7049,7 @@ function renderPaymentTab(m) {
             ${unlogged ? `
               <button type="button" onclick="openAuthModal('login')" class="text-primary font-display font-bold hover:underline inline-flex items-center gap-1 cursor-pointer">
                 <i class="uil uil-signin"></i>
-                <span>Entrar para preencher</span>
+                <span>Entrar ou criar conta</span>
               </button>
             ` : `
               <button type="button" onclick="openBillingStepForm()" class="text-primary font-bold hover:underline inline-flex items-center gap-1 cursor-pointer">
@@ -7068,7 +7060,7 @@ function renderPaymentTab(m) {
           </div>
           ${!hasBillingData ? `
             <div class="mt-0.5 text-xs text-ds-textMuted">
-              ${unlogged ? 'Entre na sua conta ou preencha os dados ao lado.' : 'Cadastre os dados de faturamento na Etapa 1 ao lado.'}
+              ${unlogged ? 'Entre ou crie sua conta para informar o faturamento.' : 'Cadastre os dados de faturamento na Etapa 1 ao lado.'}
             </div>
           ` : `
             <div class="mt-0.5 font-semibold text-ds-textMain truncate">${escapeHtml(getProtectedBillingInfo().displayName)}</div>
