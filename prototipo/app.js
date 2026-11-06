@@ -8305,7 +8305,7 @@ function renderPdfDocument(m) {
               const pdfOohRows = [];
               m.oohDisplayGroups.forEach((g) => {
                 const isStatic = Boolean(g.isStatic);
-                const exhType = isStatic ? 'Estático' : 'DOOH';
+                const exhType = isStatic ? 'Estático' : 'Digital';
                 const geoMeta = [g.district, g.city ? `${g.city}/${g.state || 'SP'}` : ''].filter(Boolean).join(', ');
                 if (g.kind === 'condo_group' && Array.isArray(g.towers) && g.towers.length > 0) {
                   g.towers.forEach((t) => {
@@ -8371,7 +8371,7 @@ function renderPdfDocument(m) {
                   </td>
                   <td class="py-2.5 px-2.5 align-top">
                     <div class="font-semibold text-slate-800 leading-snug">${escapeHtml(item.vertical)}</div>
-                    <div class="text-xs text-slate-500 mt-0.5 whitespace-nowrap">${item.exhType} · ${escapeHtml(item.resolution)}</div>
+                    <div class="text-xs text-slate-500 mt-0.5 whitespace-nowrap">${item.exhType}</div>
                   </td>
                   <td class="py-2.5 px-2 align-top text-center font-bold text-slate-800 whitespace-nowrap">${fmtInt(item.screens)}</td>
                   <td class="py-2.5 px-2.5 align-top text-right whitespace-nowrap">
