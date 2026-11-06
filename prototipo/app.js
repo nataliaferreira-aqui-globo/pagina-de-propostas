@@ -2456,7 +2456,7 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey, al
   `;
 }
 
-function renderInlineAudienceTextPopover(label, list, popKey, popoverTitle, boldColorClass = 'text-ds-textMain') {
+function renderInlineAudienceTextPopover(label, list, popKey, popoverTitle, boldColorClass = 'text-ds-textSecondary') {
   const items = Array.isArray(list) && list.length > 0 ? list : ['Todos'];
   const first = escapeHtml(items[0]);
   const remainingCount = items.length - 1;
@@ -2492,7 +2492,7 @@ function renderInlineAudienceTextPopover(label, list, popKey, popoverTitle, bold
   `;
 }
 
-function formatAudienceSubtitleHtml(digTargets, boldColorClass = 'text-ds-textMain', prefix = 'aud') {
+function formatAudienceSubtitleHtml(digTargets, boldColorClass = 'text-ds-textSecondary', prefix = 'aud') {
   const dt = digTargets || {};
   if (dt.isAllTodos) {
     return `<strong class="font-bold ${boldColorClass}">Público-alvo:</strong> Todos`;
@@ -2502,10 +2502,10 @@ function formatAudienceSubtitleHtml(digTargets, boldColorClass = 'text-ds-textMa
   const ageList = Array.isArray(dt.ageList) && dt.ageList.length > 0 ? dt.ageList : [dt.age || 'Todos'];
   const genList = Array.isArray(dt.genderList) && dt.genderList.length > 0 ? dt.genderList : [dt.gender || 'Todos'];
 
-  return `<strong class="font-bold ${boldColorClass}">Público-alvo:</strong> ${renderInlineAudienceTextPopover('Local', locList, `${prefix}-loc`, 'Estados selecionados', boldColorClass)} · ${renderInlineAudienceTextPopover('Interesses', intList, `${prefix}-int`, 'Interesses selecionados', boldColorClass)} · ${renderInlineAudienceTextPopover('Idade', ageList, `${prefix}-age`, 'Faixas etárias', boldColorClass)} · ${renderInlineAudienceTextPopover('Gênero', genList, `${prefix}-gen`, 'Gênero selecionado', boldColorClass)}`;
+  return `${renderInlineAudienceTextPopover('Estado', locList, `${prefix}-loc`, 'Estados selecionados', boldColorClass)} · ${renderInlineAudienceTextPopover('Interesses', intList, `${prefix}-int`, 'Interesses selecionados', boldColorClass)} · ${renderInlineAudienceTextPopover('Idade', ageList, `${prefix}-age`, 'Faixas etárias', boldColorClass)} · ${renderInlineAudienceTextPopover('Gênero', genList, `${prefix}-gen`, 'Gênero selecionado', boldColorClass)}`;
 }
 
-function formatPdfAudienceStripHtml(digTargets, boldColorClass = 'text-slate-700') {
+function formatPdfAudienceStripHtml(digTargets, boldColorClass = 'text-slate-600') {
   const dt = digTargets || {};
   if (dt.isAllTodos) {
     return `<strong class="font-bold ${boldColorClass}">Público-alvo:</strong> Todos`;
@@ -4306,7 +4306,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
             Revistas (${filteredRevistas.length})
           </h3>
           <div class="text-xs text-ds-textSecondary mt-1 leading-relaxed">
-            ${formatAudienceSubtitleHtml(digTargets, 'text-ds-textMain', 'rev-hdr')}
+            ${formatAudienceSubtitleHtml(digTargets, 'text-ds-textSecondary', 'rev-hdr')}
           </div>
         </div>
 
@@ -4510,7 +4510,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
             Portais e Globoplay (${filteredPortais.length})
           </h3>
           <div class="text-xs text-ds-textSecondary mt-1 leading-relaxed">
-            ${formatAudienceSubtitleHtml(digTargets, 'text-ds-textMain', 'dig-hdr')}
+            ${formatAudienceSubtitleHtml(digTargets, 'text-ds-textSecondary', 'dig-hdr')}
           </div>
         </div>
 
@@ -8423,7 +8423,7 @@ function renderPdfDocument(m) {
 
       <div class="overflow-hidden border border-ds-border rounded-2xl">
         <div class="px-3.5 py-2 bg-[#FAF8F5] border-b border-ds-border text-xs text-slate-600 leading-relaxed">
-          ${formatPdfAudienceStripHtml(digTargets, 'text-slate-700')}
+          ${formatPdfAudienceStripHtml(digTargets, 'text-slate-600')}
         </div>
         <table class="w-full text-left border-collapse text-xs">
           <thead>
@@ -8486,7 +8486,7 @@ function renderPdfDocument(m) {
 
       <div class="overflow-hidden border border-ds-border rounded-2xl">
         <div class="px-3.5 py-2 bg-[#FAF8F5] border-b border-ds-border text-xs text-slate-600 leading-relaxed">
-          ${formatPdfAudienceStripHtml(digTargets, 'text-slate-700')}
+          ${formatPdfAudienceStripHtml(digTargets, 'text-slate-600')}
         </div>
         <table class="w-full text-left border-collapse text-xs">
           <thead>
