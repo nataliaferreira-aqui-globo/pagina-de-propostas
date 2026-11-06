@@ -2893,23 +2893,7 @@ function renderModularMetrics(m) {
             label: 'Veículos',
             rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi', false, 'text-xs')
           },
-          { label: 'CPM médio', value: portaisCpmLabel },
-          {
-            label: 'Local',
-            rawHtml: renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', 'portais-loc-multi', false, 'text-xs')
-          },
-          {
-            label: 'Interesses',
-            rawHtml: renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', 'portais-int-multi', true, 'text-xs')
-          },
-          {
-            label: 'Idade',
-            rawHtml: renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', 'portais-age-multi', false, 'text-xs')
-          },
-          {
-            label: 'Gênero',
-            rawHtml: renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', 'portais-gen-multi', true, 'text-xs')
-          }
+          { label: 'CPM médio', value: portaisCpmLabel }
         ]
       }));
     }
@@ -2930,23 +2914,7 @@ function renderModularMetrics(m) {
             label: 'Títulos',
             rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi', false, 'text-xs')
           },
-          { label: 'CPM médio', value: revistasCpmLabel },
-          {
-            label: 'Local',
-            rawHtml: renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', 'revistas-loc-multi', false, 'text-xs')
-          },
-          {
-            label: 'Interesses',
-            rawHtml: renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', 'revistas-int-multi', true, 'text-xs')
-          },
-          {
-            label: 'Idade',
-            rawHtml: renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', 'revistas-age-multi', false, 'text-xs')
-          },
-          {
-            label: 'Gênero',
-            rawHtml: renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', 'revistas-gen-multi', true, 'text-xs')
-          }
+          { label: 'CPM médio', value: revistasCpmLabel }
         ]
       }));
     }
