@@ -8294,7 +8294,7 @@ function renderPdfDocument(m) {
               <th class="py-2.5 px-3 font-bold w-[32%]">Ponto / Condomínio e endereço</th>
               <th class="py-2.5 px-2.5 font-bold w-[15%]">Categoria</th>
               <th class="py-2.5 px-2 font-bold text-center">Telas</th>
-              <th class="py-2.5 px-2.5 font-bold text-right">Exibição diária</th>
+              <th class="py-2.5 px-2.5 font-bold text-right">Exib. diária</th>
               <th class="py-2.5 px-2.5 font-bold text-right">Exib. período</th>
               <th class="py-2.5 px-2.5 font-bold text-right">Alcance</th>
               <th class="py-2.5 px-2.5 font-bold text-right">Impacto</th>
