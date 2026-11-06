@@ -2676,7 +2676,7 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
           </span>
           <button
             type="button"
-            class="text-xs font-semibold text-ds-textSecondary group-hover:text-ds-textMain transition inline-flex items-center gap-0.5 cursor-pointer"
+            class="px-2 py-1 -mr-2 rounded-[8px] bg-transparent group-hover:bg-ds-surface text-ds-textSecondary group-hover:text-ds-textMain font-sans font-medium text-xs transition inline-flex items-center gap-1 cursor-pointer"
           >
             <span>${isExpanded ? 'Ocultar' : 'Expandir'}</span>
             <i class="uil ${isExpanded ? 'uil-angle-up' : 'uil-angle-down'} text-sm"></i>
