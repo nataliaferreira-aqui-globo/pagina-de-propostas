@@ -1224,17 +1224,62 @@ function buildNormalizedModel(rawPayload) {
   const artFormats = buildCampaignArtFormats(campaign, oohRaw, portaisItems, revistasItems);
 
   const normalizeDigitalTargets = (campObj, itemObj) => {
-    const ts = (itemObj && itemObj.targets_summary) || (campObj && campObj.targets_summary) || {};
-    const mapTargetValue = (raw, fieldType) => {
-      if (!raw || String(raw).toLowerCase() === 'all' || String(raw).toLowerCase() === 'todos') {
-        return 'Todos';
+    const rawTs = (itemObj && itemObj.targets_summary) || (campObj && campObj.targets_summary) || {};
+    const scKey = state.scenarioKey || 'completo';
+    const isAllDefault =
+      (!rawTs.location || rawTs.location === 'all') &&
+      (!rawTs.interest || rawTs.interest === 'all') &&
+      (!rawTs.age || rawTs.age === 'all') &&
+      (!rawTs.gender || rawTs.gender === 'all');
+
+    let ts = rawTs;
+    if (isAllDefault) {
+      if (scKey === 'completo' || scKey === 'so_digital' || scKey === 'so_revistas') {
+        ts = {
+          location: [
+            'Mato Grosso do Sul (MS)',
+            'Rio Grande do Sul (RS)',
+            'Minas Gerais (MG)',
+            'Rio de Janeiro (RJ)',
+            'Pernambuco (PE)',
+            'São Paulo (SP)'
+          ],
+          interest: [
+            'Datas Comemorativas',
+            'Hobbies e Interesses',
+            'Finanças Pessoais',
+            'Estilo de Vida',
+            'Moda e Estilo',
+            'Música e Áudio',
+            'Negócios'
+          ],
+          age: ['18 – 24 anos', '25 – 34 anos', '35 – 59 anos'],
+          gender: 'Feminino'
+        };
+      } else if (scKey === 'completo_28') {
+        ts = {
+          location: ['Mato Grosso do Sul (MS)'],
+          interest: ['Hobbies e Interesses'],
+          age: ['35 – 59 anos'],
+          gender: 'Masculino'
+        };
+      } else {
+        ts = {
+          location: ['Todos os estados (27)'],
+          interest: ['Todos'],
+          age: ['Todos'],
+          gender: 'Todos'
+        };
       }
-      if (Array.isArray(raw)) {
-        if (raw.length === 0) return 'Todos';
-        return raw.map((v) => mapTargetValue(v, fieldType)).join(', ');
-      }
-      const s = String(raw).trim();
+    }
+
+    const mapSingleTarget = (val, fieldType) => {
+      if (!val) return fieldType === 'location' ? 'Todos os estados (27)' : 'Todos';
+      const s = String(val).trim();
       const low = s.toLowerCase();
+      if (low === 'all' || low === 'todos') {
+        return fieldType === 'location' ? 'Todos os estados (27)' : 'Todos';
+      }
       if (fieldType === 'gender') {
         if (low === 'male' || low === 'm' || low === 'masculino') return 'Masculino';
         if (low === 'female' || low === 'f' || low === 'feminino') return 'Feminino';
@@ -1248,17 +1293,51 @@ function buildNormalizedModel(rawPayload) {
       return s;
     };
 
-    const location = mapTargetValue(ts.location, 'location');
-    const interest = mapTargetValue(ts.interest, 'interest');
-    const age = mapTargetValue(ts.age, 'age');
-    const gender = mapTargetValue(ts.gender, 'gender');
-    const summaryText = `Local: ${location} · Idade: ${age} · Gênero: ${gender} · Interesses: ${interest}`;
+    const toTargetList = (raw, fieldType) => {
+      if (Array.isArray(raw)) {
+        const cleaned = raw.map((v) => mapSingleTarget(v, fieldType)).filter(Boolean);
+        return cleaned.length > 0 ? cleaned : [fieldType === 'location' ? 'Todos os estados (27)' : 'Todos'];
+      }
+      if (typeof raw === 'string' && raw.includes(',')) {
+        const cleaned = raw.split(',').map((v) => mapSingleTarget(v, fieldType)).filter(Boolean);
+        return cleaned.length > 0 ? cleaned : [fieldType === 'location' ? 'Todos os estados (27)' : 'Todos'];
+      }
+      return [mapSingleTarget(raw, fieldType)];
+    };
+
+    const formatCompactText = (list, maxVisible = 1) => {
+      if (!Array.isArray(list) || list.length === 0) return 'Todos';
+      if (list.length <= maxVisible) return list.join(', ');
+      return `${list.slice(0, maxVisible).join(', ')} (+${list.length - maxVisible})`;
+    };
+
+    const locationList = toTargetList(ts.location, 'location');
+    const interestList = toTargetList(ts.interest, 'interest');
+    const ageList = toTargetList(ts.age, 'age');
+    const genderList = toTargetList(ts.gender, 'gender');
+
+    const location = locationList.join(', ');
+    const interest = interestList.join(', ');
+    const age = ageList.join(', ');
+    const gender = genderList.join(', ');
+
+    const locationCompact = formatCompactText(locationList, 1);
+    const interestCompact = formatCompactText(interestList, 1);
+    const ageCompact = formatCompactText(ageList, 1);
+    const summaryText = `Local: ${locationCompact} · Interesses: ${interestCompact} · Idade: ${ageCompact} · Gênero: ${gender}`;
 
     return {
+      locationList,
+      interestList,
+      ageList,
+      genderList,
       location,
       interest,
       age,
       gender,
+      locationCompact,
+      interestCompact,
+      ageCompact,
       summaryText
     };
   };
@@ -1352,6 +1431,10 @@ function buildNormalizedModel(rawPayload) {
         cpm: getDigitalItemCpm(it),
         impressions: getDigitalItemImpressions(it),
         totalPrice: getDigitalItemInvestment(it),
+        targetLocationList: itemTargets.locationList,
+        targetInterestList: itemTargets.interestList,
+        targetAgeList: itemTargets.ageList,
+        targetGenderList: itemTargets.genderList,
         targetLocation: itemTargets.location,
         targetInterest: itemTargets.interest,
         targetAge: itemTargets.age,
@@ -1373,6 +1456,10 @@ function buildNormalizedModel(rawPayload) {
         cpm: getDigitalItemCpm(it),
         impressions: getDigitalItemImpressions(it),
         totalPrice: getDigitalItemInvestment(it),
+        targetLocationList: itemTargets.locationList,
+        targetInterestList: itemTargets.interestList,
+        targetAgeList: itemTargets.ageList,
+        targetGenderList: itemTargets.genderList,
         targetLocation: itemTargets.location,
         targetInterest: itemTargets.interest,
         targetAge: itemTargets.age,
@@ -2282,36 +2369,53 @@ function toggleSummaryCardMetrics(cardKey) {
   renderModularMetrics(getCurrentModel());
 }
 
-function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey) {
-  const list = Array.isArray(items) ? items : [];
-  if (list.length === 0) return '<strong class="text-ds-textMain font-semibold">—</strong>';
-  const visible = list.slice(0, visibleCount);
-  const remaining = list.slice(visibleCount);
-
-  if (remaining.length === 0) {
-    return `<strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain whitespace-nowrap">${visible.join(', ')}</strong>`;
+function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey, alignRight = false, textSizeClass = 'text-sm sm:text-base') {
+  const list = Array.isArray(items)
+    ? items.filter(Boolean)
+    : (items ? [String(items)] : []);
+  if (list.length === 0) {
+    return `<strong class="font-display font-extrabold ${textSizeClass} text-ds-textMain block truncate">—</strong>`;
   }
 
+  const firstLen = String(list[0] || '').length;
+  const effectiveVisibleCount = (isMobileView() || firstLen > 14) ? 1 : Math.max(1, visibleCount || 1);
+  const visible = list.slice(0, effectiveVisibleCount);
+  const remaining = list.slice(effectiveVisibleCount);
+  const visibleText = visible.join(', ');
+  const isLongSingle = remaining.length === 0 && visibleText.length > 16;
+
+  if (remaining.length === 0 && !isLongSingle) {
+    return `<strong class="font-display font-extrabold ${textSizeClass} text-ds-textMain block truncate min-w-0" title="${escapeHtml(visibleText)}">${escapeHtml(visibleText)}</strong>`;
+  }
+
+  const popoverAlignClass = alignRight ? 'right-0' : 'left-0';
+
   return `
-    <div class="relative inline-flex items-center gap-1.5 group/veh" data-metric-popover="${popKey}">
-      <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain whitespace-nowrap">${visible.join(', ')}</strong>
-      <button
-        type="button"
+    <div class="relative flex items-center gap-1.5 min-w-0 max-w-full group/veh" data-metric-popover="${popKey}">
+      <strong
         onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
-        class="px-1.5 py-0.5 rounded-md text-[11px] leading-none font-bold bg-ds-surface border border-ds-borderStrong text-ds-textMain hover:bg-primary-light hover:text-primary hover:border-primary/40 transition-colors cursor-pointer"
-        aria-label="Ver todos (${list.length})">
-        +${remaining.length}
-      </button>
+        class="font-display font-extrabold ${textSizeClass} text-ds-textMain truncate min-w-0 cursor-pointer"
+        title="${escapeHtml(list.join(', '))}"
+      >${escapeHtml(visibleText)}</strong>
+      ${remaining.length > 0 ? `
+        <button
+          type="button"
+          onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
+          class="shrink-0 px-1.5 py-0.5 rounded-md text-[11px] leading-none font-bold bg-ds-surface border border-ds-borderStrong text-ds-textMain hover:bg-primary-light hover:text-primary hover:border-primary/40 transition-colors cursor-pointer"
+          aria-label="Ver todos (${list.length})">
+          +${remaining.length}
+        </button>
+      ` : ''}
       <div
         id="metricPopover-${popKey}"
-        class="metric-items-popover invisible opacity-0 pointer-events-none group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto absolute left-0 bottom-full mb-2 w-56 p-3 rounded-xl bg-white border border-ds-border shadow-xl z-30 transition-all duration-150 text-left">
+        class="metric-items-popover invisible opacity-0 pointer-events-none group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto absolute ${popoverAlignClass} bottom-full mb-2 w-56 sm:w-64 max-w-[calc(100vw-2.5rem)] p-3 rounded-xl bg-white border border-ds-border shadow-xl z-40 transition-all duration-150 text-left">
         <div class="text-xs font-bold text-ds-textMuted mb-2">
-          ${popoverTitle} (${list.length})
+          ${escapeHtml(popoverTitle)} (${list.length})
         </div>
-        <div class="flex flex-wrap gap-1.5">
+        <div class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto bounded-scroll">
           ${list.map((item) => `
-            <span class="px-2 py-0.5 rounded-md bg-ds-surface border border-ds-border text-xs font-semibold text-ds-textMain whitespace-nowrap">
-              ${item}
+            <span class="px-2 py-1 rounded-md bg-ds-surface border border-ds-border text-xs font-semibold text-ds-textMain leading-tight break-words max-w-full">
+              ${escapeHtml(item)}
             </span>
           `).join('')}
         </div>
@@ -2389,12 +2493,12 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
         ${isExpanded ? `
           <div class="mt-3 grid grid-cols-2 gap-2">
             ${subCards.map((sc) => `
-              <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-3 py-2.5 border border-ds-border">
-                <div class="text-ds-textSecondary text-xs font-medium">${sc.label}</div>
+              <div class="${sc.fullWidth ? 'col-span-2' : ''} bg-white rounded-xl px-3 py-2.5 border border-ds-border min-w-0">
+                <div class="text-ds-textSecondary text-xs font-medium truncate">${sc.label}</div>
                 ${sc.rawHtml ? `
-                  <div class="mt-1">${sc.rawHtml}</div>
+                  <div class="mt-1 min-w-0">${sc.rawHtml}</div>
                 ` : `
-                  <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain block mt-1 whitespace-nowrap">
+                  <strong class="font-display font-extrabold text-sm sm:text-base text-ds-textMain block mt-1 truncate" title="${escapeHtml(sc.value)}">
                     ${sc.value}
                   </strong>
                 `}
@@ -2418,6 +2522,7 @@ function renderModularMetrics(m) {
     (c.radioCount > 0 ? 1 : 0);
 
   let cards = [];
+  let audienceRowCards = [];
   const cardPad = mobile ? 'p-4' : 'p-5';
   let singleChannelTitle = 'Estimativa de entrega do plano';
 
@@ -2431,6 +2536,48 @@ function renderModularMetrics(m) {
 
   const oohStaticPts = c.oohStaticPointsCount ?? m.oohDisplayGroups.filter((g) => g.isStatic).reduce((acc, g) => acc + g.towersCount, 0);
   const oohDigitalPts = c.oohDigitalPointsCount ?? Math.max(0, c.oohPointsCount - oohStaticPts);
+
+  const dt = m.digitalTargets || {
+    locationList: ['Todos os estados (27)'],
+    interestList: ['Todos'],
+    ageList: ['Todos'],
+    genderList: ['Todos'],
+    location: 'Todos os estados (27)',
+    interest: 'Todos',
+    age: 'Todos',
+    gender: 'Todos'
+  };
+
+  const buildSeparateAudienceCards = (keyPrefix) => [
+    `
+      <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
+        <div class="text-xs font-semibold text-ds-textSecondary truncate">Local</div>
+        <div class="mt-2.5 min-w-0">${renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', `${keyPrefix}-loc`, false, 'text-lg sm:text-xl')}</div>
+        <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal truncate">${dt.locationList.length > 1 ? `${dt.locationList.length} estados selecionados` : 'Estado selecionado'}</div>
+      </div>
+    `,
+    `
+      <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
+        <div class="text-xs font-semibold text-ds-textSecondary truncate">Interesses</div>
+        <div class="mt-2.5 min-w-0">${renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', `${keyPrefix}-int`, true, 'text-lg sm:text-xl')}</div>
+        <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal truncate">${dt.interestList.length > 1 ? `${dt.interestList.length} categorias de interesse` : 'Segmentação de interesse'}</div>
+      </div>
+    `,
+    `
+      <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
+        <div class="text-xs font-semibold text-ds-textSecondary truncate">Idade</div>
+        <div class="mt-2.5 min-w-0">${renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', `${keyPrefix}-age`, false, 'text-lg sm:text-xl')}</div>
+        <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal truncate">${dt.ageList.length > 1 ? `${dt.ageList.length} faixas etárias` : 'Faixa etária'}</div>
+      </div>
+    `,
+    `
+      <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
+        <div class="text-xs font-semibold text-ds-textSecondary truncate">Gênero</div>
+        <div class="mt-2.5 min-w-0">${renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', `${keyPrefix}-gen`, true, 'text-lg sm:text-xl')}</div>
+        <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal truncate">Perfil demográfico</div>
+      </div>
+    `
+  ];
 
   // =========================================================================
   // CASO 1A: CAMPANHA ÚNICA — SOMENTE OOH (6 métricas no padrão Imagem 1 e 3)
@@ -2489,54 +2636,31 @@ function renderModularMetrics(m) {
   } else if (activeChannelsCount === 1 && c.portaisCount > 0) {
     singleChannelTitle = 'Estimativa de entrega — Portais e Globoplay';
     const avgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : 31.6;
-    const dt = m.digitalTargets || { location: 'Todos', interest: 'Todos', age: 'Todos', gender: 'Todos' };
 
     cards = [
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
           <div class="text-xs font-semibold text-ds-textSecondary truncate">Impressões</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.portaisImpressions)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Impressões contratadas</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
           <div class="text-xs font-semibold text-ds-textSecondary truncate">Portais</div>
           <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${portaisVehiclesList.length} veículos</div>
-          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-single')}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal min-w-0">${renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-single')}</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
           <div class="text-xs font-semibold text-ds-textSecondary truncate">CPM médio</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtBRL(avgCpm)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Custo por mil impressões</div>
         </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold text-ds-textSecondary truncate">Público-alvo</div>
-          <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-2.5">
-            <div>
-              <div class="text-[11px] text-ds-textSecondary leading-tight">Local</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.location)}">${escapeHtml(dt.location)}</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-ds-textSecondary leading-tight">Interesses</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.interest)}">${escapeHtml(dt.interest)}</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-ds-textSecondary leading-tight">Idade</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.age)}">${escapeHtml(dt.age)}</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-ds-textSecondary leading-tight">Gênero</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.gender)}">${escapeHtml(dt.gender)}</div>
-            </div>
-          </div>
-        </div>
       `
     ];
+    audienceRowCards = buildSeparateAudienceCards('portais-single');
 
   // =========================================================================
   // CASO 1C: CAMPANHA ÚNICA — SÓ REVISTAS DIGITAIS
@@ -2544,54 +2668,31 @@ function renderModularMetrics(m) {
   } else if (activeChannelsCount === 1 && c.revistasCount > 0) {
     singleChannelTitle = 'Estimativa de entrega — Revistas Digitais';
     const avgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : 9.6;
-    const dt = m.digitalTargets || { location: 'Todos', interest: 'Todos', age: 'Todos', gender: 'Todos' };
 
     cards = [
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
           <div class="text-xs font-semibold text-ds-textSecondary truncate">Impressões</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.revistasImpressions)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Impressões contratadas</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
           <div class="text-xs font-semibold text-ds-textSecondary truncate">Títulos</div>
           <div class="font-display font-extrabold text-xl sm:text-2xl text-ds-textMain tracking-tight leading-none mt-2.5">${c.revistasCount} ${c.revistasCount > 1 ? 'títulos' : 'título'}</div>
-          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">${renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-single')}</div>
+          <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal min-w-0">${renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-single')}</div>
         </div>
       `,
       `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full min-w-0">
           <div class="text-xs font-semibold text-ds-textSecondary truncate">CPM médio</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtBRL(avgCpm)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Custo por mil impressões</div>
         </div>
-      `,
-      `
-        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
-          <div class="text-xs font-semibold text-ds-textSecondary truncate">Público-alvo</div>
-          <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-2.5">
-            <div>
-              <div class="text-[11px] text-ds-textSecondary leading-tight">Local</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.location)}">${escapeHtml(dt.location)}</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-ds-textSecondary leading-tight">Interesses</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.interest)}">${escapeHtml(dt.interest)}</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-ds-textSecondary leading-tight">Idade</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.age)}">${escapeHtml(dt.age)}</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-ds-textSecondary leading-tight">Gênero</div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.gender)}">${escapeHtml(dt.gender)}</div>
-            </div>
-          </div>
-        </div>
       `
     ];
+    audienceRowCards = buildSeparateAudienceCards('revistas-single');
 
   // =========================================================================
   // CASO 1D: CAMPANHA ÚNICA — SÓ RÁDIO
@@ -2634,16 +2735,6 @@ function renderModularMetrics(m) {
     // =========================================================================
     // CASO 2: MAIS DE UMA VERTICAL NA PROPOSTA — Cards expansíveis por canal
     // =========================================================================
-    const dt = m.digitalTargets || { location: 'Todos', interest: 'Todos', age: 'Todos', gender: 'Todos' };
-    const audienceSubCardHtml = `
-      <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-        <div><span class="text-ds-textSecondary">Local:</span> <strong class="font-display font-bold text-ds-textMain">${escapeHtml(dt.location)}</strong></div>
-        <div><span class="text-ds-textSecondary">Interesses:</span> <strong class="font-display font-bold text-ds-textMain">${escapeHtml(dt.interest)}</strong></div>
-        <div><span class="text-ds-textSecondary">Idade:</span> <strong class="font-display font-bold text-ds-textMain">${escapeHtml(dt.age)}</strong></div>
-        <div><span class="text-ds-textSecondary">Gênero:</span> <strong class="font-display font-bold text-ds-textMain">${escapeHtml(dt.gender)}</strong></div>
-      </div>
-    `;
-
     if (c.oohPointsCount > 0) {
       const oohDailyExhibitionsVal = oohDigitalPts > 0
         ? fmtInt(c.oohDailyInsertions)
@@ -2683,10 +2774,25 @@ function renderModularMetrics(m) {
         subCards: [
           {
             label: 'Veículos',
-            rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi')
+            rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi', false)
           },
           { label: 'CPM médio', value: portaisCpmLabel },
-          { label: 'Público-alvo', rawHtml: audienceSubCardHtml, fullWidth: true }
+          {
+            label: 'Local',
+            rawHtml: renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', 'portais-loc-multi', false)
+          },
+          {
+            label: 'Interesses',
+            rawHtml: renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', 'portais-int-multi', true)
+          },
+          {
+            label: 'Idade',
+            rawHtml: renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', 'portais-age-multi', false)
+          },
+          {
+            label: 'Gênero',
+            rawHtml: renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', 'portais-gen-multi', true)
+          }
         ]
       }));
     }
@@ -2705,10 +2811,25 @@ function renderModularMetrics(m) {
         subCards: [
           {
             label: 'Títulos',
-            rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi')
+            rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi', false)
           },
           { label: 'CPM médio', value: revistasCpmLabel },
-          { label: 'Público-alvo', rawHtml: audienceSubCardHtml, fullWidth: true }
+          {
+            label: 'Local',
+            rawHtml: renderCompactItemsPopover(dt.locationList, 1, 'Estados selecionados', 'revistas-loc-multi', false)
+          },
+          {
+            label: 'Interesses',
+            rawHtml: renderCompactItemsPopover(dt.interestList, 1, 'Interesses selecionados', 'revistas-int-multi', true)
+          },
+          {
+            label: 'Idade',
+            rawHtml: renderCompactItemsPopover(dt.ageList, 1, 'Faixas etárias', 'revistas-age-multi', false)
+          },
+          {
+            label: 'Gênero',
+            rawHtml: renderCompactItemsPopover(dt.genderList, 1, 'Gênero selecionado', 'revistas-gen-multi', true)
+          }
         ]
       }));
     }
@@ -2750,6 +2871,11 @@ function renderModularMetrics(m) {
       <div class="grid ${colsClass} gap-3.5 sm:gap-4 ${activeChannelsCount === 1 ? 'items-stretch' : 'items-start'}">
         ${cards.join('')}
       </div>
+      ${audienceRowCards.length > 0 ? `
+        <div class="grid grid-cols-2 lg:grid-cols-4 sim-grid-2 gap-3.5 sm:gap-4 items-stretch pt-0.5">
+          ${audienceRowCards.join('')}
+        </div>
+      ` : ''}
     </div>
   `;
 }
@@ -3922,11 +4048,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
   // =========================================================================
   if (state.channelFilter === 'revistas') {
     const digTargets = m.digitalTargets || {
-      location: 'Todos',
+      locationList: ['Todos os estados (27)'],
+      interestList: ['Todos'],
+      ageList: ['Todos'],
+      genderList: ['Todos'],
+      location: 'Todos os estados (27)',
       interest: 'Todos',
       age: 'Todos',
-      gender: 'Todos',
-      summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
+      gender: 'Todos'
     };
     const filteredRevistas = m.revistasItems.filter((r) => {
       const okSearch = matchSearch(`${r.name} ${r.editorialTitle} Display Revistas Digitais`);
@@ -3943,9 +4072,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const itemKey = r.itemKey || `rev_${idx}`;
       const isSelectedForBulk = !!state.selectedForRemoval[itemKey];
       const estReach = Math.round(r.impressions * 0.62);
-      const revAge = r.targetAge || digTargets.age;
-      const revGender = r.targetGender || digTargets.gender;
-      const revTargetSummary = r.targetSummary || digTargets.summaryText;
+      const revLocList = r.targetLocationList || digTargets.locationList;
+      const revIntList = r.targetInterestList || digTargets.interestList;
+      const revAgeList = r.targetAgeList || digTargets.ageList;
+      const revGenList = r.targetGenderList || digTargets.genderList;
       const revSubtitle = `Revistas Digitais • Cobertura Nacional • CPM ${fmtBRL(r.cpm)}`;
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
 
@@ -3963,21 +4093,29 @@ function renderMediaPlanList(m, preserveScroll = false) {
             </button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
-              <div class="text-xs text-ds-textSecondary">Portais</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">1 portal (${r.editorialTitle})</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Portais</div>
+              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5 truncate" title="1 portal (${escapeHtml(r.editorialTitle)})">1 portal (${escapeHtml(r.editorialTitle)})</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
-              <div class="text-xs text-ds-textSecondary">CPM</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${fmtBRL(r.cpm)}</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">CPM</div>
+              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5 truncate">${fmtBRL(r.cpm)}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
-              <div class="text-xs text-ds-textSecondary">Faixa etária</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${escapeHtml(revAge)}</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Local</div>
+              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(revLocList, 1, 'Estados selecionados', `rev-item-loc-${idx}`, false, 'text-xs')}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
-              <div class="text-xs text-ds-textSecondary">Gênero</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${escapeHtml(revGender)}</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Interesses</div>
+              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(revIntList, 1, 'Interesses selecionados', `rev-item-int-${idx}`, true, 'text-xs')}</div>
+            </div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Idade</div>
+              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(revAgeList, 1, 'Faixas etárias', `rev-item-age-${idx}`, false, 'text-xs')}</div>
+            </div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Gênero</div>
+              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(revGenList, 1, 'Gênero selecionado', `rev-item-gen-${idx}`, true, 'text-xs')}</div>
             </div>
           </div>
         </div>
@@ -4011,9 +4149,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 </h4>
                 <p class="text-xs text-ds-textSecondary mt-1 leading-relaxed line-clamp-2" title="${r.editorialTitle} — ${revSubtitle}">
                   Revistas Digitais • Cobertura Nacional
-                </p>
-                <p class="text-[11px] text-ds-textSecondary/80 mt-0.5 leading-snug" title="Público-alvo: ${escapeHtml(revTargetSummary)}">
-                  Público-alvo: ${escapeHtml(revTargetSummary)}
                 </p>
               </div>
               <div class="my-3 border-t border-ds-border"></div>
@@ -4057,13 +4192,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${r.editorialTitle} — ${revSubtitle}">
                     ${revSubtitle}
                   </p>
-                  <p class="text-[11px] text-ds-textSecondary/80 mt-0.5 truncate" title="Público-alvo: ${escapeHtml(revTargetSummary)}">
-                    Público-alvo: ${escapeHtml(revTargetSummary)}
-                  </p>
                   <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-ds-textMain text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${r.editorialTitle}</div>
                     <div class="text-ds-bg">${revSubtitle}</div>
-                    <div class="text-ds-bg/80 mt-0.5">Público-alvo: ${escapeHtml(revTargetSummary)}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
@@ -4113,15 +4244,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
     contentHtml = `
       <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border'}">
-          <div class="flex items-center justify-between gap-2">
-            <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
-              Revistas (${filteredRevistas.length})
-            </h3>
-          </div>
-          <p class="text-xs text-ds-textSecondary mt-0.5">
-            Público-alvo: ${escapeHtml(digTargets.summaryText)}
-          </p>
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between'}">
+          <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
+            Revistas (${filteredRevistas.length})
+          </h3>
         </div>
 
         <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRevistas.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
@@ -4141,11 +4267,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
   // =========================================================================
   if (state.channelFilter === 'portais') {
     const digTargets = m.digitalTargets || {
-      location: 'Todos',
+      locationList: ['Todos os estados (27)'],
+      interestList: ['Todos'],
+      ageList: ['Todos'],
+      genderList: ['Todos'],
+      location: 'Todos os estados (27)',
       interest: 'Todos',
       age: 'Todos',
-      gender: 'Todos',
-      summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
+      gender: 'Todos'
     };
     const filteredPortais = m.portaisItems.filter((p) => {
       const okSearch = matchSearch(`${p.name} ${p.cleanTitle} ${p.mediaTypeLabel} ${p.interventionLabel || ''} ${p.channelTypeLabel} ${p.vehicles.join(' ')}`);
@@ -4159,9 +4288,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
     const portaisCardsHtml = visiblePortais.map((p, idx) => {
       const itemKey = p.itemKey || `dig_${idx}`;
       const estReach = Math.round(p.impressions * 0.62);
-      const digAge = p.targetAge || digTargets.age;
-      const digGender = p.targetGender || digTargets.gender;
-      const digTargetSummary = p.targetSummary || digTargets.summaryText;
+      const digLocList = p.targetLocationList || digTargets.locationList;
+      const digIntList = p.targetInterestList || digTargets.interestList;
+      const digAgeList = p.targetAgeList || digTargets.ageList;
+      const digGenList = p.targetGenderList || digTargets.genderList;
       const digSubtitle = `${p.channelTypeLabel} • ${p.interventionLabel || 'Clicável'} • ${p.vehicles.join(', ')}`;
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
       const digChannelsLabel = `${p.vehicles.length} ${p.vehicles.length > 1 ? 'portais' : 'portal'}`;
@@ -4180,21 +4310,29 @@ function renderMediaPlanList(m, preserveScroll = false) {
             </button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
-              <div class="text-xs text-ds-textSecondary">Portais</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${digChannelsLabel}</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Portais</div>
+              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5 truncate">${digChannelsLabel}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
-              <div class="text-xs text-ds-textSecondary">CPM</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${fmtBRL(p.cpm)}</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">CPM</div>
+              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5 truncate">${fmtBRL(p.cpm)}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
-              <div class="text-xs text-ds-textSecondary">Faixa etária</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${escapeHtml(digAge)}</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Local</div>
+              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digLocList, 1, 'Estados selecionados', `dig-item-loc-${idx}`, false, 'text-xs')}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
-              <div class="text-xs text-ds-textSecondary">Gênero</div>
-              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${escapeHtml(digGender)}</div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Interesses</div>
+              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digIntList, 1, 'Interesses selecionados', `dig-item-int-${idx}`, true, 'text-xs')}</div>
+            </div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Idade</div>
+              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digAgeList, 1, 'Faixas etárias', `dig-item-age-${idx}`, false, 'text-xs')}</div>
+            </div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
+              <div class="text-xs text-ds-textSecondary truncate">Gênero</div>
+              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digGenList, 1, 'Gênero selecionado', `dig-item-gen-${idx}`, true, 'text-xs')}</div>
             </div>
           </div>
         </div>
@@ -4228,9 +4366,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 </h4>
                 <p class="text-xs text-ds-textSecondary mt-1 leading-relaxed line-clamp-2" title="${p.cleanTitle} — ${digSubtitle}">
                   ${p.channelTypeLabel} • ${p.vehicles.join(', ')}
-                </p>
-                <p class="text-[11px] text-ds-textSecondary/80 mt-0.5 leading-snug" title="Público-alvo: ${escapeHtml(digTargetSummary)}">
-                  Público-alvo: ${escapeHtml(digTargetSummary)}
                 </p>
               </div>
               <div class="my-3 border-t border-ds-border"></div>
@@ -4274,13 +4409,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${p.cleanTitle} — ${digSubtitle}">
                     ${digSubtitle}
                   </p>
-                  <p class="text-[11px] text-ds-textSecondary/80 mt-0.5 truncate" title="Público-alvo: ${escapeHtml(digTargetSummary)}">
-                    Público-alvo: ${escapeHtml(digTargetSummary)}
-                  </p>
                   <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-ds-textMain text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${p.cleanTitle}</div>
                     <div class="text-ds-bg">${digSubtitle}</div>
-                    <div class="text-ds-bg/80 mt-0.5">Público-alvo: ${escapeHtml(digTargetSummary)}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
@@ -4330,15 +4461,10 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
     contentHtml = `
       <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border'}">
-          <div class="flex items-center justify-between gap-2">
-            <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
-              Portais e Globoplay (${filteredPortais.length})
-            </h3>
-          </div>
-          <p class="text-xs text-ds-textSecondary mt-0.5">
-            Público-alvo: ${escapeHtml(digTargets.summaryText)}
-          </p>
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between gap-2'}">
+          <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
+            Portais e Globoplay (${filteredPortais.length})
+          </h3>
         </div>
 
         <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredPortais.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
@@ -7826,31 +7952,50 @@ function renderPdfDocument(m) {
     interest: 'Todos',
     age: 'Todos',
     gender: 'Todos',
+    locationList: ['Todos'],
+    interestList: ['Todos'],
+    ageList: ['Todos'],
+    genderList: ['Todos'],
     summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
   };
-  const renderPdfTargetCardHtml = () => `
-    <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between h-full pdf-avoid-break">
-      <div class="text-xs font-semibold text-ds-textSecondary truncate">Público-alvo</div>
-      <div class="grid grid-cols-2 gap-x-3 gap-y-2 mt-2.5">
-        <div>
-          <div class="text-[11px] text-ds-textSecondary leading-tight">Local</div>
-          <div class="font-display font-bold text-xs text-ds-textMain leading-snug truncate">${escapeHtml(digTargets.location)}</div>
+  const pdfSingleAudienceCardsHtml = [];
+  const pushPdfSeparateAudienceCards = (prefix) => {
+    const locItems = digTargets.locationList || [digTargets.location || 'Todos'];
+    const intItems = digTargets.interestList || [digTargets.interest || 'Todos'];
+    const ageItems = digTargets.ageList || [digTargets.age || 'Todos'];
+    const genItems = digTargets.genderList || [digTargets.gender || 'Todos'];
+    const cards = [
+      {
+        label: 'Local',
+        valueHtml: renderCompactItemsPopover(locItems, `${prefix}-loc`, 'Local (Estados)', 1),
+        sub: locItems.length > 1 ? escapeHtml(locItems.join(', ')) : 'Estados selecionados'
+      },
+      {
+        label: 'Interesses',
+        valueHtml: renderCompactItemsPopover(intItems, `${prefix}-int`, 'Interesses', 1),
+        sub: intItems.length > 1 ? escapeHtml(intItems.join(', ')) : 'Categorias de interesse'
+      },
+      {
+        label: 'Idade',
+        valueHtml: renderCompactItemsPopover(ageItems, `${prefix}-age`, 'Faixa etária', 1),
+        sub: ageItems.length > 1 ? escapeHtml(ageItems.join(', ')) : 'Faixa etária'
+      },
+      {
+        label: 'Gênero',
+        valueHtml: renderCompactItemsPopover(genItems, `${prefix}-gen`, 'Gênero', 1, true),
+        sub: 'Público segmentado'
+      }
+    ];
+    cards.forEach((cItem) => {
+      pdfSingleAudienceCardsHtml.push(`
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between h-full min-w-0 pdf-avoid-break">
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">${cItem.label}</div>
+          <div class="font-display font-extrabold text-base sm:text-lg text-ds-textMain tracking-tight leading-snug mt-2 min-w-0">${cItem.valueHtml}</div>
+          <div class="text-[11px] text-ds-textSecondary mt-1.5 leading-normal truncate" title="${cItem.sub}">${cItem.sub}</div>
         </div>
-        <div>
-          <div class="text-[11px] text-ds-textSecondary leading-tight">Interesses</div>
-          <div class="font-display font-bold text-xs text-ds-textMain leading-snug truncate">${escapeHtml(digTargets.interest)}</div>
-        </div>
-        <div>
-          <div class="text-[11px] text-ds-textSecondary leading-tight">Idade</div>
-          <div class="font-display font-bold text-xs text-ds-textMain leading-snug truncate">${escapeHtml(digTargets.age)}</div>
-        </div>
-        <div>
-          <div class="text-[11px] text-ds-textSecondary leading-tight">Gênero</div>
-          <div class="font-display font-bold text-xs text-ds-textMain leading-snug truncate">${escapeHtml(digTargets.gender)}</div>
-        </div>
-      </div>
-    </div>
-  `;
+      `);
+    });
+  };
 
   if (isSingleChannel && hasOoh) {
     pdfMetricsTitle = 'Estimativa de entrega — OOH';
@@ -7904,7 +8049,7 @@ function renderPdfDocument(m) {
         </div>
       `);
     });
-    modularCardsHtml.push(renderPdfTargetCardHtml());
+    pushPdfSeparateAudienceCards('pdf-single-portais');
   } else if (isSingleChannel && hasRevistas) {
     pdfMetricsTitle = 'Estimativa de entrega — Revistas Digitais';
     const revistasListLabel = revistasTitleNames.join(', ') || 'Revistas Digitais';
@@ -7923,7 +8068,7 @@ function renderPdfDocument(m) {
         </div>
       `);
     });
-    modularCardsHtml.push(renderPdfTargetCardHtml());
+    pushPdfSeparateAudienceCards('pdf-single-revistas');
   } else if (isSingleChannel && hasRadio) {
     pdfMetricsTitle = 'Estimativa de entrega — Rádio';
     const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
@@ -8029,8 +8174,21 @@ function renderPdfDocument(m) {
               <div class="text-xs text-ds-textSecondary leading-tight">Veículos</div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(portaisListLabel)}</div>
             </div>
-            <div class="col-span-2 pt-2 border-t border-ds-border/70">
-              <div class="text-xs text-ds-textSecondary leading-tight">Público-alvo segmentado: <span class="font-normal">${escapeHtml(digTargets.summaryText)}</span></div>
+            <div class="min-w-0">
+              <div class="text-xs text-ds-textSecondary leading-tight">Local</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.locationList || [digTargets.location], 'pdf-portais-loc', 'Local (Estados)', 1)}</div>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-ds-textSecondary leading-tight">Interesses</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.interestList || [digTargets.interest], 'pdf-portais-int', 'Interesses', 1, true)}</div>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-ds-textSecondary leading-tight">Idade</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.ageList || [digTargets.age], 'pdf-portais-age', 'Faixa etária', 1)}</div>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-ds-textSecondary leading-tight">Gênero</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.genderList || [digTargets.gender], 'pdf-portais-gen', 'Gênero', 1, true)}</div>
             </div>
           </div>
         </div>
@@ -8064,8 +8222,21 @@ function renderPdfDocument(m) {
               <div class="text-xs text-ds-textSecondary leading-tight">Títulos editoriais</div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(revistasListLabel)}</div>
             </div>
-            <div class="col-span-2 pt-2 border-t border-ds-border/70">
-              <div class="text-xs text-ds-textSecondary leading-tight">Público-alvo segmentado: <span class="font-normal">${escapeHtml(digTargets.summaryText)}</span></div>
+            <div class="min-w-0">
+              <div class="text-xs text-ds-textSecondary leading-tight">Local</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.locationList || [digTargets.location], 'pdf-revistas-loc', 'Local (Estados)', 1)}</div>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-ds-textSecondary leading-tight">Interesses</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.interestList || [digTargets.interest], 'pdf-revistas-int', 'Interesses', 1, true)}</div>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-ds-textSecondary leading-tight">Idade</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.ageList || [digTargets.age], 'pdf-revistas-age', 'Faixa etária', 1)}</div>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs text-ds-textSecondary leading-tight">Gênero</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 truncate">${renderCompactItemsPopover(digTargets.genderList || [digTargets.gender], 'pdf-revistas-gen', 'Gênero', 1, true)}</div>
             </div>
           </div>
         </div>
@@ -8732,6 +8903,11 @@ function renderPdfDocument(m) {
             <div class="grid ${metricsGridColsClass} ${isSingleChannel ? 'gap-3.5 sm:gap-4' : 'gap-4 sm:gap-5'} items-stretch">
               ${firstRowMetricsCards.join('')}
             </div>
+            ${pdfSingleAudienceCardsHtml.length > 0 ? `
+              <div class="grid grid-cols-4 gap-3.5 sm:gap-4 items-stretch mt-3.5 sm:mt-4">
+                ${pdfSingleAudienceCardsHtml.join('')}
+              </div>
+            ` : ''}
           </div>
           ${hasTwoMetricsRows ? `
             <div class="grid ${secondRowMetricsCards.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-4 sm:gap-5 items-stretch mt-4 sm:mt-5 pdf-break-before-print pdf-avoid-break">
@@ -11191,7 +11367,7 @@ function exportFullCsv() {
     summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
   };
   if (hasPortais) {
-    const portaisColCount = 14;
+    const portaisColCount = 15;
     const portaisRows = [
       ['AQUI ADS (GLOBO & ELETROMIDIA) — PORTAIS E GLOBOPLAY'],
       [`Formatos de vídeo e display contratados nos portais editoriais Globo e Globoplay · Público-alvo: ${excelDigTargets.summaryText}`],
@@ -11205,7 +11381,8 @@ function exportFullCsv() {
         'Especificação',
         'Período de Veiculação',
         'Detalhes Técnicos',
-        'Abrangência',
+        'Local (Estados)',
+        'Interesses',
         'Faixa Etária',
         'Gênero',
         'Impressões',
@@ -11231,7 +11408,8 @@ function exportFullCsv() {
         p.formatTagLabel || p.mediaTypeLabel,
         `${m.startDate} a ${m.endDate}`,
         p.techSpecFooter || '',
-        'Nacional / Seg.',
+        p.targetLocation || excelDigTargets.location,
+        p.targetInterest || excelDigTargets.interest,
         p.targetAge || excelDigTargets.age,
         p.targetGender || excelDigTargets.gender,
         p.impressions,
@@ -11255,6 +11433,7 @@ function exportFullCsv() {
       '',
       '',
       '',
+      '',
       c.portaisImpressions,
       Number(portaisAvgCpm.toFixed(2)),
       Number(f.portaisNet.toFixed(2))
@@ -11270,12 +11449,12 @@ function exportFullCsv() {
         { s: { r: 1, c: 0 }, e: { r: 1, c: portaisColCount - 1 } }
       ],
       rowMeta: portaisMeta,
-      integerCols: [11],
-      currencyCols: [12, 13],
-      centerCols: [0, 6, 8, 9, 10],
-      boldCols: [0, 13],
+      integerCols: [12],
+      currencyCols: [13, 14],
+      centerCols: [0, 6, 10, 11],
+      boldCols: [0, 14],
       italicCols: [2, 7],
-      autofilterRef: `A4:N${lastPortaisItemRow1Based}`
+      autofilterRef: `A4:O${lastPortaisItemRow1Based}`
     });
   }
 
@@ -11283,7 +11462,7 @@ function exportFullCsv() {
   // 6. ABA REVISTAS DIGITAIS
   // ==========================================================================
   if (hasRevistas) {
-    const revistasColCount = 12;
+    const revistasColCount = 13;
     const revistasRows = [
       ['AQUI ADS (GLOBO & ELETROMIDIA) — REVISTAS DIGITAIS'],
       [`Publicações editoriais digitais e formatos multi-plataforma contratados · Público-alvo: ${excelDigTargets.summaryText}`],
@@ -11295,7 +11474,8 @@ function exportFullCsv() {
         'Dimensões',
         'Posicionamento',
         'Período de Veiculação',
-        'Abrangência',
+        'Local (Estados)',
+        'Interesses',
         'Faixa Etária',
         'Gênero',
         'Impressões',
@@ -11319,7 +11499,8 @@ function exportFullCsv() {
         '970×250, 300×250, 300×600, 320×50 px',
         'Capa e Editorias · Web & Mobile',
         `${m.startDate} a ${m.endDate}`,
-        'Nacional / BR',
+        r.targetLocation || excelDigTargets.location,
+        r.targetInterest || excelDigTargets.interest,
         r.targetAge || excelDigTargets.age,
         r.targetGender || excelDigTargets.gender,
         r.impressions,
@@ -11341,6 +11522,7 @@ function exportFullCsv() {
       '',
       '',
       '',
+      '',
       c.revistasImpressions,
       Number(revistasAvgCpm.toFixed(2)),
       Number(f.revistasNet.toFixed(2))
@@ -11356,12 +11538,12 @@ function exportFullCsv() {
         { s: { r: 1, c: 0 }, e: { r: 1, c: revistasColCount - 1 } }
       ],
       rowMeta: revistasMeta,
-      integerCols: [9],
-      currencyCols: [10, 11],
-      centerCols: [0, 5, 6, 7, 8],
-      boldCols: [0, 11],
+      integerCols: [10],
+      currencyCols: [11, 12],
+      centerCols: [0, 5, 8, 9],
+      boldCols: [0, 12],
       italicCols: [3, 4],
-      autofilterRef: `A4:L${lastRevistasItemRow1Based}`
+      autofilterRef: `A4:M${lastRevistasItemRow1Based}`
     });
   }
 
