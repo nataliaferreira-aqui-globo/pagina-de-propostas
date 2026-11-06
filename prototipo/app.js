@@ -2264,8 +2264,8 @@ function renderHeroSection(m) {
             </button>
           </div>
           ${hasCampaignName ? `
-            <div class="text-xs text-ds-textSecondary">
-              Nome <strong class="font-semibold text-ds-textMain">${escapeHtml(m.campaignName)}</strong>
+            <div class="text-xs font-semibold text-ds-textMain">
+              ${escapeHtml(m.campaignName)}
             </div>
           ` : ''}
         </div>
