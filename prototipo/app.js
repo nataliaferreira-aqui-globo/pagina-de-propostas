@@ -9723,30 +9723,13 @@ function confirmSpecialistTransferFromAndreia() {
 function renderAndreiaChat() {
   const container = document.getElementById('andreiaChatContainer');
   if (!container) return;
+  container.innerHTML = '';
+  return;
+}
 
-  // Se estivermos na aba de pagamento e o usuário estiver na jornada deslogada/Andreia, exibe também o botão flutuante da Andreia quando o chat estiver minimizado
-  if (!state.andreiaChatOpen) {
-    if (state.simulateUnlogged && state.authCompleted) {
-      container.innerHTML = `
-        <div class="fixed bottom-4 right-4 z-[110]">
-          <button
-            type="button"
-            onclick="openAndreiaBillingChat()"
-            class="px-4 py-3 rounded-full bg-aqui-grad text-white font-display font-bold text-xs sm:text-sm shadow-2xl flex items-center gap-2.5 hover:opacity-95 transition border border-white/20"
-          >
-            <span class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-base relative">
-              <i class="uil uil-robot"></i>
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#FF5500] absolute -bottom-0.5 -right-0.5"></span>
-            </span>
-            <span>Falar com a Andreia (IA)</span>
-          </button>
-        </div>
-      `;
-    } else {
-      container.innerHTML = '';
-    }
-    return;
-  }
+function __legacyUnusedAndreiaChatRender() {
+  const container = document.getElementById('andreiaChatContainer');
+  if (!container) return;
 
   const mobile = isMobileView();
   const profileType = state.andreiaProfileType || 'CNPJ';
