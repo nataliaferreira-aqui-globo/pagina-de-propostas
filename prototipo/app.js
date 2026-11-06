@@ -8444,7 +8444,6 @@ function renderPdfDocument(m) {
                 ${state.isAdminView ? `<td class="py-2.5 px-2.5 align-top font-mono font-bold text-xs text-slate-700 whitespace-nowrap">#${escapeHtml(p.code)}</td>` : ''}
                 <td class="py-2.5 px-3 align-top">
                   <div class="font-bold text-slate-900">${escapeHtml(p.cleanTitle || p.name)}</div>
-                  <div class="text-xs text-slate-500">${escapeHtml(p.subtitleContext || '')}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top">
                   <div class="font-semibold text-slate-800">${escapeHtml(p.channelTypeLabel || p.vertical)}</div>
@@ -8452,7 +8451,6 @@ function renderPdfDocument(m) {
                 </td>
                 <td class="py-2.5 px-2.5 align-top">
                   <span class="font-semibold text-slate-800">${escapeHtml(p.formatTagLabel || p.mediaTypeLabel)}</span>
-                  <div class="text-xs text-slate-500">${escapeHtml(p.techSpecFooter || '')}</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700 whitespace-nowrap">Nacional / Seg.</td>
                 <td class="py-2.5 px-2.5 align-top text-right font-semibold text-slate-900 whitespace-nowrap">${fmtInt(p.impressions)}</td>
@@ -8510,7 +8508,6 @@ function renderPdfDocument(m) {
                 <td class="py-2.5 px-3 align-top font-bold text-slate-900">${escapeHtml(r.editorialTitle)}</td>
                 <td class="py-2.5 px-2.5 align-top">
                   <div class="font-semibold text-slate-800">Display Editorial Multi-Formato</div>
-                  <div class="text-xs text-slate-500">970×250, 300×250, 300×600, 320×50 px</div>
                 </td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700">Capa e Editorias · Web & Mobile</td>
                 <td class="py-2.5 px-2.5 align-top text-slate-700 whitespace-nowrap">Nacional / BR</td>
