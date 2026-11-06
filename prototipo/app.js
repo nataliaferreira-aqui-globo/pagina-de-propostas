@@ -1329,7 +1329,7 @@ function buildNormalizedModel(rawPayload) {
       : `${locationCompact} · ${interestCompact} · ${ageCompact} · ${gender}`;
     const summaryText = isAllTodos
       ? 'Todos'
-      : `Local: ${locationCompact} · Interesses: ${interestCompact} · Idade: ${ageCompact} · Gênero: ${gender}`;
+      : `Estado: ${locationCompact} · Interesses: ${interestCompact} · Idade: ${ageCompact} · Gênero: ${gender}`;
 
     return {
       locationList,
@@ -8028,7 +8028,7 @@ function renderPdfDocument(m) {
     interestList: ['Todos'],
     ageList: ['Todos'],
     genderList: ['Todos'],
-    summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
+    summaryText: 'Estado: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
   };
 
   if (isSingleChannel && hasOoh) {
@@ -11399,7 +11399,7 @@ function exportFullCsv() {
     interest: 'Todos',
     age: 'Todos',
     gender: 'Todos',
-    summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
+    summaryText: 'Estado: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
   };
   if (hasPortais) {
     const portaisColCount = 15;
@@ -11416,7 +11416,7 @@ function exportFullCsv() {
         'Especificação',
         'Período de Veiculação',
         'Detalhes Técnicos',
-        'Local (Estados)',
+        'Estado',
         'Interesses',
         'Faixa Etária',
         'Gênero',
@@ -11509,7 +11509,7 @@ function exportFullCsv() {
         'Dimensões',
         'Posicionamento',
         'Período de Veiculação',
-        'Local (Estados)',
+        'Estado',
         'Interesses',
         'Faixa Etária',
         'Gênero',
