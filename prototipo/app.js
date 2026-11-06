@@ -2078,17 +2078,18 @@ function goToJourneyStep(stepNum) {
  *   Período (Início/Fim), Duração, Pontos + "Criado por ...".
  * ============================================================================
  */
-function formatHeroShortPeriod(startDateStr, endDateStr) {
+function formatHeroShortDate(dateStr) {
   const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-  const parsePtDate = (str) => {
-    const parts = String(str || '').trim().split('/');
-    if (parts.length < 2) return str;
-    const day = parts[0].padStart(2, '0');
-    const monthIdx = parseInt(parts[1], 10) - 1;
-    const monthName = months[monthIdx] || parts[1];
-    return `${day} ${monthName}`;
-  };
-  return `${parsePtDate(startDateStr)} – ${parsePtDate(endDateStr)}`;
+  const parts = String(dateStr || '').trim().split('/');
+  if (parts.length < 2) return dateStr;
+  const day = parts[0].padStart(2, '0');
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const monthName = months[monthIdx] || parts[1];
+  return `${day} ${monthName}`;
+}
+
+function formatHeroShortPeriod(startDateStr, endDateStr) {
+  return `${formatHeroShortDate(startDateStr)} – ${formatHeroShortDate(endDateStr)}`;
 }
 
 function formatHeroDurationLabel(durationDays) {
@@ -2126,10 +2127,9 @@ function renderHeroSection(m) {
         dotClass: 'bg-amber-500'
       };
 
-  const shortPeriodLabel = formatHeroShortPeriod(m.startDate, m.endDate);
+  const shortStartLabel = formatHeroShortDate(m.startDate);
+  const shortEndLabel = formatHeroShortDate(m.endDate);
   const durationLabel = formatHeroDurationLabel(m.durationDays);
-  const thirdMetricLabel = c.oohPointsCount > 0 ? 'Pontos' : 'Produtos';
-  const thirdMetricValue = c.oohPointsCount > 0 ? fmtInt(c.oohPointsCount) : fmtInt(c.totalItems);
 
   const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
   const topEyebrowLabel = hasCampaignName
@@ -2284,20 +2284,20 @@ function renderHeroSection(m) {
           ${mobileActionButtonsHtml}
         </div>
 
-        <!-- Metadados Organizados (Início/Fim, Duração, Pontos) + Criado por (apenas separadores, sem fundo nos cards) -->
+        <!-- Metadados Organizados (Início, Fim e Duração) -->
         <div class="pt-3.5 border-t border-ds-border space-y-3">
           <div class="grid grid-cols-3 divide-x divide-ds-border text-xs">
             <div class="pr-3">
-              <div class="text-xs text-ds-textSecondary">Período</div>
-              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${shortPeriodLabel}</div>
+              <div class="text-xs text-ds-textSecondary">Início</div>
+              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">${shortStartLabel}</div>
             </div>
             <div class="px-3">
-              <div class="text-xs text-ds-textSecondary">Duração</div>
-              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${durationLabel}</div>
+              <div class="text-xs text-ds-textSecondary">Fim</div>
+              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">${shortEndLabel}</div>
             </div>
             <div class="pl-3">
-              <div class="text-xs text-ds-textSecondary">${c.oohPointsCount > 0 ? 'Pontos' : 'Ativos'}</div>
-              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${thirdMetricValue}</div>
+              <div class="text-xs text-ds-textSecondary">Duração</div>
+              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${durationLabel}</div>
             </div>
           </div>
         </div>
@@ -2338,33 +2338,33 @@ function renderHeroSection(m) {
           ${desktopActionButtonsHtml}
         </div>
 
-        <!-- Separador Central + Lado Direito: Período, Duração, Pontos e Criado por -->
+        <!-- Separador Central + Lado Direito: Início, Fim e Duração -->
         <div class="lg:col-span-5 lg:border-l lg:border-ds-border lg:pl-8 space-y-4">
           <div class="flex items-center">
             <div class="pr-5 sm:pr-6 border-r border-ds-border">
               <div class="text-xs font-medium text-ds-textSecondary">
-                Período
+                Início
               </div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)} a ${escapeHtml(m.endDate)}">
-                ${shortPeriodLabel}
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">
+                ${shortStartLabel}
               </div>
             </div>
 
             <div class="px-5 sm:px-6 border-r border-ds-border">
               <div class="text-xs font-medium text-ds-textSecondary">
-                Duração
+                Fim
               </div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
-                ${durationLabel}
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">
+                ${shortEndLabel}
               </div>
             </div>
 
             <div class="pl-5 sm:pl-6">
               <div class="text-xs font-medium text-ds-textSecondary">
-                ${thirdMetricLabel}
+                Duração
               </div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
-                ${thirdMetricValue}
+                ${durationLabel}
               </div>
             </div>
           </div>
@@ -8844,33 +8844,33 @@ function renderPdfDocument(m) {
               </div>
             </div>
 
-            <!-- Separador Central + Lado Direito: Período, Duração, Pontos e Criado por -->
+            <!-- Separador Central + Lado Direito: Início, Fim e Duração -->
             <div class="col-span-5 border-l border-ds-border pl-8 space-y-4">
               <div class="flex items-center">
                 <div class="pr-5 sm:pr-6 border-r border-ds-border">
                   <div class="text-xs font-medium text-ds-textSecondary">
-                    Período
+                    Início
                   </div>
                   <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
-                    ${formatHeroShortPeriod(m.startDate, m.endDate)}
+                    ${formatHeroShortDate(m.startDate)}
                   </div>
                 </div>
 
                 <div class="px-5 sm:px-6 border-r border-ds-border">
                   <div class="text-xs font-medium text-ds-textSecondary">
-                    Duração
+                    Fim
                   </div>
                   <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
-                    ${formatHeroDurationLabel(m.durationDays)}
+                    ${formatHeroShortDate(m.endDate)}
                   </div>
                 </div>
 
                 <div class="pl-5 sm:pl-6">
                   <div class="text-xs font-medium text-ds-textSecondary">
-                    ${c.oohPointsCount > 0 ? 'Pontos' : 'Produtos'}
+                    Duração
                   </div>
                   <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
-                    ${c.oohPointsCount > 0 ? fmtInt(c.oohPointsCount) : fmtInt(c.totalItems)}
+                    ${formatHeroDurationLabel(m.durationDays)}
                   </div>
                 </div>
               </div>
