@@ -4084,22 +4084,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
               <div class="text-xs text-ds-textSecondary truncate">CPM</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5 truncate">${fmtBRL(r.cpm)}</div>
             </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
-              <div class="text-xs text-ds-textSecondary truncate">Local</div>
-              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(revLocList, 1, 'Estados selecionados', `rev-item-loc-${idx}`, false, 'text-xs')}</div>
-            </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
-              <div class="text-xs text-ds-textSecondary truncate">Interesses</div>
-              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(revIntList, 1, 'Interesses selecionados', `rev-item-int-${idx}`, true, 'text-xs')}</div>
-            </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
-              <div class="text-xs text-ds-textSecondary truncate">Idade</div>
-              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(revAgeList, 1, 'Faixas etárias', `rev-item-age-${idx}`, false, 'text-xs')}</div>
-            </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
-              <div class="text-xs text-ds-textSecondary truncate">Gênero</div>
-              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(revGenList, 1, 'Gênero selecionado', `rev-item-gen-${idx}`, true, 'text-xs')}</div>
-            </div>
           </div>
         </div>
       ` : '';
@@ -4303,22 +4287,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
             <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
               <div class="text-xs text-ds-textSecondary truncate">CPM</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5 truncate">${fmtBRL(p.cpm)}</div>
-            </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
-              <div class="text-xs text-ds-textSecondary truncate">Local</div>
-              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digLocList, 1, 'Estados selecionados', `dig-item-loc-${idx}`, false, 'text-xs')}</div>
-            </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
-              <div class="text-xs text-ds-textSecondary truncate">Interesses</div>
-              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digIntList, 1, 'Interesses selecionados', `dig-item-int-${idx}`, true, 'text-xs')}</div>
-            </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
-              <div class="text-xs text-ds-textSecondary truncate">Idade</div>
-              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digAgeList, 1, 'Faixas etárias', `dig-item-age-${idx}`, false, 'text-xs')}</div>
-            </div>
-            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border min-w-0">
-              <div class="text-xs text-ds-textSecondary truncate">Gênero</div>
-              <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digGenList, 1, 'Gênero selecionado', `dig-item-gen-${idx}`, true, 'text-xs')}</div>
             </div>
           </div>
         </div>
