@@ -1678,7 +1678,7 @@ function initApp() {
     const container = document.getElementById('exportDropdownContainer');
     const menu = document.getElementById('exportMenu');
     if (container && menu && !container.contains(ev.target)) {
-      menu.classList.add('hidden');
+      setExportMenuOpen(false);
     }
   });
 
@@ -2251,13 +2251,14 @@ function renderHeroSection(m) {
     <div class="flex items-center shrink-0">
       <div class="relative" id="exportDropdownContainer">
         <button
+          id="exportDropdownBtn"
           type="button"
           onclick="toggleExportMenu()"
           class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] bg-transparent hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs transition cursor-pointer"
         >
           <i class="uil uil-import text-sm"></i>
           <span>Exportar</span>
-          <i class="uil uil-angle-down text-sm"></i>
+          <i id="exportDropdownChevron" class="uil uil-angle-down text-sm"></i>
         </button>
         <div id="exportMenu" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-lg border border-ds-borderStrong py-1.5 z-50 text-xs">
           <button type="button" onclick="openPdfPreviewAndPrint(); toggleExportMenu();" class="w-full px-4 py-2.5 text-left hover:bg-ds-bg flex items-center gap-2.5 text-ds-textMain font-normal cursor-pointer">
@@ -2670,13 +2671,17 @@ function buildExpandableSummaryChannelCard({ cardKey, channelTitle, primaryLabel
           onclick="toggleSummaryCardMetrics('${cardKey}')"
           class="flex items-center justify-between gap-2 cursor-pointer select-none group"
         >
-          <span class="text-xs font-medium text-ds-textSecondary group-hover:text-ds-textMain transition flex items-center gap-1.5">
-            <i class="uil uil-chart-bar text-sm text-ds-textSecondary group-hover:text-ds-textMain transition"></i>
+          <span class="text-xs font-medium ${isExpanded ? 'text-ds-textMain' : 'text-ds-textSecondary group-hover:text-ds-textMain'} transition flex items-center gap-1.5">
+            <i class="uil uil-chart-bar text-sm ${isExpanded ? 'text-ds-textMain' : 'text-ds-textSecondary group-hover:text-ds-textMain'} transition"></i>
             <span>Detalhamento</span>
           </span>
           <button
             type="button"
-            class="px-2 py-1 -mr-2 rounded-[8px] bg-transparent group-hover:bg-ds-surface text-ds-textSecondary group-hover:text-ds-textMain font-sans font-medium text-xs transition inline-flex items-center gap-1 cursor-pointer"
+            class="px-2.5 py-1 -mr-2 rounded-[8px] ${
+              isExpanded
+                ? 'bg-ds-surface text-ds-textMain font-semibold'
+                : 'bg-transparent group-hover:bg-ds-surface text-ds-textSecondary group-hover:text-ds-textMain font-medium'
+            } font-sans text-xs transition inline-flex items-center gap-1 cursor-pointer"
           >
             <span>${isExpanded ? 'Ocultar' : 'Expandir'}</span>
             <i class="uil ${isExpanded ? 'uil-angle-up' : 'uil-angle-down'} text-sm"></i>
@@ -10059,8 +10064,39 @@ function renderAndreiaChat() {
   `;
 }
 
+function setExportMenuOpen(isOpen) {
+  const menu = document.getElementById('exportMenu');
+  const btn = document.getElementById('exportDropdownBtn');
+  const chevron = document.getElementById('exportDropdownChevron');
+  if (!menu) return;
+
+  if (isOpen) {
+    menu.classList.remove('hidden');
+    if (btn) {
+      btn.classList.remove('bg-transparent', 'text-ds-textSecondary', 'font-medium');
+      btn.classList.add('bg-ds-surface', 'text-ds-textMain', 'font-semibold');
+    }
+    if (chevron) {
+      chevron.classList.remove('uil-angle-down');
+      chevron.classList.add('uil-angle-up');
+    }
+  } else {
+    menu.classList.add('hidden');
+    if (btn) {
+      btn.classList.remove('bg-ds-surface', 'text-ds-textMain', 'font-semibold');
+      btn.classList.add('bg-transparent', 'text-ds-textSecondary', 'font-medium');
+    }
+    if (chevron) {
+      chevron.classList.remove('uil-angle-up');
+      chevron.classList.add('uil-angle-down');
+    }
+  }
+}
+
 function toggleExportMenu() {
-  document.getElementById('exportMenu').classList.toggle('hidden');
+  const menu = document.getElementById('exportMenu');
+  if (!menu) return;
+  setExportMenuOpen(menu.classList.contains('hidden'));
 }
 
 function showToast(msg) {
