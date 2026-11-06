@@ -2133,7 +2133,7 @@ function renderHeroSection(m) {
 
   const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
   const topEyebrowLabel = hasCampaignName
-    ? `Plano de mídia · ${escapeHtml(m.campaignName)}`
+    ? `Plano de mídia · <strong class="font-semibold text-ds-textSecondary">${escapeHtml(m.campaignName)}</strong>`
     : 'Plano de mídia';
 
   // Botões do Hero Desktop (Padrão Z-Pattern: Secundário à esquerda e CTA Principal no extremo direito)
@@ -2303,7 +2303,7 @@ function renderHeroSection(m) {
           <div class="space-y-0.5">
             <div class="text-xs font-normal text-ds-textSecondary">Plano de mídia</div>
             ${hasCampaignName ? `
-              <div class="text-xs font-normal text-ds-textSecondary">
+              <div class="text-xs font-semibold text-ds-textSecondary">
                 ${escapeHtml(m.campaignName)}
               </div>
             ` : ''}
@@ -2329,15 +2329,15 @@ function renderHeroSection(m) {
           <div class="grid grid-cols-3 divide-x divide-ds-border text-xs">
             <div class="pr-3">
               <div class="text-xs text-ds-textSecondary">Início</div>
-              <div class="text-xs font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">${shortStartLabel}</div>
+              <div class="font-display font-bold text-xs text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">${shortStartLabel}</div>
             </div>
             <div class="px-3">
               <div class="text-xs text-ds-textSecondary">Fim</div>
-              <div class="text-xs font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">${shortEndLabel}</div>
+              <div class="font-display font-bold text-xs text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">${shortEndLabel}</div>
             </div>
             <div class="pl-3">
               <div class="text-xs text-ds-textSecondary">Duração</div>
-              <div class="text-xs font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">${durationLabel}</div>
+              <div class="font-display font-bold text-xs text-ds-textSecondary mt-0.5 whitespace-nowrap">${durationLabel}</div>
             </div>
           </div>
         </div>
@@ -2388,7 +2388,7 @@ function renderHeroSection(m) {
               <div class="text-xs font-normal text-ds-textSecondary">
                 Início
               </div>
-              <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">
                 ${shortStartLabel}
               </div>
             </div>
@@ -2397,7 +2397,7 @@ function renderHeroSection(m) {
               <div class="text-xs font-normal text-ds-textSecondary">
                 Fim
               </div>
-              <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">
                 ${shortEndLabel}
               </div>
             </div>
@@ -2406,7 +2406,7 @@ function renderHeroSection(m) {
               <div class="text-xs font-normal text-ds-textSecondary">
                 Duração
               </div>
-              <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textSecondary mt-0.5 whitespace-nowrap">
                 ${durationLabel}
               </div>
             </div>
@@ -8823,8 +8823,8 @@ function renderPdfDocument(m) {
             <div class="col-span-7 space-y-4">
               <div>
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-xs sm:text-sm text-ds-textSecondary font-medium truncate">
-                    ${m.campaignName && String(m.campaignName).trim() ? `Plano de mídia · ${escapeHtml(m.campaignName)}` : 'Plano de mídia'}
+                  <span class="text-xs sm:text-sm text-ds-textSecondary font-normal truncate">
+                    ${m.campaignName && String(m.campaignName).trim() ? `Plano de mídia · <strong class="font-semibold text-ds-textSecondary">${escapeHtml(m.campaignName)}</strong>` : 'Plano de mídia'}
                   </span>
                   <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0">
                     <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
@@ -8896,7 +8896,7 @@ function renderPdfDocument(m) {
                   <div class="text-xs font-normal text-ds-textSecondary">
                     Início
                   </div>
-                  <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">
+                  <div class="font-display font-bold text-xs sm:text-sm text-ds-textSecondary mt-0.5 whitespace-nowrap">
                     ${formatHeroShortDate(m.startDate)}
                   </div>
                 </div>
@@ -8905,7 +8905,7 @@ function renderPdfDocument(m) {
                   <div class="text-xs font-normal text-ds-textSecondary">
                     Fim
                   </div>
-                  <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">
+                  <div class="font-display font-bold text-xs sm:text-sm text-ds-textSecondary mt-0.5 whitespace-nowrap">
                     ${formatHeroShortDate(m.endDate)}
                   </div>
                 </div>
@@ -8914,7 +8914,7 @@ function renderPdfDocument(m) {
                   <div class="text-xs font-normal text-ds-textSecondary">
                     Duração
                   </div>
-                  <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">
+                  <div class="font-display font-bold text-xs sm:text-sm text-ds-textSecondary mt-0.5 whitespace-nowrap">
                     ${formatHeroDurationLabel(m.durationDays)}
                   </div>
                 </div>
