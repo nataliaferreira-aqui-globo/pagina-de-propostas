@@ -5043,17 +5043,6 @@ function renderArtTab(m) {
               Envie o texto que você quer anunciar e um locutor oficial da rádio grava seu anúncio com qualidade profissional, sem nenhum custo adicional.
             </p>
           </div>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
-              Até 30s
-            </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
-              65 a 75 palavras
-            </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
-              Tom natural
-            </span>
-          </div>
         </div>
         <div class="rounded-xl border border-ds-border bg-ds-surface/60 p-3.5 flex flex-col justify-between gap-2.5">
           <div>
@@ -5064,17 +5053,6 @@ function renderArtTab(m) {
             <p class="text-xs text-ds-textSecondary leading-relaxed">
               Já tem o áudio pronto? Envie o arquivo direto, sem passar pela locução da rádio. Recomendamos uma gravação profissional para manter a qualidade do anúncio.
             </p>
-          </div>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
-              Até 30s
-            </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
-              MP3
-            </span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-xs font-semibold bg-[#F3ECE4] text-[#56514B]">
-              320 kbps
-            </span>
           </div>
         </div>
       </div>
