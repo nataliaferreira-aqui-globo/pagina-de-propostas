@@ -2280,14 +2280,12 @@ function renderHeroSection(m) {
         <!-- Topo Mobile Organizado: Status acima do título + Botões no extremo direito alinhados ao status -->
         <div class="space-y-2.5">
           <div class="flex items-center justify-between gap-2">
-            <button
-              type="button"
-              onclick="cycleProposalStatus()"
+            <span
               class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0"
             >
               <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
               <span>${statusMeta.label}</span>
-            </button>
+            </span>
             ${heroUtilityButtonsHtml}
           </div>
           <div class="space-y-0.5">
@@ -2345,15 +2343,12 @@ function renderHeroSection(m) {
           <span class="text-xs text-ds-textSecondary font-normal truncate">
             ${topEyebrowLabel}
           </span>
-          <button
-            type="button"
-            onclick="cycleProposalStatus()"
-            title="Clique para alternar o status da proposta"
-            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0 cursor-pointer hover:opacity-90 transition"
+          <span
+            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0"
           >
             <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
             <span>${statusMeta.label}</span>
-          </button>
+          </span>
         </div>
 
         ${heroUtilityButtonsHtml}
