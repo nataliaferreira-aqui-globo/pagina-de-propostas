@@ -1223,6 +1223,48 @@ function buildNormalizedModel(rawPayload) {
   const radioTotalInsertions = radioNormalized.reduce((a, r) => a + r.totalInsertions, 0);
   const artFormats = buildCampaignArtFormats(campaign, oohRaw, portaisItems, revistasItems);
 
+  const normalizeDigitalTargets = (campObj, itemObj) => {
+    const ts = (itemObj && itemObj.targets_summary) || (campObj && campObj.targets_summary) || {};
+    const mapTargetValue = (raw, fieldType) => {
+      if (!raw || String(raw).toLowerCase() === 'all' || String(raw).toLowerCase() === 'todos') {
+        return 'Todos';
+      }
+      if (Array.isArray(raw)) {
+        if (raw.length === 0) return 'Todos';
+        return raw.map((v) => mapTargetValue(v, fieldType)).join(', ');
+      }
+      const s = String(raw).trim();
+      const low = s.toLowerCase();
+      if (fieldType === 'gender') {
+        if (low === 'male' || low === 'm' || low === 'masculino') return 'Masculino';
+        if (low === 'female' || low === 'f' || low === 'feminino') return 'Feminino';
+      }
+      if (fieldType === 'age') {
+        if (low === '18-24' || low === '18_24') return '18 – 24 anos';
+        if (low === '25-34' || low === '25_34') return '25 – 34 anos';
+        if (low === '35-59' || low === '35_59') return '35 – 59 anos';
+        if (low === '60+' || low === '60_plus') return '60 + anos';
+      }
+      return s;
+    };
+
+    const location = mapTargetValue(ts.location, 'location');
+    const interest = mapTargetValue(ts.interest, 'interest');
+    const age = mapTargetValue(ts.age, 'age');
+    const gender = mapTargetValue(ts.gender, 'gender');
+    const summaryText = `Local: ${location} · Idade: ${age} · Gênero: ${gender} · Interesses: ${interest}`;
+
+    return {
+      location,
+      interest,
+      age,
+      gender,
+      summaryText
+    };
+  };
+
+  const digitalTargets = normalizeDigitalTargets(campaign);
+
   return {
     id: rawPayload.id || 743446,
     campaignName: String(campaign.name || '').trim(),
@@ -1230,6 +1272,7 @@ function buildNormalizedModel(rawPayload) {
     endDate: dateRange.end,
     durationDays,
     weeks,
+    digitalTargets,
     financials: {
       oohGross,
       oohResidentDiscount,
@@ -1291,6 +1334,7 @@ function buildNormalizedModel(rawPayload) {
       const formatTagLabel = isVideo
         ? `Vídeo${interventionLabel ? ' · ' + interventionLabel : ''}`
         : 'Display Digital';
+      const itemTargets = normalizeDigitalTargets(campaign, it);
       return {
         code: p.id || p.code,
         itemKey: it._itemKey || `dig_${idx}`,
@@ -1308,6 +1352,11 @@ function buildNormalizedModel(rawPayload) {
         cpm: getDigitalItemCpm(it),
         impressions: getDigitalItemImpressions(it),
         totalPrice: getDigitalItemInvestment(it),
+        targetLocation: itemTargets.location,
+        targetInterest: itemTargets.interest,
+        targetAge: itemTargets.age,
+        targetGender: itemTargets.gender,
+        targetSummary: itemTargets.summaryText,
         vertical: 'Portais Globo e Globoplay'
       };
     }),
@@ -1315,6 +1364,7 @@ function buildNormalizedModel(rawPayload) {
       const p = it.properties || {};
       const name = p.saved_name || p.name || 'Display Editorial';
       const titleName = name.replace(/^Display\s*-\s*/i, '').trim();
+      const itemTargets = normalizeDigitalTargets(campaign, it);
       return {
         code: p.id || p.code,
         itemKey: it._itemKey || `rev_${idx}`,
@@ -1323,6 +1373,11 @@ function buildNormalizedModel(rawPayload) {
         cpm: getDigitalItemCpm(it),
         impressions: getDigitalItemImpressions(it),
         totalPrice: getDigitalItemInvestment(it),
+        targetLocation: itemTargets.location,
+        targetInterest: itemTargets.interest,
+        targetAge: itemTargets.age,
+        targetGender: itemTargets.gender,
+        targetSummary: itemTargets.summaryText,
         vertical: 'Revistas Digitais'
       };
     }),
@@ -2434,6 +2489,7 @@ function renderModularMetrics(m) {
   } else if (activeChannelsCount === 1 && c.portaisCount > 0) {
     singleChannelTitle = 'Estimativa de entrega — Portais e Globoplay';
     const avgCpm = c.portaisImpressions > 0 ? (f.portaisNet / (c.portaisImpressions / 1000)) : 31.6;
+    const dt = m.digitalTargets || { location: 'Todos', interest: 'Todos', age: 'Todos', gender: 'Todos' };
 
     cards = [
       `
@@ -2456,6 +2512,29 @@ function renderModularMetrics(m) {
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtBRL(avgCpm)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Custo por mil impressões</div>
         </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Público-alvo</div>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-2.5">
+            <div>
+              <div class="text-[11px] text-ds-textSecondary leading-tight">Local</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.location)}">${escapeHtml(dt.location)}</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-ds-textSecondary leading-tight">Interesses</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.interest)}">${escapeHtml(dt.interest)}</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-ds-textSecondary leading-tight">Idade</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.age)}">${escapeHtml(dt.age)}</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-ds-textSecondary leading-tight">Gênero</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.gender)}">${escapeHtml(dt.gender)}</div>
+            </div>
+          </div>
+        </div>
       `
     ];
 
@@ -2465,6 +2544,7 @@ function renderModularMetrics(m) {
   } else if (activeChannelsCount === 1 && c.revistasCount > 0) {
     singleChannelTitle = 'Estimativa de entrega — Revistas Digitais';
     const avgCpm = c.revistasImpressions > 0 ? (f.revistasNet / (c.revistasImpressions / 1000)) : 9.6;
+    const dt = m.digitalTargets || { location: 'Todos', interest: 'Todos', age: 'Todos', gender: 'Todos' };
 
     cards = [
       `
@@ -2486,6 +2566,29 @@ function renderModularMetrics(m) {
           <div class="text-xs font-semibold text-ds-textSecondary truncate">CPM médio</div>
           <div class="font-display font-extrabold text-2xl sm:text-[28px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtBRL(avgCpm)}</div>
           <div class="text-xs text-ds-textSecondary mt-1.5 leading-normal">Custo por mil impressões</div>
+        </div>
+      `,
+      `
+        <div class="bg-white rounded-2xl ${cardPad} border border-ds-borderStrong shadow-card flex flex-col justify-between h-full">
+          <div class="text-xs font-semibold text-ds-textSecondary truncate">Público-alvo</div>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-2.5">
+            <div>
+              <div class="text-[11px] text-ds-textSecondary leading-tight">Local</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.location)}">${escapeHtml(dt.location)}</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-ds-textSecondary leading-tight">Interesses</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.interest)}">${escapeHtml(dt.interest)}</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-ds-textSecondary leading-tight">Idade</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.age)}">${escapeHtml(dt.age)}</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-ds-textSecondary leading-tight">Gênero</div>
+              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain leading-snug mt-0.5 truncate" title="${escapeHtml(dt.gender)}">${escapeHtml(dt.gender)}</div>
+            </div>
+          </div>
         </div>
       `
     ];
@@ -2531,6 +2634,16 @@ function renderModularMetrics(m) {
     // =========================================================================
     // CASO 2: MAIS DE UMA VERTICAL NA PROPOSTA — Cards expansíveis por canal
     // =========================================================================
+    const dt = m.digitalTargets || { location: 'Todos', interest: 'Todos', age: 'Todos', gender: 'Todos' };
+    const audienceSubCardHtml = `
+      <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+        <div><span class="text-ds-textSecondary">Local:</span> <strong class="font-display font-bold text-ds-textMain">${escapeHtml(dt.location)}</strong></div>
+        <div><span class="text-ds-textSecondary">Interesses:</span> <strong class="font-display font-bold text-ds-textMain">${escapeHtml(dt.interest)}</strong></div>
+        <div><span class="text-ds-textSecondary">Idade:</span> <strong class="font-display font-bold text-ds-textMain">${escapeHtml(dt.age)}</strong></div>
+        <div><span class="text-ds-textSecondary">Gênero:</span> <strong class="font-display font-bold text-ds-textMain">${escapeHtml(dt.gender)}</strong></div>
+      </div>
+    `;
+
     if (c.oohPointsCount > 0) {
       const oohDailyExhibitionsVal = oohDigitalPts > 0
         ? fmtInt(c.oohDailyInsertions)
@@ -2572,7 +2685,8 @@ function renderModularMetrics(m) {
             label: 'Veículos',
             rawHtml: renderCompactItemsPopover(portaisVehiclesList, 2, 'Veículos contemplados', 'portais-multi')
           },
-          { label: 'CPM médio', value: portaisCpmLabel }
+          { label: 'CPM médio', value: portaisCpmLabel },
+          { label: 'Público-alvo', rawHtml: audienceSubCardHtml, fullWidth: true }
         ]
       }));
     }
@@ -2593,7 +2707,8 @@ function renderModularMetrics(m) {
             label: 'Títulos',
             rawHtml: renderCompactItemsPopover(effectiveRevistasTitles, 2, 'Títulos contemplados', 'revistas-multi')
           },
-          { label: 'CPM médio', value: revistasCpmLabel }
+          { label: 'CPM médio', value: revistasCpmLabel },
+          { label: 'Público-alvo', rawHtml: audienceSubCardHtml, fullWidth: true }
         ]
       }));
     }
@@ -3806,6 +3921,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
   // CANAL 2: REVISTAS E JORNAIS — Padrão Pontooh Design System (Desktop & Mobile)
   // =========================================================================
   if (state.channelFilter === 'revistas') {
+    const digTargets = m.digitalTargets || {
+      location: 'Todos',
+      interest: 'Todos',
+      age: 'Todos',
+      gender: 'Todos',
+      summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
+    };
     const filteredRevistas = m.revistasItems.filter((r) => {
       const okSearch = matchSearch(`${r.name} ${r.editorialTitle} Display Revistas Digitais`);
       const okCat = !state.ambienteFilter || r.editorialTitle === state.ambienteFilter;
@@ -3821,6 +3943,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
       const itemKey = r.itemKey || `rev_${idx}`;
       const isSelectedForBulk = !!state.selectedForRemoval[itemKey];
       const estReach = Math.round(r.impressions * 0.62);
+      const revAge = r.targetAge || digTargets.age;
+      const revGender = r.targetGender || digTargets.gender;
+      const revTargetSummary = r.targetSummary || digTargets.summaryText;
       const revSubtitle = `Revistas Digitais • Cobertura Nacional • CPM ${fmtBRL(r.cpm)}`;
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
 
@@ -3845,6 +3970,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
             <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
               <div class="text-xs text-ds-textSecondary">CPM</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${fmtBRL(r.cpm)}</div>
+            </div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Faixa etária</div>
+              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${escapeHtml(revAge)}</div>
+            </div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Gênero</div>
+              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${escapeHtml(revGender)}</div>
             </div>
           </div>
         </div>
@@ -3878,6 +4011,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 </h4>
                 <p class="text-xs text-ds-textSecondary mt-1 leading-relaxed line-clamp-2" title="${r.editorialTitle} — ${revSubtitle}">
                   Revistas Digitais • Cobertura Nacional
+                </p>
+                <p class="text-[11px] text-ds-textSecondary/80 mt-0.5 leading-snug" title="Público-alvo: ${escapeHtml(revTargetSummary)}">
+                  Público-alvo: ${escapeHtml(revTargetSummary)}
                 </p>
               </div>
               <div class="my-3 border-t border-ds-border"></div>
@@ -3921,9 +4057,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${r.editorialTitle} — ${revSubtitle}">
                     ${revSubtitle}
                   </p>
+                  <p class="text-[11px] text-ds-textSecondary/80 mt-0.5 truncate" title="Público-alvo: ${escapeHtml(revTargetSummary)}">
+                    Público-alvo: ${escapeHtml(revTargetSummary)}
+                  </p>
                   <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-ds-textMain text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${r.editorialTitle}</div>
                     <div class="text-ds-bg">${revSubtitle}</div>
+                    <div class="text-ds-bg/80 mt-0.5">Público-alvo: ${escapeHtml(revTargetSummary)}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
@@ -3973,10 +4113,15 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
     contentHtml = `
       <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between'}">
-          <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
-            Revistas (${filteredRevistas.length})
-          </h3>
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border'}">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
+              Revistas (${filteredRevistas.length})
+            </h3>
+          </div>
+          <p class="text-xs text-ds-textSecondary mt-0.5">
+            Público-alvo: ${escapeHtml(digTargets.summaryText)}
+          </p>
         </div>
 
         <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRevistas.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
@@ -3995,6 +4140,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
   // CANAL 3: PORTAIS E GLOBOPLAY — Padrão Pontooh Design System (Desktop & Mobile)
   // =========================================================================
   if (state.channelFilter === 'portais') {
+    const digTargets = m.digitalTargets || {
+      location: 'Todos',
+      interest: 'Todos',
+      age: 'Todos',
+      gender: 'Todos',
+      summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
+    };
     const filteredPortais = m.portaisItems.filter((p) => {
       const okSearch = matchSearch(`${p.name} ${p.cleanTitle} ${p.mediaTypeLabel} ${p.interventionLabel || ''} ${p.channelTypeLabel} ${p.vehicles.join(' ')}`);
       const okAmbiente = !state.ambienteFilter || p.channelTypeLabel === state.ambienteFilter;
@@ -4007,6 +4159,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
     const portaisCardsHtml = visiblePortais.map((p, idx) => {
       const itemKey = p.itemKey || `dig_${idx}`;
       const estReach = Math.round(p.impressions * 0.62);
+      const digAge = p.targetAge || digTargets.age;
+      const digGender = p.targetGender || digTargets.gender;
+      const digTargetSummary = p.targetSummary || digTargets.summaryText;
       const digSubtitle = `${p.channelTypeLabel} • ${p.interventionLabel || 'Clicável'} • ${p.vehicles.join(', ')}`;
       const isMetricsOpen = !!state.expandedCardMetrics[itemKey];
       const digChannelsLabel = `${p.vehicles.length} ${p.vehicles.length > 1 ? 'portais' : 'portal'}`;
@@ -4032,6 +4187,14 @@ function renderMediaPlanList(m, preserveScroll = false) {
             <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
               <div class="text-xs text-ds-textSecondary">CPM</div>
               <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${fmtBRL(p.cpm)}</div>
+            </div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Faixa etária</div>
+              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${escapeHtml(digAge)}</div>
+            </div>
+            <div class="bg-white rounded-lg px-2.5 py-2 border border-ds-border">
+              <div class="text-xs text-ds-textSecondary">Gênero</div>
+              <div class="font-display font-bold text-ds-textMain text-xs mt-0.5">${escapeHtml(digGender)}</div>
             </div>
           </div>
         </div>
@@ -4065,6 +4228,9 @@ function renderMediaPlanList(m, preserveScroll = false) {
                 </h4>
                 <p class="text-xs text-ds-textSecondary mt-1 leading-relaxed line-clamp-2" title="${p.cleanTitle} — ${digSubtitle}">
                   ${p.channelTypeLabel} • ${p.vehicles.join(', ')}
+                </p>
+                <p class="text-[11px] text-ds-textSecondary/80 mt-0.5 leading-snug" title="Público-alvo: ${escapeHtml(digTargetSummary)}">
+                  Público-alvo: ${escapeHtml(digTargetSummary)}
                 </p>
               </div>
               <div class="my-3 border-t border-ds-border"></div>
@@ -4108,9 +4274,13 @@ function renderMediaPlanList(m, preserveScroll = false) {
                   <p class="text-xs text-ds-textSecondary mt-1 truncate cursor-help" title="${p.cleanTitle} — ${digSubtitle}">
                     ${digSubtitle}
                   </p>
+                  <p class="text-[11px] text-ds-textSecondary/80 mt-0.5 truncate" title="Público-alvo: ${escapeHtml(digTargetSummary)}">
+                    Público-alvo: ${escapeHtml(digTargetSummary)}
+                  </p>
                   <div class="hidden group-hover/addr:block absolute left-0 top-full mt-1.5 z-30 w-max max-w-[390px] px-3 py-2 rounded-lg bg-ds-textMain text-white text-xs leading-snug shadow-lg whitespace-normal pointer-events-none">
                     <div class="font-bold text-white mb-0.5">${p.cleanTitle}</div>
                     <div class="text-ds-bg">${digSubtitle}</div>
+                    <div class="text-ds-bg/80 mt-0.5">Público-alvo: ${escapeHtml(digTargetSummary)}</div>
                   </div>
                 </div>
                 <div class="text-right shrink-0 self-center">
@@ -4160,10 +4330,15 @@ function renderMediaPlanList(m, preserveScroll = false) {
 
     contentHtml = `
       <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between gap-2'}">
-          <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
-            Portais e Globoplay (${filteredPortais.length})
-          </h3>
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border'}">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
+              Portais e Globoplay (${filteredPortais.length})
+            </h3>
+          </div>
+          <p class="text-xs text-ds-textSecondary mt-0.5">
+            Público-alvo: ${escapeHtml(digTargets.summaryText)}
+          </p>
         </div>
 
         <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredPortais.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
@@ -7646,6 +7821,36 @@ function renderPdfDocument(m) {
   const oohCitiesCount = c.oohCitiesCount || oohCities.length;
 
   let pdfMetricsTitle = 'Estimativa de entrega por canal';
+  const digTargets = m.digitalTargets || {
+    location: 'Todos',
+    interest: 'Todos',
+    age: 'Todos',
+    gender: 'Todos',
+    summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
+  };
+  const renderPdfTargetCardHtml = () => `
+    <div class="rounded-2xl border border-ds-borderStrong bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between h-full pdf-avoid-break">
+      <div class="text-xs font-semibold text-ds-textSecondary truncate">Público-alvo</div>
+      <div class="grid grid-cols-2 gap-x-3 gap-y-2 mt-2.5">
+        <div>
+          <div class="text-[11px] text-ds-textSecondary leading-tight">Local</div>
+          <div class="font-display font-bold text-xs text-ds-textMain leading-snug truncate">${escapeHtml(digTargets.location)}</div>
+        </div>
+        <div>
+          <div class="text-[11px] text-ds-textSecondary leading-tight">Interesses</div>
+          <div class="font-display font-bold text-xs text-ds-textMain leading-snug truncate">${escapeHtml(digTargets.interest)}</div>
+        </div>
+        <div>
+          <div class="text-[11px] text-ds-textSecondary leading-tight">Idade</div>
+          <div class="font-display font-bold text-xs text-ds-textMain leading-snug truncate">${escapeHtml(digTargets.age)}</div>
+        </div>
+        <div>
+          <div class="text-[11px] text-ds-textSecondary leading-tight">Gênero</div>
+          <div class="font-display font-bold text-xs text-ds-textMain leading-snug truncate">${escapeHtml(digTargets.gender)}</div>
+        </div>
+      </div>
+    </div>
+  `;
 
   if (isSingleChannel && hasOoh) {
     pdfMetricsTitle = 'Estimativa de entrega — OOH';
@@ -7699,6 +7904,7 @@ function renderPdfDocument(m) {
         </div>
       `);
     });
+    modularCardsHtml.push(renderPdfTargetCardHtml());
   } else if (isSingleChannel && hasRevistas) {
     pdfMetricsTitle = 'Estimativa de entrega — Revistas Digitais';
     const revistasListLabel = revistasTitleNames.join(', ') || 'Revistas Digitais';
@@ -7717,6 +7923,7 @@ function renderPdfDocument(m) {
         </div>
       `);
     });
+    modularCardsHtml.push(renderPdfTargetCardHtml());
   } else if (isSingleChannel && hasRadio) {
     pdfMetricsTitle = 'Estimativa de entrega — Rádio';
     const radioDurationsLabel = Array.from(new Set((m.radioItems || []).map((r) => `Spot de ${r.spotDuration || 30}s`))).join(' · ') || 'Spot de 30s';
@@ -7822,6 +8029,9 @@ function renderPdfDocument(m) {
               <div class="text-xs text-ds-textSecondary leading-tight">Veículos</div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(portaisListLabel)}</div>
             </div>
+            <div class="col-span-2 pt-2 border-t border-ds-border/70">
+              <div class="text-xs text-ds-textSecondary leading-tight">Público-alvo segmentado: <span class="font-normal">${escapeHtml(digTargets.summaryText)}</span></div>
+            </div>
           </div>
         </div>
       `);
@@ -7853,6 +8063,9 @@ function renderPdfDocument(m) {
             <div class="col-span-2">
               <div class="text-xs text-ds-textSecondary leading-tight">Títulos editoriais</div>
               <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-1 leading-snug">${escapeHtml(revistasListLabel)}</div>
+            </div>
+            <div class="col-span-2 pt-2 border-t border-ds-border/70">
+              <div class="text-xs text-ds-textSecondary leading-tight">Público-alvo segmentado: <span class="font-normal">${escapeHtml(digTargets.summaryText)}</span></div>
             </div>
           </div>
         </div>
@@ -8043,13 +8256,16 @@ function renderPdfDocument(m) {
   // 2. TABELA PORTAIS DIGITAIS GLOBO & GLOBOPLAY
   const portaisTableSectionHtml = hasPortais ? `
     <section class="mt-4">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 pdf-keep-with-next">
+      <div class="mb-2.5 pdf-keep-with-next">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-[#F15A22]"></span>
           <h2 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
             Portais e Globoplay — Vídeo e Display
           </h2>
         </div>
+        <p class="text-xs text-slate-500 mt-0.5 pl-4">
+          Público-alvo segmentado: ${escapeHtml(digTargets.summaryText)}
+        </p>
       </div>
 
       <div class="overflow-hidden border border-ds-border rounded-2xl">
@@ -8105,13 +8321,16 @@ function renderPdfDocument(m) {
   // 3. TABELA REVISTAS DIGITAIS
   const revistasTableSectionHtml = hasRevistas ? `
     <section class="mt-4">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 pdf-keep-with-next">
+      <div class="mb-2.5 pdf-keep-with-next">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
           <h2 class="font-display font-bold text-sm sm:text-base text-ds-textMain">
             Revistas Digitais
           </h2>
         </div>
+        <p class="text-xs text-slate-500 mt-0.5 pl-4">
+          Público-alvo segmentado: ${escapeHtml(digTargets.summaryText)}
+        </p>
       </div>
 
       <div class="overflow-hidden border border-ds-border rounded-2xl">
@@ -10964,11 +11183,18 @@ function exportFullCsv() {
   // ==========================================================================
   // 5. ABA PORTAIS E GLOBOPLAY
   // ==========================================================================
+  const excelDigTargets = m.digitalTargets || {
+    location: 'Todos',
+    interest: 'Todos',
+    age: 'Todos',
+    gender: 'Todos',
+    summaryText: 'Local: Todos · Interesses: Todos · Idade: Todos · Gênero: Todos'
+  };
   if (hasPortais) {
-    const portaisColCount = 12;
+    const portaisColCount = 14;
     const portaisRows = [
       ['AQUI ADS (GLOBO & ELETROMIDIA) — PORTAIS E GLOBOPLAY'],
-      ['Formatos de vídeo e display contratados nos portais editoriais Globo e Globoplay'],
+      [`Formatos de vídeo e display contratados nos portais editoriais Globo e Globoplay · Público-alvo: ${excelDigTargets.summaryText}`],
       [],
       [
         'Código',
@@ -10980,6 +11206,8 @@ function exportFullCsv() {
         'Período de Veiculação',
         'Detalhes Técnicos',
         'Abrangência',
+        'Faixa Etária',
+        'Gênero',
         'Impressões',
         'CPM (R$)',
         'Valor Líquido (R$)'
@@ -11004,6 +11232,8 @@ function exportFullCsv() {
         `${m.startDate} a ${m.endDate}`,
         p.techSpecFooter || '',
         'Nacional / Seg.',
+        p.targetAge || excelDigTargets.age,
+        p.targetGender || excelDigTargets.gender,
         p.impressions,
         Number(p.cpm.toFixed(2)),
         Number(p.totalPrice.toFixed(2))
@@ -11023,6 +11253,8 @@ function exportFullCsv() {
       `${m.durationDays} dias`,
       '',
       '',
+      '',
+      '',
       c.portaisImpressions,
       Number(portaisAvgCpm.toFixed(2)),
       Number(f.portaisNet.toFixed(2))
@@ -11038,12 +11270,12 @@ function exportFullCsv() {
         { s: { r: 1, c: 0 }, e: { r: 1, c: portaisColCount - 1 } }
       ],
       rowMeta: portaisMeta,
-      integerCols: [9],
-      currencyCols: [10, 11],
-      centerCols: [0, 6, 8],
-      boldCols: [0, 11],
+      integerCols: [11],
+      currencyCols: [12, 13],
+      centerCols: [0, 6, 8, 9, 10],
+      boldCols: [0, 13],
       italicCols: [2, 7],
-      autofilterRef: `A4:L${lastPortaisItemRow1Based}`
+      autofilterRef: `A4:N${lastPortaisItemRow1Based}`
     });
   }
 
@@ -11051,10 +11283,10 @@ function exportFullCsv() {
   // 6. ABA REVISTAS DIGITAIS
   // ==========================================================================
   if (hasRevistas) {
-    const revistasColCount = 10;
+    const revistasColCount = 12;
     const revistasRows = [
       ['AQUI ADS (GLOBO & ELETROMIDIA) — REVISTAS DIGITAIS'],
-      ['Publicações editoriais digitais e formatos multi-plataforma contratados'],
+      [`Publicações editoriais digitais e formatos multi-plataforma contratados · Público-alvo: ${excelDigTargets.summaryText}`],
       [],
       [
         'Código',
@@ -11064,6 +11296,8 @@ function exportFullCsv() {
         'Posicionamento',
         'Período de Veiculação',
         'Abrangência',
+        'Faixa Etária',
+        'Gênero',
         'Impressões',
         'CPM (R$)',
         'Valor Líquido (R$)'
@@ -11086,6 +11320,8 @@ function exportFullCsv() {
         'Capa e Editorias · Web & Mobile',
         `${m.startDate} a ${m.endDate}`,
         'Nacional / BR',
+        r.targetAge || excelDigTargets.age,
+        r.targetGender || excelDigTargets.gender,
         r.impressions,
         Number(r.cpm.toFixed(2)),
         Number(r.totalPrice.toFixed(2))
@@ -11103,6 +11339,8 @@ function exportFullCsv() {
       '',
       `${m.durationDays} dias`,
       '',
+      '',
+      '',
       c.revistasImpressions,
       Number(revistasAvgCpm.toFixed(2)),
       Number(f.revistasNet.toFixed(2))
@@ -11118,12 +11356,12 @@ function exportFullCsv() {
         { s: { r: 1, c: 0 }, e: { r: 1, c: revistasColCount - 1 } }
       ],
       rowMeta: revistasMeta,
-      integerCols: [7],
-      currencyCols: [8, 9],
-      centerCols: [0, 5, 6],
-      boldCols: [0, 9],
+      integerCols: [9],
+      currencyCols: [10, 11],
+      centerCols: [0, 5, 6, 7, 8],
+      boldCols: [0, 11],
       italicCols: [3, 4],
-      autofilterRef: `A4:J${lastRevistasItemRow1Based}`
+      autofilterRef: `A4:L${lastRevistasItemRow1Based}`
     });
   }
 
