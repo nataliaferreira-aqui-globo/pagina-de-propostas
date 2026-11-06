@@ -2133,12 +2133,19 @@ function renderHeroSection(m) {
 
   const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
   const topEyebrowLabel = hasCampaignName
-    ? `Plano de mídia · ${escapeHtml(m.campaignName)}`
+    ? `Plano de mídia · <strong class="font-semibold text-ds-textMain">${escapeHtml(m.campaignName)}</strong>`
     : 'Plano de mídia';
 
-  // Botões do Hero: Principal ("Efetuar pagamento") primeiro e "Alterar proposta" logo abaixo/ao lado no lado esquerdo
+  // Botões do Hero Desktop (Padrão Z-Pattern: Secundário à esquerda e CTA Principal no extremo direito)
   const desktopActionButtonsHtml = state.proposalStatus === 'completed' ? `
-    <div class="flex flex-wrap items-center gap-2.5 pt-1">
+    <div class="flex flex-wrap items-center justify-end gap-2.5 shrink-0">
+      <button
+        type="button"
+        onclick="goToPaymentAnchor()"
+        class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer"
+      >
+        Ver pagamento
+      </button>
       <button
         type="button"
         onclick="renewCampaignProposal('${displayProposalId}')"
@@ -2147,16 +2154,16 @@ function renderHeroSection(m) {
       >
         Renovar campanha
       </button>
+    </div>
+  ` : state.proposalStatus === 'processing' ? `
+    <div class="flex flex-wrap items-center justify-end gap-2.5 shrink-0">
       <button
         type="button"
         onclick="goToPaymentAnchor()"
         class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer"
       >
-        Ver pagamento
+        Detalhes do pagamento
       </button>
-    </div>
-  ` : state.proposalStatus === 'processing' ? `
-    <div class="flex flex-wrap items-center gap-2.5 pt-1">
       <button
         type="button"
         onclick="goToAdDetailingStep('${displayProposalId}')"
@@ -2165,29 +2172,22 @@ function renderHeroSection(m) {
       >
         Enviar criativos
       </button>
-      <button
-        type="button"
-        onclick="goToPaymentAnchor()"
-        class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer"
-      >
-        Detalhes do pagamento
-      </button>
     </div>
   ` : `
-    <div class="flex flex-wrap items-center gap-2.5 pt-1">
-      <button
-        type="button"
-        onclick="goToPaymentAnchor()"
-        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer"
-      >
-        Efetuar pagamento
-      </button>
+    <div class="flex flex-wrap items-center justify-end gap-2.5 shrink-0">
       <button
         type="button"
         onclick="showToast('Modo de edição do plano acionado')"
         class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer"
       >
         Alterar proposta
+      </button>
+      <button
+        type="button"
+        onclick="goToPaymentAnchor()"
+        class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer"
+      >
+        Efetuar pagamento
       </button>
     </div>
   `;
@@ -2369,9 +2369,9 @@ function renderHeroSection(m) {
         ${heroUtilityButtonsHtml}
       </div>
 
-      <!-- Corpo em 2 Colunas: Valor + CTAs à esquerda | Início, Fim e Duração à direita -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-        <div class="lg:col-span-7 space-y-3.5">
+      <!-- Corpo Horizontal (Padrão Z-Pattern): Investimento + Datas agrupados à esquerda/centro | CTAs no extremo direito -->
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="flex flex-wrap items-center gap-6 sm:gap-8">
           <div>
             <div class="text-xs text-ds-textSecondary font-medium">Investimento total</div>
             <div class="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -2381,10 +2381,8 @@ function renderHeroSection(m) {
             </div>
           </div>
 
-          ${desktopActionButtonsHtml}
-        </div>
+          <div class="hidden sm:block h-10 w-px bg-ds-border"></div>
 
-        <div class="lg:col-span-5 lg:border-l lg:border-ds-border lg:pl-8">
           <div class="flex items-center">
             <div class="pr-5 sm:pr-6 border-r border-ds-border">
               <div class="text-xs font-medium text-ds-textSecondary">
@@ -2414,6 +2412,8 @@ function renderHeroSection(m) {
             </div>
           </div>
         </div>
+
+        ${desktopActionButtonsHtml}
       </div>
     </div>
   `;
