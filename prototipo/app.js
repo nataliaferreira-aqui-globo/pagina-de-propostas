@@ -2133,7 +2133,7 @@ function renderHeroSection(m) {
 
   const hasCampaignName = Boolean(m.campaignName && String(m.campaignName).trim());
   const topEyebrowLabel = hasCampaignName
-    ? `Plano de mídia · <strong class="font-semibold text-ds-textMain">${escapeHtml(m.campaignName)}</strong>`
+    ? `Plano de mídia · ${escapeHtml(m.campaignName)}`
     : 'Plano de mídia';
 
   // Botões do Hero Desktop (Padrão Z-Pattern: Secundário à esquerda e CTA Principal no extremo direito)
@@ -2301,9 +2301,9 @@ function renderHeroSection(m) {
             ${heroUtilityButtonsHtml}
           </div>
           <div class="space-y-0.5">
-            <div class="text-xs font-semibold text-ds-textSecondary">Plano de mídia</div>
+            <div class="text-xs font-normal text-ds-textSecondary">Plano de mídia</div>
             ${hasCampaignName ? `
-              <div class="text-xs font-semibold text-ds-textMain">
+              <div class="text-xs font-normal text-ds-textSecondary">
                 ${escapeHtml(m.campaignName)}
               </div>
             ` : ''}
@@ -2329,15 +2329,15 @@ function renderHeroSection(m) {
           <div class="grid grid-cols-3 divide-x divide-ds-border text-xs">
             <div class="pr-3">
               <div class="text-xs text-ds-textSecondary">Início</div>
-              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">${shortStartLabel}</div>
+              <div class="text-xs font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">${shortStartLabel}</div>
             </div>
             <div class="px-3">
               <div class="text-xs text-ds-textSecondary">Fim</div>
-              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">${shortEndLabel}</div>
+              <div class="text-xs font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">${shortEndLabel}</div>
             </div>
             <div class="pl-3">
               <div class="text-xs text-ds-textSecondary">Duração</div>
-              <div class="font-display font-bold text-xs text-ds-textMain mt-0.5 whitespace-nowrap">${durationLabel}</div>
+              <div class="text-xs font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">${durationLabel}</div>
             </div>
           </div>
         </div>
@@ -2352,7 +2352,7 @@ function renderHeroSection(m) {
       <!-- Barra Superior Unificada: Identificação + Status à esquerda | Compartilhar + Exportar no extremo direito -->
       <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-ds-border">
         <div class="flex flex-wrap items-center gap-2.5 min-w-0">
-          <span class="text-xs sm:text-sm text-ds-textSecondary font-medium truncate">
+          <span class="text-xs sm:text-sm text-ds-textSecondary font-normal truncate">
             ${topEyebrowLabel}
           </span>
           <button
@@ -2373,7 +2373,7 @@ function renderHeroSection(m) {
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div class="flex flex-wrap items-center gap-6 sm:gap-8">
           <div>
-            <div class="text-xs text-ds-textSecondary font-medium">Investimento total</div>
+            <div class="text-xs text-ds-textSecondary font-normal">Investimento total</div>
             <div class="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <div class="font-display font-extrabold text-3xl sm:text-[38px] text-ds-textMain tracking-tight leading-none">
                 ${fmtBRL(f.trueProposalTotal)}
@@ -2385,28 +2385,28 @@ function renderHeroSection(m) {
 
           <div class="flex items-center">
             <div class="pr-5 sm:pr-6 border-r border-ds-border">
-              <div class="text-xs font-medium text-ds-textSecondary">
+              <div class="text-xs font-normal text-ds-textSecondary">
                 Início
               </div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">
+              <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.startDate)}">
                 ${shortStartLabel}
               </div>
             </div>
 
             <div class="px-5 sm:px-6 border-r border-ds-border">
-              <div class="text-xs font-medium text-ds-textSecondary">
+              <div class="text-xs font-normal text-ds-textSecondary">
                 Fim
               </div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">
+              <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap" title="${escapeHtml(m.endDate)}">
                 ${shortEndLabel}
               </div>
             </div>
 
             <div class="pl-5 sm:pl-6">
-              <div class="text-xs font-medium text-ds-textSecondary">
+              <div class="text-xs font-normal text-ds-textSecondary">
                 Duração
               </div>
-              <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+              <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">
                 ${durationLabel}
               </div>
             </div>
@@ -8893,28 +8893,28 @@ function renderPdfDocument(m) {
             <div class="col-span-5 border-l border-ds-border pl-8 space-y-4">
               <div class="flex items-center">
                 <div class="pr-5 sm:pr-6 border-r border-ds-border">
-                  <div class="text-xs font-medium text-ds-textSecondary">
+                  <div class="text-xs font-normal text-ds-textSecondary">
                     Início
                   </div>
-                  <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+                  <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">
                     ${formatHeroShortDate(m.startDate)}
                   </div>
                 </div>
 
                 <div class="px-5 sm:px-6 border-r border-ds-border">
-                  <div class="text-xs font-medium text-ds-textSecondary">
+                  <div class="text-xs font-normal text-ds-textSecondary">
                     Fim
                   </div>
-                  <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+                  <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">
                     ${formatHeroShortDate(m.endDate)}
                   </div>
                 </div>
 
                 <div class="pl-5 sm:pl-6">
-                  <div class="text-xs font-medium text-ds-textSecondary">
+                  <div class="text-xs font-normal text-ds-textSecondary">
                     Duração
                   </div>
-                  <div class="font-display font-bold text-xs sm:text-sm text-ds-textMain mt-0.5 whitespace-nowrap">
+                  <div class="text-xs sm:text-sm font-normal text-ds-textSecondary mt-0.5 whitespace-nowrap">
                     ${formatHeroDurationLabel(m.durationDays)}
                   </div>
                 </div>
