@@ -8368,11 +8368,10 @@ function renderPdfDocument(m) {
                   <td class="py-2.5 px-2.5 align-top text-right text-slate-700 whitespace-nowrap">${item.reachVal > 0 ? fmtInt(item.reachVal) : '—'}</td>
                   <td class="py-2.5 px-2.5 align-top text-right text-slate-700 whitespace-nowrap">${item.impactVal > 0 ? fmtInt(item.impactVal) : '—'}</td>
                   <td class="py-2.5 px-3 align-top text-right whitespace-nowrap">
-                    ${item.residentDiscount > 0 ? `
-                      <div class="text-xs text-slate-400 line-through leading-none mb-0.5">${fmtBRL(item.originalPrice)}</div>
-                      <div class="text-xs font-semibold text-emerald-700 leading-none mb-0.5">Desc. condo. (-${fmtBRL(item.residentDiscount)})</div>
-                    ` : ''}
                     <div class="font-bold text-slate-900">${fmtBRL(item.netPrice)}</div>
+                    ${item.residentDiscount > 0 ? `
+                      <div class="text-xs font-semibold text-emerald-700 leading-none mt-0.5">Desc. condo. (-${fmtBRL(item.residentDiscount)})</div>
+                    ` : ''}
                   </td>
                 </tr>
               `).join('');
