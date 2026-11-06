@@ -4179,11 +4179,38 @@ function renderMediaPlanList(m, preserveScroll = false) {
     }).join('');
 
     contentHtml = `
-      <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between'}">
+      <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong'}">
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border' : 'px-3 sm:px-4 py-3 sm:py-3.5 bg-white border-b border-ds-border rounded-t-2xl'}">
           <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
             Revistas (${filteredRevistas.length})
           </h3>
+          ${digTargets.isAllTodos ? `
+            <div class="text-xs text-ds-textSecondary mt-1">
+              <strong class="font-bold text-ds-textMain">Público-alvo:</strong> Todos
+            </div>
+          ` : `
+            <div class="mt-2.5">
+              <div class="text-xs font-bold text-ds-textMain mb-1.5">Público-alvo</div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 sim-grid-2 gap-2">
+                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Local</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.locationList, 1, 'Estados selecionados', 'rev-hdr-loc', false, 'text-xs sm:text-sm')}</div>
+                </div>
+                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Interesses</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.interestList, 1, 'Interesses selecionados', 'rev-hdr-int', true, 'text-xs sm:text-sm')}</div>
+                </div>
+                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Idade</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.ageList, 1, 'Faixas etárias', 'rev-hdr-age', false, 'text-xs sm:text-sm')}</div>
+                </div>
+                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Gênero</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.genderList, 1, 'Gênero selecionado', 'rev-hdr-gen', true, 'text-xs sm:text-sm')}</div>
+                </div>
+              </div>
+            </div>
+          `}
         </div>
 
         <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredRevistas.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
@@ -4396,11 +4423,38 @@ function renderMediaPlanList(m, preserveScroll = false) {
     }).join('');
 
     contentHtml = `
-      <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong overflow-hidden'}">
-        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border flex items-center justify-between gap-2' : 'px-3 sm:px-4 py-2.5 sm:py-3 bg-white border-b border-ds-border flex items-center justify-between gap-2'}">
+      <div class="${mobile ? '' : 'bg-ds-surface rounded-2xl border border-ds-borderStrong'}">
+        <div class="${mobile ? 'pb-3 mb-3 border-b border-ds-border' : 'px-3 sm:px-4 py-3 sm:py-3.5 bg-white border-b border-ds-border rounded-t-2xl'}">
           <h3 class="font-display font-bold text-ds-textMain text-sm sm:text-base">
             Portais e Globoplay (${filteredPortais.length})
           </h3>
+          ${digTargets.isAllTodos ? `
+            <div class="text-xs text-ds-textSecondary mt-1">
+              <strong class="font-bold text-ds-textMain">Público-alvo:</strong> Todos
+            </div>
+          ` : `
+            <div class="mt-2.5">
+              <div class="text-xs font-bold text-ds-textMain mb-1.5">Público-alvo</div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 sim-grid-2 gap-2">
+                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Local</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.locationList, 1, 'Estados selecionados', 'dig-hdr-loc', false, 'text-xs sm:text-sm')}</div>
+                </div>
+                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Interesses</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.interestList, 1, 'Interesses selecionados', 'dig-hdr-int', true, 'text-xs sm:text-sm')}</div>
+                </div>
+                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Idade</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.ageList, 1, 'Faixas etárias', 'dig-hdr-age', false, 'text-xs sm:text-sm')}</div>
+                </div>
+                <div class="bg-ds-bg rounded-xl px-3 py-2 border border-ds-border min-w-0">
+                  <div class="text-[11px] font-medium text-ds-textSecondary truncate">Gênero</div>
+                  <div class="mt-0.5 min-w-0">${renderCompactItemsPopover(digTargets.genderList, 1, 'Gênero selecionado', 'dig-hdr-gen', true, 'text-xs sm:text-sm')}</div>
+                </div>
+              </div>
+            </div>
+          `}
         </div>
 
         <div id="mediaPlanScrollBox" onscroll="${mobile ? `handleMobilePlanScroll(this, ${filteredPortais.length})` : ''}" class="${mobile ? 'space-y-3.5 max-h-[580px] overflow-y-auto bounded-scroll pr-0.5' : `p-3.5 space-y-3.5 ${scrollMaxHeightClass} overflow-y-auto bounded-scroll`}">
