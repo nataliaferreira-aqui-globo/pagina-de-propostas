@@ -4126,14 +4126,6 @@ function renderMediaPlanList(m, preserveScroll = false) {
           <div class="${mobile ? 'space-y-2.5 bg-white' : 'p-3.5 sm:p-4 space-y-3 bg-white'}">
             <div class="flex items-center justify-between gap-2 text-xs text-ds-textSecondary px-0.5">
               <span>${mobile ? 'Toque no pino para ver o card do ponto' : 'Clique no pino para ver os detalhes do ponto'}</span>
-              <button
-                type="button"
-                onclick="resetMobileInlineMapBounds()"
-                class="font-display font-bold text-xs text-ds-textSecondary hover:text-ds-textMain inline-flex items-center gap-1 transition"
-              >
-                <i class="uil uil-compress-arrows text-xs"></i>
-                <span>Ver todos os pinos</span>
-              </button>
             </div>
 
             <div id="mobileInlineLeafletMap" class="w-full ${mobile ? 'h-[360px]' : 'h-[500px]'} rounded-xl border border-ds-borderStrong overflow-hidden z-10"></div>
@@ -5925,7 +5917,7 @@ function renderArtDetailsModalHtml(m) {
                 onclick="downloadSingleArtGabarito('${fmt.id}')"
                 class="px-3.5 py-2 rounded-lg bg-primary text-white font-display font-bold text-xs hover:bg-primary-hover transition shrink-0"
               >
-                Baixar
+                Baixar gabarito (.PDF)
               </button>
             </div>
           </div>
@@ -7493,6 +7485,10 @@ function toggleFaqItem() {
   // FAQ removido conforme diretriz comercial
 }
 
+function openAndreiaChatWithFlow() {
+  showToast('Redirecionando para a Andréia...');
+}
+
 /**
  * 7. MAPA LEAFLET (Esri World Topo Map) — Reflexo direto dos Cards Laterais e sincronizado com a lista
  */
@@ -7828,7 +7824,7 @@ function switchMainTab(tab) {
   });
   const planDisclaimerEl = document.getElementById('mediaPlanDisclaimerOutside');
   if (planDisclaimerEl) {
-    planDisclaimerEl.classList.toggle('hidden', tab !== 'plano');
+    planDisclaimerEl.classList.remove('hidden');
   }
   syncMainTabLabels();
   renderJourneyStepper();
