@@ -2248,16 +2248,16 @@ function renderHeroSection(m) {
   `;
 
   const heroUtilityButtonsHtml = `
-    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+    <div class="flex items-center shrink-0">
       <div class="relative" id="exportDropdownContainer">
         <button
           type="button"
           onclick="toggleExportMenu()"
-          class="inline-flex items-center gap-1 ${mobile ? 'px-2.5 py-1.5' : 'px-3.5 py-2'} rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-semibold text-xs shadow-2xs transition cursor-pointer"
+          class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] bg-transparent hover:bg-ds-surface text-ds-textSecondary hover:text-ds-textMain font-sans font-medium text-xs transition cursor-pointer"
         >
-          <i class="uil uil-import text-primary text-sm"></i>
+          <i class="uil uil-import text-sm"></i>
           <span>Exportar</span>
-          <i class="uil uil-angle-down text-sm text-ds-textSecondary"></i>
+          <i class="uil uil-angle-down text-sm"></i>
         </button>
         <div id="exportMenu" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-lg border border-ds-borderStrong py-1.5 z-50 text-xs">
           <button type="button" onclick="openPdfPreviewAndPrint(); toggleExportMenu();" class="w-full px-4 py-2.5 text-left hover:bg-ds-bg flex items-center gap-2.5 text-ds-textMain font-normal cursor-pointer">
