@@ -2421,9 +2421,16 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey, al
   }
 
   const popoverAlignClass = alignRight ? 'right-0' : 'left-0';
+  const hoverPopoverClasses = isMobileView()
+    ? ''
+    : 'group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto';
 
   return `
-    <div class="relative flex items-center gap-1.5 min-w-0 max-w-full group/veh" data-metric-popover="${popKey}">
+    <div
+      class="relative flex items-center gap-1.5 min-w-0 max-w-full group/veh"
+      data-metric-popover="${popKey}"
+      onmouseenter="closeOtherMetricPopovers('${popKey}')"
+    >
       <strong
         onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
         class="font-sans font-bold ${textSizeClass} text-ds-textMain truncate min-w-0 cursor-pointer"
@@ -2440,7 +2447,7 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey, al
       ` : ''}
       <div
         id="metricPopover-${popKey}"
-        class="metric-items-popover invisible opacity-0 pointer-events-none group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto absolute ${popoverAlignClass} bottom-full mb-2 w-56 sm:w-64 max-w-[calc(100vw-2.5rem)] p-3 rounded-xl bg-white border border-ds-border shadow-xl z-40 transition-all duration-150 text-left">
+        class="metric-items-popover invisible opacity-0 pointer-events-none ${hoverPopoverClasses} absolute ${popoverAlignClass} bottom-full mb-2 w-56 sm:w-64 max-w-[calc(100vw-2.5rem)] p-3 rounded-xl bg-white border border-ds-border shadow-xl z-40 transition-all duration-150 text-left">
         <div class="text-xs font-bold text-ds-textMuted mb-2">
           ${escapeHtml(popoverTitle)} (${list.length})
         </div>
@@ -2464,8 +2471,15 @@ function renderInlineAudienceTextPopover(label, list, popKey, popoverTitle, bold
     return `<span><strong class="font-bold ${boldColorClass}">${escapeHtml(label)}:</strong> ${first}</span>`;
   }
   const fullTitle = escapeHtml(items.join(', '));
+  const hoverPopoverClasses = isMobileView()
+    ? ''
+    : 'group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto';
   return `
-    <span class="relative inline-flex items-center gap-1 group/veh" data-metric-popover="${popKey}">
+    <span
+      class="relative inline-flex items-center gap-1 group/veh"
+      data-metric-popover="${popKey}"
+      onmouseenter="closeOtherMetricPopovers('${popKey}')"
+    >
       <span title="${fullTitle}" onclick="toggleMetricVehiclesPopover(event, '${popKey}')" class="cursor-pointer"><strong class="font-bold ${boldColorClass}">${escapeHtml(label)}:</strong> ${first}</span>
       <button
         type="button"
@@ -2476,7 +2490,7 @@ function renderInlineAudienceTextPopover(label, list, popKey, popoverTitle, bold
       </button>
       <div
         id="metricPopover-${popKey}"
-        class="metric-items-popover invisible opacity-0 pointer-events-none group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto absolute left-0 bottom-full mb-2 w-56 sm:w-64 max-w-[calc(100vw-2.5rem)] p-3 rounded-xl bg-white border border-ds-border shadow-xl z-40 transition-all duration-150 text-left">
+        class="metric-items-popover invisible opacity-0 pointer-events-none ${hoverPopoverClasses} absolute left-0 bottom-full mb-2 w-56 sm:w-64 max-w-[calc(100vw-2.5rem)] p-3 rounded-xl bg-white border border-ds-border shadow-xl z-40 transition-all duration-150 text-left">
         <div class="text-xs font-bold text-ds-textMuted mb-2">
           ${escapeHtml(popoverTitle)} (${items.length})
         </div>
@@ -2502,7 +2516,23 @@ function formatAudienceSubtitleHtml(digTargets, boldColorClass = 'text-ds-textSe
   const ageList = Array.isArray(dt.ageList) && dt.ageList.length > 0 ? dt.ageList : [dt.age || 'Todos'];
   const genList = Array.isArray(dt.genderList) && dt.genderList.length > 0 ? dt.genderList : [dt.gender || 'Todos'];
 
-  return `${renderInlineAudienceTextPopover('Estado', locList, `${prefix}-loc`, 'Estados selecionados', boldColorClass)} · ${renderInlineAudienceTextPopover('Interesses', intList, `${prefix}-int`, 'Interesses selecionados', boldColorClass)} · ${renderInlineAudienceTextPopover('Idade', ageList, `${prefix}-age`, 'Faixas etárias', boldColorClass)} · ${renderInlineAudienceTextPopover('Gênero', genList, `${prefix}-gen`, 'Gênero selecionado', boldColorClass)}`;
+  const segLoc = renderInlineAudienceTextPopover('Estado', locList, `${prefix}-loc`, 'Estados selecionados', boldColorClass);
+  const segInt = renderInlineAudienceTextPopover('Interesses', intList, `${prefix}-int`, 'Interesses selecionados', boldColorClass);
+  const segAge = renderInlineAudienceTextPopover('Idade', ageList, `${prefix}-age`, 'Faixas etárias', boldColorClass);
+  const segGen = renderInlineAudienceTextPopover('Gênero', genList, `${prefix}-gen`, 'Gênero selecionado', boldColorClass);
+
+  if (isMobileView()) {
+    return `
+      <div class="flex flex-col items-start gap-1">
+        <div>${segLoc}</div>
+        <div>${segInt}</div>
+        <div>${segAge}</div>
+        <div>${segGen}</div>
+      </div>
+    `;
+  }
+
+  return `${segLoc} · ${segInt} · ${segAge} · ${segGen}`;
 }
 
 function formatPdfAudienceStripHtml(digTargets, boldColorClass = 'text-slate-600') {
@@ -2534,6 +2564,15 @@ function formatPdfAudienceStripHtml(digTargets, boldColorClass = 'text-slate-600
   const genFullText = genList.join(', ');
 
   return `<span><strong class="font-bold ${boldColorClass}">Estado:</strong> ${escapeHtml(locFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Interesses:</strong> ${escapeHtml(intFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Idade:</strong> ${escapeHtml(ageFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Gênero:</strong> ${escapeHtml(genFullText)}</span>`;
+}
+
+function closeOtherMetricPopovers(activePopKey) {
+  document.querySelectorAll('.metric-items-popover').forEach((el) => {
+    if (el.id !== `metricPopover-${activePopKey}`) {
+      el.setAttribute('data-open', 'false');
+      el.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+    }
+  });
 }
 
 function toggleMetricVehiclesPopover(event, popKey) {
