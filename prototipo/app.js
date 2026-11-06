@@ -2338,7 +2338,7 @@ function renderHeroSection(m) {
   }
 
   const html = `
-    <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-7 sm:px-9 py-6 sm:py-7">
+    <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card p-5">
       <!-- Barra Superior Unificada: Identificação + Status à esquerda | Compartilhar + Exportar no extremo direito -->
       <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-ds-border">
         <div class="flex flex-wrap items-center gap-2.5 min-w-0">
@@ -8146,7 +8146,7 @@ function renderPdfDocument(m) {
         : 'Fixa';
 
       modularCardsHtml.push(`
-        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
           <div>
             <div class="text-xs font-semibold text-ds-textSecondary">OOH</div>
             <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.oohImpacts)}</div>
@@ -8204,7 +8204,7 @@ function renderPdfDocument(m) {
       const portaisEstReach = Math.round(c.portaisImpressions * 0.62);
 
       modularCardsHtml.push(`
-        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
           <div>
             <div class="text-xs font-semibold text-ds-textSecondary">Portais e Globoplay</div>
             <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.portaisImpressions)}</div>
@@ -8236,7 +8236,7 @@ function renderPdfDocument(m) {
       const revistasEstReach = Math.round(c.revistasImpressions * 0.62);
 
       modularCardsHtml.push(`
-        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
           <div>
             <div class="text-xs font-semibold text-ds-textSecondary">Revistas Digitais</div>
             <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.revistasImpressions)}</div>
@@ -8265,7 +8265,7 @@ function renderPdfDocument(m) {
       const radioEstReach = Math.round(c.radioTotalInsertions * 18500 * 0.58);
 
       modularCardsHtml.push(`
-        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
+        <div class="rounded-2xl border border-ds-borderStrong bg-white p-5 shadow-xs flex flex-col justify-start h-full pdf-avoid-break">
           <div>
             <div class="text-xs font-semibold text-ds-textSecondary">Rádio</div>
             <div class="font-display font-extrabold text-2xl sm:text-[26px] text-ds-textMain tracking-tight leading-none mt-2.5">${fmtInt(c.radioTotalInsertions)}</div>
@@ -8811,7 +8811,7 @@ function renderPdfDocument(m) {
       <div class="pdf-body-content p-3.5 sm:p-4">
 
         <!-- HERO DA PROPOSTA (REPETINDO VISUALMENTE O CARD DA PÁGINA PRINCIPAL) -->
-        <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-7 sm:px-9 py-6 sm:py-7 pdf-avoid-break">
+        <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card p-5 pdf-avoid-break">
           <!-- Barra Superior Unificada: Identificação + Status à esquerda -->
           <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-ds-border">
             <div class="flex flex-wrap items-center gap-2.5 min-w-0">
