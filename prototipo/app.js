@@ -8812,79 +8812,33 @@ function renderPdfDocument(m) {
 
         <!-- HERO DA PROPOSTA (REPETINDO VISUALMENTE O CARD DA PÁGINA PRINCIPAL) -->
         <div class="bg-white rounded-[20px] border border-ds-border shadow-aqui-card px-7 sm:px-9 py-6 sm:py-7 pdf-avoid-break">
-          <div class="grid grid-cols-12 gap-6 sm:gap-8 items-center">
-            <!-- Lado Esquerdo: Identificação + Valor Principal + Botões de Ação logo abaixo -->
-            <div class="col-span-7 space-y-4">
-              <div>
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-xs text-ds-textSecondary font-normal truncate">
-                    ${m.campaignName && String(m.campaignName).trim() ? `Plano de mídia · <span class="font-medium text-ds-textMain">${escapeHtml(m.campaignName)}</span>` : 'Plano de mídia'}
-                  </span>
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
-                    <span>${statusMeta.label}</span>
-                  </span>
-                </div>
+          <!-- Barra Superior Unificada: Identificação + Status à esquerda -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-ds-border">
+            <div class="flex flex-wrap items-center gap-2.5 min-w-0">
+              <span class="text-xs text-ds-textSecondary font-normal truncate">
+                ${m.campaignName && String(m.campaignName).trim() ? `Plano de mídia · <span class="font-medium text-ds-textMain">${escapeHtml(m.campaignName)}</span>` : 'Plano de mídia'}
+              </span>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full ${statusMeta.badgeClass} text-xs font-bold border whitespace-nowrap shrink-0">
+                <span class="w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}"></span>
+                <span>${statusMeta.label}</span>
+              </span>
+            </div>
+          </div>
 
-                <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <!-- Corpo Horizontal (Padrão Z-Pattern): Investimento + Datas agrupados à esquerda/centro | CTAs no extremo direito -->
+          <div class="flex items-center justify-between gap-6">
+            <div class="flex flex-wrap items-center gap-6 sm:gap-8">
+              <div>
+                <div class="text-xs text-ds-textSecondary font-normal">Investimento total</div>
+                <div class="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <div class="font-display font-extrabold text-3xl sm:text-[38px] text-ds-textMain tracking-tight leading-none">
                     ${fmtBRL(f.trueProposalTotal)}
                   </div>
                 </div>
               </div>
 
-              <div class="flex flex-wrap items-center gap-2.5 pt-1">
-                ${state.proposalStatus === 'completed' ? `
-                  <a
-                    href="${escapeHtml(onlineProposalUrl)}"
-                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); renewCampaignProposal('${m.id}'); }"
-                    class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
-                  >
-                    Renovar campanha
-                  </a>
-                  <a
-                    href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
-                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
-                    class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
-                  >
-                    Ver pagamento
-                  </a>
-                ` : state.proposalStatus === 'processing' ? `
-                  <a
-                    href="${escapeHtml(onlineProposalUrl)}"
-                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToAdDetailingStep('${m.id}'); }"
-                    class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
-                  >
-                    Enviar criativos
-                  </a>
-                  <a
-                    href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
-                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
-                    class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
-                  >
-                    Detalhes do pagamento
-                  </a>
-                ` : `
-                  <a
-                    href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
-                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
-                    class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
-                  >
-                    Efetuar pagamento
-                  </a>
-                  <a
-                    href="${escapeHtml(onlineProposalUrl)}"
-                    onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); showToast('Modo de edição do plano acionado'); }"
-                    class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
-                  >
-                    Alterar proposta
-                  </a>
-                `}
-              </div>
-            </div>
+              <div class="h-10 w-px bg-ds-border"></div>
 
-            <!-- Separador Central + Lado Direito: Início, Fim e Duração -->
-            <div class="col-span-5 border-l border-ds-border pl-8 space-y-4">
               <div class="flex items-center">
                 <div class="pr-5 sm:pr-6 border-r border-ds-border">
                   <div class="text-xs font-normal text-ds-textSecondary">
@@ -8913,6 +8867,55 @@ function renderPdfDocument(m) {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-end gap-2.5 shrink-0">
+              ${state.proposalStatus === 'completed' ? `
+                <a
+                  href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
+                  onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
+                  class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                >
+                  Ver pagamento
+                </a>
+                <a
+                  href="${escapeHtml(onlineProposalUrl)}"
+                  onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); renewCampaignProposal('${m.id}'); }"
+                  class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                >
+                  Renovar campanha
+                </a>
+              ` : state.proposalStatus === 'processing' ? `
+                <a
+                  href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
+                  onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
+                  class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                >
+                  Detalhes do pagamento
+                </a>
+                <a
+                  href="${escapeHtml(onlineProposalUrl)}"
+                  onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToAdDetailingStep('${m.id}'); }"
+                  class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                >
+                  Enviar criativos
+                </a>
+              ` : `
+                <a
+                  href="${escapeHtml(onlineProposalUrl)}"
+                  onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); showToast('Modo de edição do plano acionado'); }"
+                  class="px-5 py-2.5 rounded-xl border border-ds-borderStrong bg-white hover:bg-ds-surface text-ds-textMain font-display font-bold text-xs sm:text-sm transition shadow-2xs whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                >
+                  Alterar proposta
+                </a>
+                <a
+                  href="${escapeHtml(`${onlineProposalUrl.split('?')[0]}${state.scenarioKey ? `?scenario=${encodeURIComponent(state.scenarioKey)}&` : '?'}action=payment`)}"
+                  onclick="if(!window.matchMedia('print').matches){ event.preventDefault(); setViewportMode('desktop'); goToPaymentAnchor(); }"
+                  class="px-5 py-2.5 rounded-xl bg-aqui-grad hover:opacity-95 text-white font-display font-bold text-xs sm:text-sm transition shadow-aqui-cta whitespace-nowrap cursor-pointer inline-flex items-center justify-center"
+                >
+                  Efetuar pagamento
+                </a>
+              `}
             </div>
           </div>
         </div>
