@@ -10519,10 +10519,11 @@ function renderExcelHeroBannerSlices() {
   ctx.textBaseline = 'middle';
   ctx.fillText('💬  Falar com especialista', btn2X + btn2W / 2, btn2Y + btn2H / 2 + 1);
 
-  // Fatia o canvas nas 3 regiões exatas das colunas A:B (1024px), C (416px) e D (416px)
+  // Fatia o canvas nas 3 regiões das colunas A:B (1024px + 8px bleed), C (416px + 8px bleed) e D (416px)
+  // O overlap de 8px no canvas (4px / 38100 EMUs no OOXML) elimina qualquer fresta branca de subpixel entre C e D
   const sliceSpecs = [
-    { x: 0, w: 1024 },
-    { x: 1024, w: 416 },
+    { x: 0, w: 1032 },
+    { x: 1024, w: 424 },
     { x: 1440, w: 416 }
   ];
 
@@ -10692,16 +10693,17 @@ function injectBannerImagesIntoXlsxZip(xlsxBuffer, pngSlices, urls) {
   }
 
   // 4. Cria xl/drawings/drawing1.xml com as 3 fatias ancoradas em A1:B3, C1:C3 e D1:D3 + <a:hlinkClick>
+  // toColOff = 38100 EMUs (~4px) nas fatias 1 e 2 cria sobreposição contínua sob a fatia seguinte, eliminando linhas brancas entre colunas
   const anchorSpecs = [
-    { id: 2, name: 'BannerAquiAdsLeft', descr: 'Aqui ads - Sua marca no lugar certo', fromCol: 0, toCol: 2, imgRid: 'rIdImg1', linkRid: 'rIdLink1', tooltip: 'Acessar proposta online no Aqui Ads' },
-    { id: 3, name: 'BannerAquiAdsPay', descr: 'Efetuar pagamento', fromCol: 2, toCol: 3, imgRid: 'rIdImg2', linkRid: 'rIdLink2', tooltip: 'Efetuar pagamento da proposta' },
-    { id: 4, name: 'BannerAquiAdsSpec', descr: 'Falar com especialista', fromCol: 3, toCol: 4, imgRid: 'rIdImg3', linkRid: 'rIdLink3', tooltip: 'Falar com especialista' }
+    { id: 2, name: 'BannerAquiAdsLeft', descr: 'Aqui ads - Sua marca no lugar certo', fromCol: 0, toCol: 2, toColOff: 38100, imgRid: 'rIdImg1', linkRid: 'rIdLink1', tooltip: 'Acessar proposta online no Aqui Ads' },
+    { id: 3, name: 'BannerAquiAdsPay', descr: 'Efetuar pagamento', fromCol: 2, toCol: 3, toColOff: 38100, imgRid: 'rIdImg2', linkRid: 'rIdLink2', tooltip: 'Efetuar pagamento da proposta' },
+    { id: 4, name: 'BannerAquiAdsSpec', descr: 'Falar com especialista', fromCol: 3, toCol: 4, toColOff: 0, imgRid: 'rIdImg3', linkRid: 'rIdLink3', tooltip: 'Falar com especialista' }
   ];
 
   const anchorsXml = anchorSpecs.map((a) => `
     <xdr:twoCellAnchor editAs="oneCell">
       <xdr:from><xdr:col>${a.fromCol}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from>
-      <xdr:to><xdr:col>${a.toCol}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>3</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to>
+      <xdr:to><xdr:col>${a.toCol}</xdr:col><xdr:colOff>${a.toColOff || 0}</xdr:colOff><xdr:row>3</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to>
       <xdr:pic>
         <xdr:nvPicPr>
           <xdr:cNvPr id="${a.id}" name="${a.name}" descr="${a.descr}">
