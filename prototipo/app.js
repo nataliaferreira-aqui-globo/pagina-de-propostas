@@ -2431,19 +2431,84 @@ function renderCompactItemsPopover(items, visibleCount, popoverTitle, popKey, al
   `;
 }
 
-function formatAudienceSubtitleHtml(digTargets, boldColorClass = 'text-ds-textMain') {
+function renderInlineAudienceTextPopover(label, list, popKey, popoverTitle, boldColorClass = 'text-ds-textMain') {
+  const items = Array.isArray(list) && list.length > 0 ? list : ['Todos'];
+  const first = escapeHtml(items[0]);
+  const remainingCount = items.length - 1;
+  if (remainingCount <= 0) {
+    return `<span><strong class="font-bold ${boldColorClass}">${escapeHtml(label)}:</strong> ${first}</span>`;
+  }
+  const fullTitle = escapeHtml(items.join(', '));
+  return `
+    <span class="relative inline-flex items-center gap-1 group/veh" data-metric-popover="${popKey}">
+      <span title="${fullTitle}" onclick="toggleMetricVehiclesPopover(event, '${popKey}')" class="cursor-pointer"><strong class="font-bold ${boldColorClass}">${escapeHtml(label)}:</strong> ${first}</span>
+      <button
+        type="button"
+        onclick="toggleMetricVehiclesPopover(event, '${popKey}')"
+        class="shrink-0 px-1.5 py-0.5 rounded text-[10px] leading-none font-bold bg-ds-surface border border-ds-borderStrong text-ds-textSecondary hover:bg-primary-light hover:text-primary hover:border-primary/40 transition-colors cursor-pointer"
+        aria-label="Ver todos (${items.length})">
+        +${remainingCount}
+      </button>
+      <div
+        id="metricPopover-${popKey}"
+        class="metric-items-popover invisible opacity-0 pointer-events-none group-hover/veh:visible group-hover/veh:opacity-100 group-hover/veh:pointer-events-auto absolute left-0 bottom-full mb-2 w-56 sm:w-64 max-w-[calc(100vw-2.5rem)] p-3 rounded-xl bg-white border border-ds-border shadow-xl z-40 transition-all duration-150 text-left">
+        <div class="text-xs font-bold text-ds-textMuted mb-2">
+          ${escapeHtml(popoverTitle)} (${items.length})
+        </div>
+        <div class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto bounded-scroll">
+          ${items.map((item) => `
+            <span class="px-2 py-1 rounded-md bg-ds-surface border border-ds-border text-xs font-semibold text-ds-textMain leading-tight break-words max-w-full">
+              ${escapeHtml(item)}
+            </span>
+          `).join('')}
+        </div>
+      </div>
+    </span>
+  `;
+}
+
+function formatAudienceSubtitleHtml(digTargets, boldColorClass = 'text-ds-textMain', prefix = 'aud') {
   const dt = digTargets || {};
   if (dt.isAllTodos) {
     return `<strong class="font-bold ${boldColorClass}">Público-alvo:</strong> Todos`;
   }
-  const loc = escapeHtml(dt.locationCompact || dt.location || 'Todos');
-  const int = escapeHtml(dt.interestCompact || dt.interest || 'Todos');
-  const age = escapeHtml(dt.ageCompact || dt.age || 'Todos');
-  const gen = escapeHtml(dt.gender || 'Todos');
-  const locFull = escapeHtml(dt.location || loc);
-  const intFull = escapeHtml(dt.interest || int);
-  const ageFull = escapeHtml(dt.age || age);
-  return `<strong class="font-bold ${boldColorClass}">Público-alvo:</strong> <span title="${locFull}"><strong class="font-bold ${boldColorClass}">Local:</strong> ${loc}</span> · <span title="${intFull}"><strong class="font-bold ${boldColorClass}">Interesses:</strong> ${int}</span> · <span title="${ageFull}"><strong class="font-bold ${boldColorClass}">Idade:</strong> ${age}</span> · <span><strong class="font-bold ${boldColorClass}">Gênero:</strong> ${gen}</span>`;
+  const locList = Array.isArray(dt.locationList) && dt.locationList.length > 0 ? dt.locationList : [dt.location || 'Todos'];
+  const intList = Array.isArray(dt.interestList) && dt.interestList.length > 0 ? dt.interestList : [dt.interest || 'Todos'];
+  const ageList = Array.isArray(dt.ageList) && dt.ageList.length > 0 ? dt.ageList : [dt.age || 'Todos'];
+  const genList = Array.isArray(dt.genderList) && dt.genderList.length > 0 ? dt.genderList : [dt.gender || 'Todos'];
+
+  return `<strong class="font-bold ${boldColorClass}">Público-alvo:</strong> ${renderInlineAudienceTextPopover('Local', locList, `${prefix}-loc`, 'Estados selecionados', boldColorClass)} · ${renderInlineAudienceTextPopover('Interesses', intList, `${prefix}-int`, 'Interesses selecionados', boldColorClass)} · ${renderInlineAudienceTextPopover('Idade', ageList, `${prefix}-age`, 'Faixas etárias', boldColorClass)} · ${renderInlineAudienceTextPopover('Gênero', genList, `${prefix}-gen`, 'Gênero selecionado', boldColorClass)}`;
+}
+
+function formatPdfAudienceStripHtml(digTargets, boldColorClass = 'text-slate-700') {
+  const dt = digTargets || {};
+  if (dt.isAllTodos) {
+    return `<strong class="font-bold ${boldColorClass}">Público-alvo:</strong> Todos`;
+  }
+  const locList = Array.isArray(dt.locationList) && dt.locationList.length > 0 ? dt.locationList : [dt.location || 'Todos'];
+  const intList = Array.isArray(dt.interestList) && dt.interestList.length > 0 ? dt.interestList : [dt.interest || 'Todos'];
+  const ageList = Array.isArray(dt.ageList) && dt.ageList.length > 0 ? dt.ageList : [dt.age || 'Todos'];
+  const genList = Array.isArray(dt.genderList) && dt.genderList.length > 0 ? dt.genderList : [dt.gender || 'Todos'];
+
+  let locFullText = locList.join(', ');
+  if (locList.length > 2) {
+    const ufs = locList.map((st) => {
+      const mUf = String(st).match(/\(([A-Z]{2})\)/);
+      return mUf ? mUf[1] : st;
+    });
+    locFullText = `${ufs.join(', ')} (${locList.length} estados)`;
+  }
+
+  const intFullText = intList.join(', ');
+
+  let ageFullText = ageList.join(', ');
+  if (ageList.length > 1 && ageList.every((a) => /anos$/i.test(String(a).trim()))) {
+    ageFullText = `${ageList.map((a) => String(a).trim().replace(/\s*anos$/i, '').replace(/\s*[–-]\s*/g, '–')).join(', ')} anos`;
+  }
+
+  const genFullText = genList.join(', ');
+
+  return `<strong class="font-bold ${boldColorClass}">Público-alvo:</strong> <span><strong class="font-bold ${boldColorClass}">Local:</strong> ${escapeHtml(locFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Interesses:</strong> ${escapeHtml(intFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Idade:</strong> ${escapeHtml(ageFullText)}</span> · <span><strong class="font-bold ${boldColorClass}">Gênero:</strong> ${escapeHtml(genFullText)}</span>`;
 }
 
 function toggleMetricVehiclesPopover(event, popKey) {
@@ -4216,7 +4281,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
             Revistas (${filteredRevistas.length})
           </h3>
           <div class="text-xs text-ds-textSecondary mt-1 leading-relaxed">
-            ${formatAudienceSubtitleHtml(digTargets, 'text-ds-textMain')}
+            ${formatAudienceSubtitleHtml(digTargets, 'text-ds-textMain', 'rev-hdr')}
           </div>
         </div>
 
@@ -4420,7 +4485,7 @@ function renderMediaPlanList(m, preserveScroll = false) {
             Portais e Globoplay (${filteredPortais.length})
           </h3>
           <div class="text-xs text-ds-textSecondary mt-1 leading-relaxed">
-            ${formatAudienceSubtitleHtml(digTargets, 'text-ds-textMain')}
+            ${formatAudienceSubtitleHtml(digTargets, 'text-ds-textMain', 'dig-hdr')}
           </div>
         </div>
 
@@ -8329,12 +8394,12 @@ function renderPdfDocument(m) {
             Portais e Globoplay — Vídeo e Display
           </h2>
         </div>
-        <p class="text-xs text-slate-500 mt-0.5 pl-4">
-          ${formatAudienceSubtitleHtml(digTargets, 'text-slate-700')}
-        </p>
       </div>
 
       <div class="overflow-hidden border border-ds-border rounded-2xl">
+        <div class="px-3.5 py-2 bg-[#FAF8F5] border-b border-ds-border text-xs text-slate-600 leading-relaxed">
+          ${formatPdfAudienceStripHtml(digTargets, 'text-slate-700')}
+        </div>
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="bg-ds-surface text-ds-textSecondary border-b border-ds-border font-display text-xs">
@@ -8394,12 +8459,12 @@ function renderPdfDocument(m) {
             Revistas Digitais
           </h2>
         </div>
-        <p class="text-xs text-slate-500 mt-0.5 pl-4">
-          ${formatAudienceSubtitleHtml(digTargets, 'text-slate-700')}
-        </p>
       </div>
 
       <div class="overflow-hidden border border-ds-border rounded-2xl">
+        <div class="px-3.5 py-2 bg-[#FAF8F5] border-b border-ds-border text-xs text-slate-600 leading-relaxed">
+          ${formatPdfAudienceStripHtml(digTargets, 'text-slate-700')}
+        </div>
         <table class="w-full text-left border-collapse text-xs">
           <thead>
             <tr class="bg-ds-surface text-ds-textSecondary border-b border-ds-border font-display text-xs">
